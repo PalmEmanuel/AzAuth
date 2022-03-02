@@ -1,6 +1,4 @@
-﻿using AzAuth.Models;
-using Azure.Core;
-using Azure.Identity;
+﻿using AzAuth.Core;
 using System.Management.Automation;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -42,13 +40,8 @@ namespace AzAuth.Cmdlets
 
         protected override void ProcessRecord()
         {
-            var fullScopes = Scopes.Select(s => $"{Resource.TrimEnd('/')}/{s}").ToArray();
-
             WriteVerbose($"Getting token for {Resource} with scopes: {string.Join(", ", Scopes)}.");
 
-            var tokenRequestContext = new TokenRequestContext(fullScopes, claims: Claims, tenantId: TenantId);
-
-            AccessToken token;
             if (ParameterSetName == "NonInteractive")
             {
                 WriteVerbose(@"Looking for a token from the following sources:
@@ -59,34 +52,22 @@ Azure CLI (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azureclicr
 Visual Studio Code (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential?view=azure-dotnet)
 Visual Studio (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential?view=azure-dotnet)
 ");
-                // Create our own credential chain because we want to change the order
-                var credential = new ChainedTokenCredential(
-                    new EnvironmentCredential(),
-                    new SharedTokenCacheCredential(),
-                    new AzurePowerShellCredential(),
-                    new AzureCliCredential(),
-                    new VisualStudioCodeCredential(),
-                    new VisualStudioCredential()
-                );
-
-                token = credential.GetToken(tokenRequestContext);
+                WriteObject(TokenManager.GetToken(Resource, Scopes, Claims, TenantId));
             }
             else if (Interactive.IsPresent)
             {
                 WriteVerbose("Getting token interactively using the default browser (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential?view=azure-dotnet).");
-                token = new InteractiveBrowserCredential().GetToken(tokenRequestContext);
+                WriteObject(TokenManager.GetTokenInteractive(Resource, Scopes, Claims, TenantId));
             }
             else if (ManagedIdentity.IsPresent)
             {
                 WriteVerbose("Getting token as managed identity (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential?view=azure-dotnet).");
-                token = new ManagedIdentityCredential().GetToken(tokenRequestContext);
+                WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scopes, Claims, TenantId));
             }
             else
             {
                 throw new ArgumentException("Invalid parameter combination!");
             }
-
-            WriteObject(new AzToken(token.Token, Resource, Scopes, token.ExpiresOn));
         }
     }
 }

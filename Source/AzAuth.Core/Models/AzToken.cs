@@ -1,4 +1,4 @@
-﻿namespace AzAuth.Models
+﻿namespace AzAuth.Core.Models
 {
     public class AzToken
     {
