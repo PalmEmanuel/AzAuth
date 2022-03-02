@@ -13,7 +13,8 @@ namespace AzAuth.Cmdlets
         [Parameter(Mandatory = true, ParameterSetName = "Interactive")]
         [Parameter(Mandatory = true, ParameterSetName = "ManagedIdentity")]
         [ValidateNotNullOrEmpty()]
-        public string ResourceUrl { get; set; }
+        [Alias("ResourceId", "ResourceUrl")]
+        public string Resource { get; set; }
 
         [Parameter(ParameterSetName = "NonInteractive")]
         [Parameter(ParameterSetName = "Interactive")]
@@ -41,9 +42,9 @@ namespace AzAuth.Cmdlets
 
         protected override void ProcessRecord()
         {
-            var fullScopes = Scopes.Select(s => $"{ResourceUrl.TrimEnd('/')}/{s}").ToArray();
+            var fullScopes = Scopes.Select(s => $"{Resource.TrimEnd('/')}/{s}").ToArray();
 
-            WriteVerbose($"Getting token for {ResourceUrl} with scopes: {string.Join(", ", Scopes)}.");
+            WriteVerbose($"Getting token for {Resource} with scopes: {string.Join(", ", Scopes)}.");
 
             var tokenRequestContext = new TokenRequestContext(fullScopes, claims: Claims, tenantId: TenantId);
 
@@ -85,7 +86,7 @@ Visual Studio (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visual
                 throw new ArgumentException("Invalid parameter combination!");
             }
 
-            WriteObject(new AzToken(token.Token, ResourceUrl, Scopes, token.ExpiresOn));
+            WriteObject(new AzToken(token.Token, Resource, Scopes, token.ExpiresOn));
         }
     }
 }
