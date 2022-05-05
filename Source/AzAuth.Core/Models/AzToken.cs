@@ -14,5 +14,10 @@
             Scopes = scopes;
             ExpiresOn = expiresOn;
         }
+
+        public override string ToString()
+        {
+            return Token;
+        }
     }
 }
