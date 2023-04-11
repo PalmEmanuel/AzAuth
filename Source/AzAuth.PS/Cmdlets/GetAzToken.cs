@@ -42,7 +42,21 @@ namespace AzAuth.Cmdlets
         [Parameter(Mandatory = true, ParameterSetName = "ManagedIdentity")]
         public SwitchParameter ManagedIdentity { get; set; }
 
+        [Parameter(ParameterSetName = "NonInteractive")]
+        [Parameter(ParameterSetName = "Interactive")]
+        [Parameter(ParameterSetName = "ManagedIdentity")]
+        public SwitchParameter Force { get; set; }
+
         private protected CancellationTokenSource cancellationTokenSource = new();
+
+        // If user specifies Force, disregard earlier authentication
+        protected override void BeginProcessing()
+        {
+            if (Force.IsPresent)
+            {
+                TokenManager.ClearCredential();
+            }
+        }
 
         // Cancel any operations if user presses CTRL + C
         protected override void StopProcessing() => cancellationTokenSource.Cancel();
@@ -54,22 +68,22 @@ namespace AzAuth.Cmdlets
             if (ParameterSetName == "NonInteractive")
             {
                 WriteVerbose(@"Looking for a token from the following sources:
-Environment variables (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
-Azure PowerShell (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
-Azure CLI (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
-Visual Studio Code (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
-Visual Studio (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
+Environment variables (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
+Azure PowerShell (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
+Azure CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
+Visual Studio Code (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
+Visual Studio (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
 ");
                 WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, TenantId, cancellationTokenSource.Token));
             }
             else if (Interactive.IsPresent)
             {
-                WriteVerbose("Getting token interactively using the default browser (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential).");
+                WriteVerbose("Getting token interactively using the default browser (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential).");
                 WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, TenantId, cancellationTokenSource.Token));
             }
             else if (ManagedIdentity.IsPresent)
             {
-                WriteVerbose("Getting token as managed identity (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential).");
+                WriteVerbose("Getting token as managed identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential).");
                 WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, TenantId, cancellationTokenSource.Token));
             }
             else

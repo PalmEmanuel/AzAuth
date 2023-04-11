@@ -8,6 +8,7 @@ namespace AzAuth.Core;
 public static class TokenManager
 {
     private static TokenCredential? credential;
+    private static string? previousTenantId;
 
     /// <summary>
     /// Gets token noninteractively.
@@ -31,14 +32,14 @@ public static class TokenManager
             new VisualStudioCredential()
         };
 
-        // If the user has authenticated interactively in the same session, add it as the first option to find tokens from
-        if (credential is InteractiveBrowserCredential)
+        // If the user has authenticated interactively in the same session, to the same tenant, add it as the first option to find tokens from
+        if (credential is InteractiveBrowserCredential && tenantId == previousTenantId)
         {
             sources.Insert(0, credential);
         }
 
-        // Create a new credential if it doesn't exist, otherwise re-use potentially authenticated credential
-        if (credential is not ChainedTokenCredential)
+        // Create a new credential if it doesn't exist or tenant changed, otherwise re-use potentially authenticated credential
+        if (credential is not ChainedTokenCredential || tenantId != previousTenantId)
         {
             credential = new ChainedTokenCredential(sources.ToArray());
         }
@@ -103,8 +104,14 @@ public static class TokenManager
         {
             throw new InvalidOperationException("Credential was null when trying to get token!");
         }
+        previousTenantId = tokenRequestContext.TenantId;
 
         AccessToken token = credential.GetToken(tokenRequestContext, cancellationToken);
         return new AzToken(token.Token, tokenRequestContext.Scopes, token.ExpiresOn);
+    }
+
+    public static void ClearCredential()
+    {
+        credential = null;
     }
 }

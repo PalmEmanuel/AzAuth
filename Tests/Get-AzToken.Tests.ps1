@@ -67,6 +67,15 @@ BeforeDiscovery {
                 @{ Name = 'ManagedIdentity'; Mandatory = $true }
             )
         }
+        @{
+            Name          = 'Force'
+            Type          = 'System.Management.Automation.SwitchParameter'
+            ParameterSets = @(
+                @{ Name = 'NonInteractive'; Mandatory = $false }
+                @{ Name = 'Interactive'; Mandatory = $false }
+                @{ Name = 'ManagedIdentity'; Mandatory = $false }
+            )
+        }
     )
 }
 

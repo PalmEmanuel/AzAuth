@@ -15,20 +15,20 @@ Gets a new Azure access token.
 
 ### NonInteractive (Default)
 ```
-Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Claim <String>]
+Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Claim <String>] [-Force]
  [<CommonParameters>]
 ```
 
 ### Interactive
 ```
 Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Claim <String>]
- [-ClientId <String>] [-Interactive] [<CommonParameters>]
+ [-ClientId <String>] [-Interactive] [-Force] [<CommonParameters>]
 ```
 
 ### ManagedIdentity
 ```
 Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Claim <String>]
- [-ClientId <String>] [-ManagedIdentity] [<CommonParameters>]
+ [-ClientId <String>] [-ManagedIdentity] [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -95,6 +95,24 @@ The client id of the application used to authenticate the user or identity. If n
 ```yaml
 Type: String
 Parameter Sets: Interactive, ManagedIdentity
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Force
+
+Disregard any previous authentication made in this session.
+
+This may be required when combining interactive and non-interactive authentication towards different tenants.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
 Aliases:
 
 Required: False
