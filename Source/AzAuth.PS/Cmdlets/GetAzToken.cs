@@ -55,7 +55,6 @@ namespace AzAuth.Cmdlets
             {
                 WriteVerbose(@"Looking for a token from the following sources:
 Environment variables (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
-Shared token cache (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential)
 Azure PowerShell (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
 Azure CLI (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
 Visual Studio Code (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)

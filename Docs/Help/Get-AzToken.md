@@ -21,8 +21,8 @@ Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Clai
 
 ### Interactive
 ```
-Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Claim <String>] [-Interactive]
- [-ClientId <String>] [<CommonParameters>]
+Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Claim <String>]
+ [-ClientId <String>] [-Interactive] [<CommonParameters>]
 ```
 
 ### ManagedIdentity
@@ -35,12 +35,10 @@ Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Clai
 
 Gets a new Azure access token.
 
-If the command is used twice in a row with the same parameters, an attempt will be made to use the previous authentication record.
-
 If the command is used non-interactively, an attempt will be made to get a token using the following sources in order:
 
+- Saved interactive credential if the command was used interactively in the same session (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential)
 - Environment variables (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
-- Shared token cache (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential)
 - Azure PowerShell (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
 - Azure CLI (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
 - Visual Studio Code (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
@@ -108,7 +106,9 @@ Accept wildcard characters: False
 
 ### -Interactive
 
-Get token using an interactive browser.
+Get a token using an interactive browser.
+
+The authentication record will be saved during the session and used as the first option for a token if the command is used again but non-interactively.
 
 ```yaml
 Type: SwitchParameter
@@ -140,7 +140,7 @@ Accept wildcard characters: False
 
 ### -Resource
 
-The resource for the token, such as Microsoft Graph or Azure Resource Manager. This can be provided either as a URI or as an id.
+The resource for the token, such as Microsoft Graph or Azure Key Vault. This can be provided either as a URI or as an id.
 
 If not specified, the resource will be set to `https://graph.microsoft.com`.
 

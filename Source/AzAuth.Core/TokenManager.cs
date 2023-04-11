@@ -7,7 +7,6 @@ namespace AzAuth.Core;
 
 public static class TokenManager
 {
-    private static AuthenticationRecord? authenticationRecord;
     private static TokenCredential? credential;
 
     /// <summary>
@@ -22,18 +21,29 @@ public static class TokenManager
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
 
-        // Create a new credential if it doesn't exist, otherwise re-use potentially authenticated credential
         // Create our own credential chain because we want to change the order
-        credential ??= new ChainedTokenCredential(
+        var sources = new List<TokenCredential>()
+        {
             new EnvironmentCredential(),
-            new SharedTokenCacheCredential(),
             new AzurePowerShellCredential(),
             new AzureCliCredential(),
             new VisualStudioCodeCredential(),
             new VisualStudioCredential()
-        );
+        };
 
-        var tokenRequestContext = new TokenRequestContext(fullScopes, claims: claims, tenantId: tenantId);
+        // If the user has authenticated interactively in the same session, add it as the first option to find tokens from
+        if (credential is InteractiveBrowserCredential)
+        {
+            sources.Insert(0, credential);
+        }
+
+        // Create a new credential if it doesn't exist, otherwise re-use potentially authenticated credential
+        if (credential is not ChainedTokenCredential)
+        {
+            credential = new ChainedTokenCredential(sources.ToArray());
+        }
+
+        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
         return GetToken(tokenRequestContext, cancellationToken);
     }
 
@@ -49,23 +59,17 @@ public static class TokenManager
         CancellationToken cancellationToken)
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
-        var tokenRequestContext = new TokenRequestContext(fullScopes, claims: claims, tenantId: tenantId);
+        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
-        // If credential does not exist, is null, or clientid is not same as previously
-        if (credential is not InteractiveBrowserCredential || authenticationRecord?.ClientId != clientId)
+        // Set clientid if provided
+        var options = new InteractiveBrowserCredentialOptions();
+        if (!string.IsNullOrWhiteSpace(clientId))
         {
-            // Set clientid if provided
-            var options = new InteractiveBrowserCredentialOptions();
-            if (!string.IsNullOrWhiteSpace(clientId))
-            {
-                options.ClientId = clientId;
-            }
-
-            // Create a new credential
-            credential = new InteractiveBrowserCredential(options);
-            // Authenticate first and save the authentication info to compare client id of future requests
-            authenticationRecord = ((InteractiveBrowserCredential)credential).Authenticate(tokenRequestContext, cancellationToken);
+            options.ClientId = clientId;
         }
+
+        // Create a new credential
+        credential = new InteractiveBrowserCredential(options);
 
         return GetToken(tokenRequestContext, cancellationToken);
     }
@@ -82,7 +86,7 @@ public static class TokenManager
         CancellationToken cancellationToken)
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
-        var tokenRequestContext = new TokenRequestContext(fullScopes, claims: claims, tenantId: tenantId);
+        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
         if (credential is not ManagedIdentityCredential)
         {
