@@ -1,9 +1,7 @@
-﻿using AzAuth.Core.Models;
-using Azure.Core;
+﻿using Azure.Core;
 using Azure.Identity;
-using System.Threading;
 
-namespace AzAuth.Core;
+namespace PipeHow.AzAuth;
 
 public static class TokenManager
 {

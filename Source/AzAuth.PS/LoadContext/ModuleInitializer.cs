@@ -2,7 +2,7 @@ using System.Management.Automation;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace AzAuth.PS.LoadContext;
+namespace PipeHow.AzAuth.LoadContext;
 
 public class ModuleAssemblyContextHandler : IModuleAssemblyInitializer
 {

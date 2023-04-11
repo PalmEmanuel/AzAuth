@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace AzAuth.PS.LoadContext;
+namespace PipeHow.AzAuth.LoadContext;
 
 public class DependencyAssemblyLoadContext : AssemblyLoadContext
 {

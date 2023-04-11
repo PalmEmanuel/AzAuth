@@ -13,7 +13,7 @@ param(
 Push-Location 'Source'
 
 $ModuleName = Get-ChildItem -Recurse "$PSScriptRoot\Source\*.psd1" | Select-Object -ExpandProperty BaseName
-$DotNetVersion = 'net6.0'
+$DotNetVersion = 'netstandard2.0'
 
 # Define build output locations
 $OutDir = "$PSScriptRoot\$ModuleName"

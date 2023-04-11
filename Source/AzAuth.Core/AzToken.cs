@@ -1,4 +1,4 @@
-﻿namespace AzAuth.Core.Models;
+﻿namespace PipeHow.AzAuth;
 
 public class AzToken
 {
