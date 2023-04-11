@@ -38,11 +38,11 @@ Gets a new Azure access token.
 If the command is used non-interactively, an attempt will be made to get a token using the following sources in order:
 
 - Saved interactive credential if the command was used interactively in the same session (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential)
-- Environment variables (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
-- Azure PowerShell (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
-- Azure CLI (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
-- Visual Studio Code (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
-- Visual Studio (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
+- Environment variables (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
+- Azure PowerShell (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
+- Azure CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
+- Visual Studio Code (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
+- Visual Studio (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
 
 ## EXAMPLES
 
