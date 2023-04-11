@@ -12,6 +12,30 @@ AzAuth is published to [PowerShell Gallery](https://www.powershellgallery.com/pa
 Install-Module -Name AzAuth
 ```
 
+## Using AzAuth
+
+AzAuth supports multiple ways of getting an access token for a user or identity.
+
+The simplest way is to just run the command, which will look for available tokens among shared tools or sources on the machine.
+
+```PowerShell
+# Find a token from already authenticated sources like Azure PowerShell or CLI
+# Unless otherwise specified, the command uses ".default" as scope, and "https://graph.microsoft.com" as the resource
+Get-AzToken
+```
+
+AzAuth implements MSAL and also allows for interactive browser logins.
+
+```PowerShell
+Get-AzToken -Interactive
+```
+
+AzAuth also caches interactive authentications made for the duration of the session, so once you've logged in you can get new access tokens without logging in again. No passwords or credentials are stored, only the refresh token as part of the [authenticated credential](https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential).
+
+```PowerShell
+Get-AzToken -Resource 'https://management.azure.com'
+```
+
 ## Bug report and feature requests
 
 If you find a bug or have an idea for a new feature, please create an issue in the repo! Before submitting, have a look and see if there are any similar issues already open, in which case you can add to the discussion.
