@@ -4,21 +4,21 @@ using System.Management.Automation;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 namespace AzAuth.Cmdlets
 {
-    [Cmdlet(VerbsCommon.Get, "AzToken")]
+    [Cmdlet(VerbsCommon.Get, "AzToken", DefaultParameterSetName = "NonInteractive")]
     public class GetAzToken : PSCmdlet
     {
-        [Parameter(Mandatory = true, ParameterSetName = "NonInteractive")]
-        [Parameter(Mandatory = true, ParameterSetName = "Interactive")]
-        [Parameter(Mandatory = true, ParameterSetName = "ManagedIdentity")]
+        [Parameter(ParameterSetName = "NonInteractive")]
+        [Parameter(ParameterSetName = "Interactive")]
+        [Parameter(ParameterSetName = "ManagedIdentity")]
         [ValidateNotNullOrEmpty()]
         [Alias("ResourceId", "ResourceUrl")]
-        public string Resource { get; set; }
+        public string Resource { get; set; } = "https://graph.microsoft.com";
 
         [Parameter(ParameterSetName = "NonInteractive")]
         [Parameter(ParameterSetName = "Interactive")]
         [Parameter(ParameterSetName = "ManagedIdentity")]
         [ValidateNotNullOrEmpty()]
-        public string[] Scopes { get; set; } = new[] { ".default" };
+        public string[] Scope { get; set; } = new[] { ".default" };
 
         [Parameter(ParameterSetName = "NonInteractive")]
         [Parameter(ParameterSetName = "Interactive")]
@@ -30,7 +30,11 @@ namespace AzAuth.Cmdlets
         [Parameter(ParameterSetName = "Interactive")]
         [Parameter(ParameterSetName = "ManagedIdentity")]
         [ValidateNotNullOrEmpty()]
-        public string Claims { get; set; }
+        public string Claim { get; set; }
+
+        [Parameter(ParameterSetName = "Interactive")]
+        [Parameter(ParameterSetName = "ManagedIdentity")]
+        public string ClientId { get; set; }
 
         [Parameter(Mandatory = true, ParameterSetName = "Interactive")]
         public SwitchParameter Interactive { get; set; }
@@ -38,31 +42,36 @@ namespace AzAuth.Cmdlets
         [Parameter(Mandatory = true, ParameterSetName = "ManagedIdentity")]
         public SwitchParameter ManagedIdentity { get; set; }
 
+        private protected CancellationTokenSource cancellationTokenSource = new();
+
+        // Cancel any operations if user presses CTRL + C
+        protected override void StopProcessing() => cancellationTokenSource.Cancel();
+
         protected override void ProcessRecord()
         {
-            WriteVerbose($"Getting token for {Resource} with scopes: {string.Join(", ", Scopes)}.");
+            WriteVerbose($"Getting token for {Resource} with scopes: {string.Join(", ", Scope)}.");
 
             if (ParameterSetName == "NonInteractive")
             {
                 WriteVerbose(@"Looking for a token from the following sources:
-Environment variables (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential?view=azure-dotnet)
-Shared token cache (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential?view=azure-dotnet)
-Azure PowerShell (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential?view=azure-dotnet)
-Azure CLI (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential?view=azure-dotnet)
-Visual Studio Code (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential?view=azure-dotnet)
-Visual Studio (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential?view=azure-dotnet)
+Environment variables (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
+Shared token cache (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential)
+Azure PowerShell (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
+Azure CLI (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
+Visual Studio Code (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
+Visual Studio (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
 ");
-                WriteObject(TokenManager.GetToken(Resource, Scopes, Claims, TenantId));
+                WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, TenantId, cancellationTokenSource.Token));
             }
             else if (Interactive.IsPresent)
             {
-                WriteVerbose("Getting token interactively using the default browser (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential?view=azure-dotnet).");
-                WriteObject(TokenManager.GetTokenInteractive(Resource, Scopes, Claims, TenantId));
+                WriteVerbose("Getting token interactively using the default browser (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential).");
+                WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, TenantId, cancellationTokenSource.Token));
             }
             else if (ManagedIdentity.IsPresent)
             {
-                WriteVerbose("Getting token as managed identity (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential?view=azure-dotnet).");
-                WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scopes, Claims, TenantId));
+                WriteVerbose("Getting token as managed identity (https://docs.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential).");
+                WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, TenantId, cancellationTokenSource.Token));
             }
             else
             {

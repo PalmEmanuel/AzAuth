@@ -4,7 +4,7 @@
 RootModule = 'AzAuth.PS.dll'
 
 # Version number of this module.
-ModuleVersion = '1.1.1'
+ModuleVersion = '2.0.0'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core'
@@ -16,13 +16,13 @@ GUID = '6efad2e7-3439-46fb-862d-eea4ebd67bc4'
 Author = 'Emanuel Palm'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = 'pipe.how'
 
 # Copyright statement for this module
 Copyright = '(c) Emanuel Palm. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'A lightweight PowerShell module to handle Azure authentication, using the Azure.Identity library.'
+Description = 'A lightweight PowerShell module to handle Azure authentication, using the Azure.Identity MSAL library.'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '7.2'
@@ -87,7 +87,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'azure', 'identity', 'authentication', 'authorization', 'authn', 'authz'
+        Tags = 'azure', 'token', 'oauth', 'identity', 'authentication', 'authorization', 'authn', 'authz'
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/PalmEmanuel/AzAuth/blob/main/LICENSE'

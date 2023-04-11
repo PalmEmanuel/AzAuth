@@ -12,13 +12,13 @@ param(
 
 Push-Location 'Source'
 
-$ModuleName = $PSScriptRoot.Split('\')[-1]
-$Configuration = 'Release'
+$ModuleName = Get-ChildItem -Recurse "$PSScriptRoot\Source\*.psd1" | Select-Object -ExpandProperty BaseName
 $DotNetVersion = 'net6.0'
 
 # Define build output locations
 $OutDir = "$PSScriptRoot\$ModuleName"
 $OutDependencies = "$OutDir\dependencies"
+$OutDocs = "$OutDir/en-US"
 
 if (Test-Path $OutDir) {
     Remove-Item $OutDir -Recurse -Force -ErrorAction Stop
@@ -69,3 +69,9 @@ if ($Version) {
 }
 
 Pop-Location
+
+# Run markdown file updates and tests in separate PowerShell sessions to avoid module load assembly locking
+& pwsh -c "Import-Module '$OutDir\$ModuleName.psd1'; Update-MarkdownHelpModule -Path '$PSScriptRoot\Docs\Help'"
+& pwsh -c ".\Tests\TestRunner.ps1 -ModuleLoadPath '$OutDir\$ModuleName.psd1'"
+
+New-ExternalHelp -Path "$PSScriptRoot\Docs\Help" -OutputPath $OutDocs
