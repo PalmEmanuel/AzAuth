@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Azure.Core;
 using Azure.Identity;
 
 namespace PipeHow.AzAuth;
@@ -105,7 +106,22 @@ public static class TokenManager
         previousTenantId = tokenRequestContext.TenantId;
 
         AccessToken token = credential.GetToken(tokenRequestContext, cancellationToken);
-        return new AzToken(token.Token, tokenRequestContext.Scopes, token.ExpiresOn);
+
+        // Parse token to get info from claims
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadJwtToken(token.Token);
+        // Get upn of user if available, otherwise object id of identity used
+        var identity = (jsonToken.Claims.FirstOrDefault(c => c.Type == "upn") ?? jsonToken.Claims.FirstOrDefault(c => c.Type == "oid"))?.Value;
+        var tenantId = jsonToken.Claims.FirstOrDefault(c => c.Type == "tid");
+        var scopes = jsonToken.Claims.FirstOrDefault(c => c.Type == "scp");
+
+        return new AzToken(
+            token.Token,
+            scopes?.Value.Split(' ') ?? tokenRequestContext.Scopes,
+            token.ExpiresOn,
+            identity,
+            tenantId?.Value ?? tokenRequestContext.TenantId
+        );
     }
 
     public static void ClearCredential()

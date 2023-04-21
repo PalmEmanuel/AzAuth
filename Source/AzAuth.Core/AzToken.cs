@@ -2,13 +2,17 @@
 
 public class AzToken
 {
-    public string Token { get; set; }
-    public DateTimeOffset ExpiresOn { get; set; }
-    public string[] Scopes { get; set; }
+    public string Token { get; }
+    public DateTimeOffset ExpiresOn { get; }
+    public string? Identity { get; }
+    public string? TenantId { get; }
+    public string[] Scopes { get; }
 
-    public AzToken(string token, string[] scopes, DateTimeOffset expiresOn)
+    public AzToken(string token, string[] scopes, DateTimeOffset expiresOn, string? identity = null, string? tenantId = null)
     {
         Token = token;
+        Identity = identity;
+        TenantId = tenantId;
         Scopes = scopes;
         ExpiresOn = expiresOn;
     }
