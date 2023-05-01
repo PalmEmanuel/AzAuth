@@ -15,19 +15,19 @@ Gets a new Azure access token.
 
 ### NonInteractive (Default)
 ```
-Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Claim <String>] [-Force]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>] [-Force]
  [<CommonParameters>]
 ```
 
 ### Interactive
 ```
-Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Claim <String>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
  [-ClientId <String>] [-Interactive] [-Force] [<CommonParameters>]
 ```
 
 ### ManagedIdentity
 ```
-Get-AzToken [-Resource <String>] [-Scope <String[]>] [-TenantId <String>] [-Claim <String>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
  [-ClientId <String>] [-ManagedIdentity] [-Force] [<CommonParameters>]
 ```
 
@@ -168,7 +168,7 @@ Parameter Sets: (All)
 Aliases: ResourceId, ResourceUrl
 
 Required: False
-Position: Named
+Position: 0
 Default value: https://graph.microsoft.com
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -186,7 +186,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 1
 Default value: .default
 Accept pipeline input: False
 Accept wildcard characters: False

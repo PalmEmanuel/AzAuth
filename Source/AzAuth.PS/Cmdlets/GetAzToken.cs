@@ -6,16 +6,16 @@ namespace PipeHow.AzAuth
     [Cmdlet(VerbsCommon.Get, "AzToken", DefaultParameterSetName = "NonInteractive")]
     public class GetAzToken : PSCmdlet
     {
-        [Parameter(ParameterSetName = "NonInteractive")]
-        [Parameter(ParameterSetName = "Interactive")]
-        [Parameter(ParameterSetName = "ManagedIdentity")]
+        [Parameter(ParameterSetName = "NonInteractive", Position = 0)]
+        [Parameter(ParameterSetName = "Interactive", Position = 0)]
+        [Parameter(ParameterSetName = "ManagedIdentity", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias("ResourceId", "ResourceUrl")]
         public string Resource { get; set; } = "https://graph.microsoft.com";
 
-        [Parameter(ParameterSetName = "NonInteractive")]
-        [Parameter(ParameterSetName = "Interactive")]
-        [Parameter(ParameterSetName = "ManagedIdentity")]
+        [Parameter(ParameterSetName = "NonInteractive", Position = 1)]
+        [Parameter(ParameterSetName = "Interactive", Position = 1)]
+        [Parameter(ParameterSetName = "ManagedIdentity", Position = 1)]
         [ValidateNotNullOrEmpty()]
         public string[] Scope { get; set; } = new[] { ".default" };
 
