@@ -24,16 +24,22 @@ The simplest way is to just run the command, which will look for available token
 Get-AzToken
 ```
 
-AzAuth implements MSAL and also allows for interactive browser logins.
+AzAuth implements MSAL and also allows for interactive browser logins, and even persistent credential caches!
 
 ```PowerShell
-Get-AzToken -Interactive
+Get-AzToken -Interactive -TokenCache 'AzAuthCache'
 ```
 
-AzAuth also caches interactive authentications made for the duration of the session, so once you've logged in you can get new access tokens without logging in again. No passwords or credentials are stored, only the refresh token as part of the [authenticated credential](https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential).
+AzAuth also caches authentications made for the duration of the session even without specifying a cache, so once you've logged in you can get new access tokens without logging in again. No passwords or credentials are stored, only the refresh token as part of the [authenticated credential](https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential) object.
 
 ```PowerShell
 Get-AzToken -Resource 'https://management.azure.com'
+```
+
+For more information, see the help documentation!
+
+```PowerShell
+Get-Help Get-AzToken -Full
 ```
 
 ## Bug report and feature requests
