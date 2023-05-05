@@ -14,6 +14,7 @@ BeforeDiscovery {
             Type          = 'string'
             ParameterSets = @(
                 @{ Name = 'NonInteractive'; Mandatory = $false }
+                @{ Name = 'Cache'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
             )
@@ -23,6 +24,7 @@ BeforeDiscovery {
             Type          = 'string[]'
             ParameterSets = @(
                 @{ Name = 'NonInteractive'; Mandatory = $false }
+                @{ Name = 'Cache'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
             )
@@ -32,6 +34,7 @@ BeforeDiscovery {
             Type          = 'string'
             ParameterSets = @(
                 @{ Name = 'NonInteractive'; Mandatory = $false }
+                @{ Name = 'Cache'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
             )
@@ -41,6 +44,7 @@ BeforeDiscovery {
             Type          = 'string'
             ParameterSets = @(
                 @{ Name = 'NonInteractive'; Mandatory = $false }
+                @{ Name = 'Cache'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
             )
@@ -51,6 +55,28 @@ BeforeDiscovery {
             ParameterSets = @(
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
+            )
+        }
+        @{
+            Name          = 'TokenCache'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'Interactive'; Mandatory = $false }
+                @{ Name = 'Cache'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'Username'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'Cache'; Mandatory = $false }
+            )
+        }
+        @{
+            Name          = 'TimeoutSeconds'
+            Type          = 'int'
+            ParameterSets = @(
+                @{ Name = 'Interactive'; Mandatory = $false }
             )
         }
         @{

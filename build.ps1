@@ -5,6 +5,9 @@ param(
 
     [string]
     $Version,
+    
+    [string]
+    $DotNetVersion = 'net6.0',
 
     [Switch]
     $NoClean
@@ -13,7 +16,6 @@ param(
 Push-Location 'Source'
 
 $ModuleName = Get-ChildItem -Recurse "$PSScriptRoot\Source\*.psd1" | Select-Object -ExpandProperty BaseName
-$DotNetVersion = 'netstandard2.0'
 
 # Define build output locations
 $OutDir = "$PSScriptRoot\$ModuleName"

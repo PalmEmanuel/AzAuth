@@ -19,10 +19,17 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-
  [<CommonParameters>]
 ```
 
+### Cache
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+ -TokenCache <String> [-Username <String>] [<CommonParameters>]
+```
+
 ### Interactive
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- [-ClientId <String>] [-Interactive] [-Force] [<CommonParameters>]
+ [-ClientId <String>] [-TokenCache <String>] [-TimeoutSeconds <Int32>] [-Interactive] [-Force]
+ [<CommonParameters>]
 ```
 
 ### ManagedIdentity
@@ -35,7 +42,7 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-
 
 Gets a new Azure access token.
 
-If the command is used non-interactively, an attempt will be made to get a token using the following sources in order:
+The token can be retrieved from an existing named cache, interactively from a browser, or non-interactively with specific token sources. If the command is used non-interactively, an attempt will be made to get a token using the following sources in order:
 
 - Saved interactive credential if the command was used interactively in the same session (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential)
 - Environment variables (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
@@ -43,6 +50,7 @@ If the command is used non-interactively, an attempt will be made to get a token
 - Azure CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
 - Visual Studio Code (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
 - Visual Studio (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
+- Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential)
 
 ## EXAMPLES
 
@@ -63,6 +71,22 @@ PS C:\> Get-AzToken -Resource 'https://graph.microsoft.com/' -Scope 'User.Read',
 Gets a new Azure access token interactively for Microsoft Graph with the scopes `User.Read` and `LearningContent.Read.All`, also specifying a client id.
 
 ### Example 3
+
+```powershell
+PS C:\> Get-AzToken -Interactive -TokenCache 'AzAuthCache'
+```
+
+Gets a new Azure access token interactively and stores the token in a new (or existing) token cache named "AzAuthCache".
+
+### Example 4
+
+```powershell
+PS C:\> Get-AzToken -TokenCache 'AzAuthCache'
+```
+
+Gets a new Azure access token interactively from an existing token cache named "AzAuthCache".
+
+### Example 5
 
 ```powershell
 PS C:\> Get-AzToken -Scope 'Directory.Read.All' -ClientId '0b279d62-06f2-4175-b008-d9efd0e4f4d3' -ManagedIdentity
@@ -112,7 +136,7 @@ This may be required when combining interactive and non-interactive authenticati
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: NonInteractive, Interactive, ManagedIdentity
 Aliases:
 
 Required: False
@@ -199,6 +223,66 @@ The id of the tenant that the token should be valid for.
 ```yaml
 Type: String
 Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TimeoutSeconds
+
+The number of seconds to wait until the interactive login times out.
+
+```yaml
+Type: Int32
+Parameter Sets: Interactive
+Aliases:
+
+Required: False
+Position: Named
+Default value: 120
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TokenCache
+
+The name of the token cache to get the token from, or to store the interactively retrieved token in.
+
+```yaml
+Type: String
+Parameter Sets: Cache
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+```yaml
+Type: String
+Parameter Sets: Interactive
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Username
+
+The username to get the token for in the named cache.
+
+```yaml
+Type: String
+Parameter Sets: Cache
 Aliases:
 
 Required: False
