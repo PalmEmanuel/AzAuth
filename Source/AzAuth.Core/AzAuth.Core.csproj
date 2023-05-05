@@ -1,24 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <LangVersion>latest</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <LangVersion>latest</LangVersion>
-        <DebugSymbols>false</DebugSymbols>
-        <DebugType>None</DebugType>
-        <GenerateDependencyFile>false</GenerateDependencyFile>
-        <RootNamespace>PipeHow.$(MSBuildProjectName.Replace(" ", "_").TrimEnd(".Core"))</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>None</DebugType>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <RootNamespace>PipeHow.$(MSBuildProjectName.Replace(" ", "_").TrimEnd(".Core"))</RootNamespace>
+  </PropertyGroup>
 
-    <ItemGroup>
-	    <PackageReference Include="Azure.Identity" Version="1.8.2" />
-	    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.29.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Models\" />
-    </ItemGroup>
+  <ItemGroup>
+	  <PackageReference Include="Azure.Identity" Version="1.8.2" />
+	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.0" />
+	  <PackageReference Include="System.Management.Automation" Version="7.2.11" />
+	  <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="7.0.1" />
+  </ItemGroup>
 
 </Project>

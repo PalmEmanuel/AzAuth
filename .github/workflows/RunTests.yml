@@ -1,0 +1,26 @@
+name: Run tests
+
+on: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install and cache PowerShell modules
+      uses: potatoqualitee/psmodulecache@v5.2
+      with:
+        modules-to-cache: Pester, PlatyPS
+    - name: Build module
+      run: .\build.ps1 -RunTests None
+      shell: pwsh
+    - name: Run tests
+      run: .\Tests\TestRunner.ps1 -TestResults -Verbosity Normal
+      shell: pwsh
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action/composite@v2
+      continue-on-error: true
+      with:
+        files: testResults.xml

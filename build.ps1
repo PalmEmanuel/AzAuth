@@ -5,15 +5,20 @@ param(
 
     [string]
     $Version,
+    
+    [string]
+    $DotNetVersion = 'net6.0',
 
     [Switch]
-    $NoClean
+    $NoClean,
+
+    [ValidateSet('All','None')]
+    $RunTests = 'All'
 )
 
 Push-Location 'Source'
 
 $ModuleName = Get-ChildItem -Recurse "$PSScriptRoot\Source\*.psd1" | Select-Object -ExpandProperty BaseName
-$DotNetVersion = 'netstandard2.0'
 
 # Define build output locations
 $OutDir = "$PSScriptRoot\$ModuleName"
@@ -72,6 +77,8 @@ Pop-Location
 
 # Run markdown file updates and tests in separate PowerShell sessions to avoid module load assembly locking
 & pwsh -c "Import-Module '$OutDir\$ModuleName.psd1'; Update-MarkdownHelpModule -Path '$PSScriptRoot\Docs\Help'"
-& pwsh -c ".\Tests\TestRunner.ps1 -ModuleLoadPath '$OutDir\$ModuleName.psd1'"
+if ($RunTests -ne 'None') {
+    & pwsh -c ".\Tests\TestRunner.ps1"
+}
 
 New-ExternalHelp -Path "$PSScriptRoot\Docs\Help" -OutputPath $OutDocs

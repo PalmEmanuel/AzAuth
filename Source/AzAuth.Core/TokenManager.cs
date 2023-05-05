@@ -1,6 +1,6 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using Azure.Core;
+﻿using Azure.Core;
 using Azure.Identity;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace PipeHow.AzAuth;
 
@@ -28,7 +28,8 @@ public static class TokenManager
             new AzurePowerShellCredential(),
             new AzureCliCredential(),
             new VisualStudioCodeCredential(),
-            new VisualStudioCredential()
+            new VisualStudioCredential(),
+            new SharedTokenCacheCredential()
         };
 
         // If the user has authenticated interactively in the same session, to the same tenant, add it as the first option to find tokens from
@@ -48,6 +49,40 @@ public static class TokenManager
     }
 
     /// <summary>
+    /// Gets token noninteractively from existing named token cache.
+    /// </summary>
+    public static AzToken GetTokenFromCache(
+        string resource,
+        string[] scopes,
+        string? claims,
+        string? tenantId,
+        string tokenCache,
+        string? username,
+        CancellationToken cancellationToken)
+    {
+        var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
+
+        if (string.IsNullOrWhiteSpace(tokenCache))
+        {
+            throw new ArgumentNullException(nameof(tokenCache), "The specified token cache cannot be null or empty!");
+        }
+
+        var options = new SharedTokenCacheCredentialOptions(
+            new TokenCachePersistenceOptions { Name = tokenCache }
+        );
+
+        if (!string.IsNullOrWhiteSpace(username))
+        {
+            options.Username = username;
+        }
+
+        credential = new SharedTokenCacheCredential(options);
+
+        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
+        return GetToken(tokenRequestContext, cancellationToken);
+    }
+
+    /// <summary>
     /// Gets token interactively.
     /// </summary>
     public static AzToken GetTokenInteractive(
@@ -56,13 +91,21 @@ public static class TokenManager
         string? claims,
         string? clientId,
         string? tenantId,
+        string? tokenCache,
+        int timeoutSeconds,
         CancellationToken cancellationToken)
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
         var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
-        // Set clientid if provided
         var options = new InteractiveBrowserCredentialOptions();
+
+        // Serialize to named token cache if provided
+        if (!string.IsNullOrWhiteSpace(tokenCache)) {
+            options.TokenCachePersistenceOptions = new TokenCachePersistenceOptions { Name = tokenCache };
+        }
+        
+        // Set client id if provided
         if (!string.IsNullOrWhiteSpace(clientId))
         {
             options.ClientId = clientId;
@@ -71,7 +114,18 @@ public static class TokenManager
         // Create a new credential
         credential = new InteractiveBrowserCredential(options);
 
-        return GetToken(tokenRequestContext, cancellationToken);
+        try
+        {
+            // Create a new cancellation token by combining a timeout with existing token
+            using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
+            var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token).Token;
+            return GetToken(tokenRequestContext, combinedToken);
+        }
+        catch (OperationCanceledException ex)
+        {
+            // Only the timeout is caught here, CTRL + C in PowerShell does not throw an error
+            throw new OperationCanceledException($"Login timed out after {timeoutSeconds} seconds, configured by the TimeoutSeconds parameter.", ex);
+        }
     }
 
     /// <summary>
