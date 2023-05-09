@@ -2,6 +2,9 @@ param(
     [ValidateSet('Debug', 'Release')]
     [string]
     $Configuration = 'Release',
+    
+    [switch]
+    $NoDebugSymbols,
 
     [string]
     $Version,
@@ -34,7 +37,11 @@ if (-not $NoClean.IsPresent) {
     dotnet build-server shutdown
     dotnet clean -c $Configuration
 }
-dotnet publish -c $Configuration
+if ($NoDebugSymbols.IsPresent) {
+    dotnet publish -c $Configuration /p:DebugType=None /p:DebugSymbols=false
+} else {
+    dotnet publish -c $Configuration
+}
 
 # Ensure output directories exist and are clean for build
 New-Item -Path $OutDir -ItemType Directory -ErrorAction Ignore
