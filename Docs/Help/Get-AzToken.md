@@ -136,7 +136,8 @@ Accept wildcard characters: False
 ```
 
 ### -DeviceCode
-{{ Fill DeviceCode Description }}
+
+Get a token using a device code login interactively, for example on a different device.
 
 ```yaml
 Type: SwitchParameter
@@ -256,7 +257,7 @@ Accept wildcard characters: False
 
 ### -TimeoutSeconds
 
-The number of seconds to wait until the interactive login times out.
+The number of seconds to wait until the login times out.
 
 ```yaml
 Type: Int32
