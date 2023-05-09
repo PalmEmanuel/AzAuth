@@ -9,8 +9,8 @@ public class DependencyAssemblyLoadContext : AssemblyLoadContext
 
     // Save the full path to the dependencies directory when creating the context
     public DependencyAssemblyLoadContext(string path) => dependenciesDirectory = path;
-    
-    protected override Assembly Load(AssemblyName assemblyName)
+
+    protected override Assembly? Load(AssemblyName assemblyName)
     {
         // Create a path to the assembly in the dependencies directory
         string assemblyPath = Path.Combine(
@@ -26,6 +26,6 @@ public class DependencyAssemblyLoadContext : AssemblyLoadContext
             return LoadFromAssemblyPath(assemblyPath);
         }
 
-        return null!;
+        return null;
     }
 }

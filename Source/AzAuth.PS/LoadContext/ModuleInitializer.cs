@@ -16,13 +16,13 @@ public class ModuleAssemblyContextHandler : IModuleAssemblyInitializer
     private static readonly DependencyAssemblyLoadContext dependencyLoadContext = new (dependencyDirPath);
 
     // This will run when the module is imported
-    public void OnImport() => 
+    public void OnImport() =>
         // Hook up our own assembly resolving method
         // It will run when the default load context fails to resolve an assembly
         AssemblyLoadContext.Default.Resolving += ResolveAssembly;
 
-    private static Assembly ResolveAssembly(AssemblyLoadContext defaultAlc, AssemblyName assemblyToResolve) =>
+    private static Assembly? ResolveAssembly(AssemblyLoadContext defaultAlc, AssemblyName assemblyToResolve) =>
         assemblyToResolve.Name == "AzAuth.Core" ?
         dependencyLoadContext.LoadFromAssemblyName(assemblyToResolve) :
-        null!;
+        null;
 }

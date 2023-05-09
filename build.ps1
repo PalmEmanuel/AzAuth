@@ -2,6 +2,9 @@ param(
     [ValidateSet('Debug', 'Release')]
     [string]
     $Configuration = 'Release',
+    
+    [switch]
+    $NoDebugSymbols,
 
     [string]
     $Version,
@@ -34,7 +37,11 @@ if (-not $NoClean.IsPresent) {
     dotnet build-server shutdown
     dotnet clean -c $Configuration
 }
-dotnet publish -c $Configuration
+if ($NoDebugSymbols.IsPresent) {
+    dotnet publish -c $Configuration /p:DebugType=None /p:DebugSymbols=false
+} else {
+    dotnet publish -c $Configuration
+}
 
 # Ensure output directories exist and are clean for build
 New-Item -Path $OutDir -ItemType Directory -ErrorAction Ignore
@@ -59,7 +66,16 @@ ForEach-Object {
     Copy-Item -Path $_.FullName -Destination $OutDir
 }
 
+# Copy manifest
 Copy-Item -Path "$ModuleName.PS\Manifest\$ModuleName.psd1" -Destination $OutDir
+
+# We need to load the DLLs for logging and JoinableTaskFactory in the PS context, not in the assembly load context
+Move-Item -Path @(
+    "$OutDependencies/Microsoft.Extensions.Logging.Abstractions.dll"
+    "$OutDependencies/Microsoft.VisualStudio.Threading.dll"
+    "$OutDependencies/Microsoft.VisualStudio.Validation.dll"
+)  -Destination $OutDir
+
 if (-not $PSBoundParameters.ContainsKey('Version')) {
     try {
         $Version = gitversion /showvariable LegacySemVerPadded
