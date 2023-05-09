@@ -1,4 +1,6 @@
-﻿using System.Management.Automation;
+﻿using Microsoft.VisualStudio.Threading;
+using System.Collections.Concurrent;
+using System.Management.Automation;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 namespace PipeHow.AzAuth
@@ -75,21 +77,19 @@ namespace PipeHow.AzAuth
         [Parameter(ParameterSetName = "ManagedIdentity")]
         public SwitchParameter Force { get; set; }
 
-        private protected CancellationTokenSource cancellationTokenSource = new();
-
         // If user specifies Force, disregard earlier authentication
         protected override void BeginProcessing()
         {
+            base.BeginProcessing();
+
             if (Force.IsPresent)
             {
                 TokenManager.ClearCredential();
             }
         }
 
-        // Cancel any operations if user presses CTRL + C
-        protected override void StopProcessing() => cancellationTokenSource.Cancel();
-
-        protected override void ProcessRecord()
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD104:Offer async methods", Justification = "PowerShell doesn't handle async.")]
+        protected override void EndProcessing()
         {
             WriteVerbose($"Getting token for {Resource} with scopes: {string.Join(", ", Scope)}.");
 
@@ -103,27 +103,44 @@ Visual Studio Code (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
 Visual Studio (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
 Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential)
 ");
-                WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, TenantId, cancellationTokenSource.Token));
+                WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, TenantId, stopProcessing.Token));
             }
             else if (ParameterSetName == "Cache")
             {
                 WriteVerbose($"Getting token from token cache named \"{TokenCache}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential).");
-                WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, TenantId, TokenCache, Username, cancellationTokenSource.Token));
+                WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, TenantId, TokenCache, Username, stopProcessing.Token));
             }
             else if (Interactive.IsPresent)
             {
                 WriteVerbose("Getting token interactively using the default browser (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential).");
-                WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, cancellationTokenSource.Token));
+                WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, stopProcessing.Token));
             }
             else if (DeviceCode.IsPresent)
             {
                 WriteVerbose("Getting token using device code flow (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.devicecodecredential).");
-                WriteObject(TokenManager.GetTokenDeviceCode(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, cancellationTokenSource.Token));
+                
+                // Set up a BlockingCollection to use for logging device code message
+                BlockingCollection<string> loggingQueue = new();
+                // Start device code flow and save task
+                var tokenTask = joinableTaskFactory.RunAsync(() => TokenManager.GetTokenDeviceCodeAsync(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, loggingQueue, stopProcessing.Token));
+
+                // Loop through messages and log them to warning stream (verbose is silent by default)
+                try
+                {
+                    while (loggingQueue.TryTake(out string? message, Timeout.Infinite, stopProcessing.Token))
+                    {
+                        WriteWarning(message);
+                    }
+                }
+                catch (OperationCanceledException) { /* It's fine if user cancels */ }
+
+                // The device code message has been presented, now await task and output token when done
+                WriteObject(tokenTask.Join(stopProcessing.Token));
             }
             else if (ManagedIdentity.IsPresent)
             {
                 WriteVerbose("Getting token as managed identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential).");
-                WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, TenantId, cancellationTokenSource.Token));
+                WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, TenantId, stopProcessing.Token));
             }
             else
             {

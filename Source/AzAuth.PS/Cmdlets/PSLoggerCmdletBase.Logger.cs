@@ -3,7 +3,7 @@ using System.Management.Automation;
 
 namespace PipeHow.AzAuth;
 
-public abstract partial class PSLoggerCmdletBase : PSCmdlet, ILogger
+public abstract partial class PSLoggerCmdletBase : ILogger
 {
     private readonly List<LogLevel> logLevels = new() {
         LogLevel.Trace,
@@ -13,9 +13,7 @@ public abstract partial class PSLoggerCmdletBase : PSCmdlet, ILogger
         LogLevel.Error
     };
 
-#pragma warning disable CS8633 // Nullability in constraints for type parameter doesn't match the constraints for type parameter in implicitly implemented interface method'.
-    public IDisposable? BeginScope<TState>(TState state) => default;
-#pragma warning restore CS8633 // Nullability in constraints for type parameter doesn't match the constraints for type parameter in implicitly implemented interface method'.
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default;
 
     public bool IsEnabled(LogLevel logLevel) => logLevels.Contains(logLevel);
 

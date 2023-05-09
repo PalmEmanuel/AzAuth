@@ -1,25 +1,32 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
+using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.RegularExpressions;
 
 namespace PipeHow.AzAuth;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "Usage",
-    "CA2254:Template should be a static expression",
-    Justification = "Logging to PowerShell streams.")]
 public static class TokenManager
 {
     private static TokenCredential? credential;
     private static string? previousTenantId;
+    private static string? previousClientId;
+    private static readonly JoinableTaskFactory taskFactory = new(new JoinableTaskContext());
 
     internal static ILogger? Logger { get; set; }
 
     /// <summary>
     /// Gets token noninteractively.
     /// </summary>
-    public static AzToken GetTokenNonInteractive(
+    public static AzToken GetTokenNonInteractive(string resource, string[] scopes, string? claims, string? tenantId, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenNonInteractiveAsync(resource, scopes, claims, tenantId, cancellationToken));
+
+    /// <summary>
+    /// Gets token noninteractively.
+    /// </summary>
+    public static async Task<AzToken> GetTokenNonInteractiveAsync(
         string resource,
         string[] scopes,
         string? claims,
@@ -39,7 +46,7 @@ public static class TokenManager
             new SharedTokenCacheCredential()
         };
 
-        // If the user has authenticated interactively in the same session, to the same tenant, add it as the first option to find tokens from
+        // If user authenticated interactively in the same session and tenant didn't change, add it as the first option to find tokens from
         if (credential is InteractiveBrowserCredential && tenantId == previousTenantId)
         {
             sources.Insert(0, credential);
@@ -51,14 +58,40 @@ public static class TokenManager
             credential = new ChainedTokenCredential(sources.ToArray());
         }
 
-        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
-        return GetToken(tokenRequestContext, cancellationToken);
+        try
+        {
+            var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
+            return await GetTokenAsync(tokenRequestContext, cancellationToken);
+        }
+        catch (AuthenticationFailedException ex)
+        {
+            var errorMessage = "Could not get a token!";
+
+            // Azure PowerShell serializes its errors to CLIXML
+            // We parse using regex because the object itself is only an ANSI string from Get-AzAccessToken in the Az module
+            var result = Regex.Match(ex.Message, @".+AAD\w+: (?<Message>.+\.)_x001B_");
+            if (result.Success) {
+                // If we managed to parse error, add it to message
+                errorMessage += $" {result.Groups["Message"].Value}";
+            }
+            else
+            {
+                errorMessage += " See inner exception for more details.";
+            }
+            throw new AuthenticationFailedException(errorMessage, ex);
+        }
     }
 
     /// <summary>
     /// Gets token noninteractively from existing named token cache.
     /// </summary>
-    public static AzToken GetTokenFromCache(
+    public static AzToken GetTokenFromCache(string resource, string[] scopes, string? claims, string? tenantId, string tokenCache, string? username, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenFromCacheAsync(resource, scopes, claims, tenantId, tokenCache, username, cancellationToken));
+
+    /// <summary>
+    /// Gets token noninteractively from existing named token cache.
+    /// </summary>
+    public static async Task<AzToken> GetTokenFromCacheAsync(
         string resource,
         string[] scopes,
         string? claims,
@@ -74,30 +107,26 @@ public static class TokenManager
             throw new ArgumentNullException(nameof(tokenCache), "The specified token cache cannot be null or empty!");
         }
 
-        var options = new SharedTokenCacheCredentialOptions(
-            new TokenCachePersistenceOptions { Name = tokenCache }
-        );
-
-        if (!string.IsNullOrWhiteSpace(tenantId))
-        {
-            options.TenantId = tenantId;
-        }
-
-        if (!string.IsNullOrWhiteSpace(username))
-        {
-            options.Username = username;
-        }
+        var options = new SharedTokenCacheCredentialOptions(new TokenCachePersistenceOptions { Name = tokenCache }) {
+            Username = username
+        };
 
         credential = new SharedTokenCacheCredential(options);
 
         var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
-        return GetToken(tokenRequestContext, cancellationToken);
+        return await GetTokenAsync(tokenRequestContext, cancellationToken);
     }
 
     /// <summary>
     /// Gets token interactively.
     /// </summary>
-    public static AzToken GetTokenInteractive(
+    public static AzToken GetTokenInteractive(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string tokenCache, int timeoutSeconds, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenInteractiveAsync(resource, scopes, claims, clientId, tenantId, tokenCache, timeoutSeconds, cancellationToken));
+
+    /// <summary>
+    /// Gets token interactively.
+    /// </summary>
+    public static async Task<AzToken> GetTokenInteractiveAsync(
         string resource,
         string[] scopes,
         string? claims,
@@ -110,24 +139,11 @@ public static class TokenManager
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
         var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
-        var options = new InteractiveBrowserCredentialOptions();
-
-        // Serialize to named token cache if provided
-        if (!string.IsNullOrWhiteSpace(tokenCache)) {
-            options.TokenCachePersistenceOptions = new TokenCachePersistenceOptions { Name = tokenCache };
-        }
-
-        // Set tenant id if provided
-        if (!string.IsNullOrWhiteSpace(tenantId))
+        var options = new InteractiveBrowserCredentialOptions()
         {
-            options.TenantId = tenantId;
-        }
-
-        // Set client id if provided
-        if (!string.IsNullOrWhiteSpace(clientId))
-        {
-            options.ClientId = clientId;
-        }
+            TokenCachePersistenceOptions = tokenCache is not null ? new TokenCachePersistenceOptions { Name = tokenCache } : null,
+            ClientId = clientId
+        };
 
         // Create a new credential
         credential = new InteractiveBrowserCredential(options);
@@ -137,66 +153,7 @@ public static class TokenManager
             // Create a new cancellation token by combining a timeout with existing token
             using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
             var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token).Token;
-            return GetToken(tokenRequestContext, combinedToken);
-        }
-        catch (OperationCanceledException ex)
-        {
-            // Only the timeout is caught here, CTRL + C in PowerShell does not throw an error
-            throw new OperationCanceledException($"Login timed out after {timeoutSeconds} seconds, configured by the TimeoutSeconds parameter.", ex);
-        }
-    }
-
-    public static AzToken GetTokenDeviceCode(
-        string resource,
-        string[] scopes,
-        string? claims,
-        string? clientId,
-        string? tenantId,
-        string? tokenCache,
-        int timeoutSeconds,
-        CancellationToken cancellationToken)
-    {
-        var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
-        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
-
-        var options = new DeviceCodeCredentialOptions
-        {
-            // Make sure to log the message
-            DeviceCodeCallback = (deviceCodeInfo, cancellationToken) =>
-            {
-                Logger?.LogInformation(deviceCodeInfo.Message);
-                return Task.CompletedTask;
-            }
-        };
-
-        // Set tenant id if provided
-        if (!string.IsNullOrWhiteSpace(tenantId))
-        {
-            options.TenantId = tenantId;
-        }
-
-        // Serialize to named token cache if provided
-        if (!string.IsNullOrWhiteSpace(tokenCache)) {
-            options.TokenCachePersistenceOptions = new TokenCachePersistenceOptions { Name = tokenCache };
-        }
-
-        // Set client id if provided
-        if (!string.IsNullOrWhiteSpace(clientId))
-        {
-            options.ClientId = clientId;
-        }
-
-        if (credential is not DeviceCodeCredential)
-        {
-            credential = new DeviceCodeCredential(options);
-        }
-
-        try
-        {
-            // Create a new cancellation token by combining a timeout with existing token
-            using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
-            var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token).Token;
-            return GetToken(tokenRequestContext, combinedToken);
+            return await GetTokenAsync(tokenRequestContext, combinedToken);
         }
         catch (OperationCanceledException ex)
         {
@@ -206,9 +163,65 @@ public static class TokenManager
     }
 
     /// <summary>
-    /// Gets token as managed identity.
+    /// Gets token using a device code.
     /// </summary>
-    public static AzToken GetTokenManagedIdentity(
+    public static async Task<AzToken> GetTokenDeviceCodeAsync(
+        string resource,
+        string[] scopes,
+        string? claims,
+        string? clientId,
+        string? tenantId,
+        string? tokenCache,
+        int timeoutSeconds,
+        BlockingCollection<string> loggingQueue,
+        CancellationToken cancellationToken)
+    {
+        var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
+        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
+
+        var options = new DeviceCodeCredentialOptions
+        {
+            // Register message in collection for Cmdlet to process
+            DeviceCodeCallback = (deviceCodeInfo, cancellationToken) =>
+                Task.Run(() => {
+                    loggingQueue.Add(deviceCodeInfo.Message, cancellationToken);
+                    loggingQueue.CompleteAdding();
+                }, cancellationToken),
+            TokenCachePersistenceOptions = tokenCache is not null ? new TokenCachePersistenceOptions { Name = tokenCache } : null,
+            ClientId = clientId
+        };
+
+        if (credential is not DeviceCodeCredential && previousClientId == clientId)
+        {
+            credential = new DeviceCodeCredential(options);
+        }
+
+        previousClientId = clientId;
+
+        try
+        {
+            // Create a new cancellation token by combining a timeout with existing token
+            using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
+            var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token).Token;
+            return await GetTokenAsync(tokenRequestContext, combinedToken);
+        }
+        catch (OperationCanceledException ex)
+        {
+            // Only the timeout is caught here, CTRL + C in PowerShell does not throw an error
+            throw new OperationCanceledException($"Login timed out after {timeoutSeconds} seconds, configured by the TimeoutSeconds parameter.", ex);
+        }
+    }
+
+    /// <summary>
+    /// Gets token as a managed identity.
+    /// </summary>
+    public static AzToken GetTokenManagedIdentity(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenManagedIdentityAsync(resource, scopes, claims, clientId, tenantId, cancellationToken));
+
+    /// <summary>
+    /// Gets token as a managed identity.
+    /// </summary>
+    public static async Task<AzToken> GetTokenManagedIdentityAsync(
         string resource,
         string[] scopes,
         string? claims,
@@ -219,16 +232,19 @@ public static class TokenManager
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
         var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
-        if (credential is not ManagedIdentityCredential)
+        // Re-use the previous managed identity credential if client id didn't change
+        if (credential is not ManagedIdentityCredential && previousClientId == clientId)
         {
             credential = new ManagedIdentityCredential(clientId);
         }
 
-        return GetToken(tokenRequestContext, cancellationToken);
+        previousClientId = clientId;
+
+        return await GetTokenAsync(tokenRequestContext, cancellationToken);
     }
 
     // Common method for getting the token from the credential depending on the user's authentication method.
-    private static AzToken GetToken(TokenRequestContext tokenRequestContext, CancellationToken cancellationToken)
+    private static async Task<AzToken> GetTokenAsync(TokenRequestContext tokenRequestContext, CancellationToken cancellationToken)
     {
         if (credential is null)
         {
@@ -236,7 +252,7 @@ public static class TokenManager
         }
         previousTenantId = tokenRequestContext.TenantId;
 
-        AccessToken token = credential.GetToken(tokenRequestContext, cancellationToken);
+        AccessToken token = await credential.GetTokenAsync(tokenRequestContext, cancellationToken);
 
         // Parse token to get info from claims
         var handler = new JwtSecurityTokenHandler();
