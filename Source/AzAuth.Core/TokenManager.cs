@@ -1,13 +1,20 @@
 ﻿using Azure.Core;
 using Azure.Identity;
+using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace PipeHow.AzAuth;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Usage",
+    "CA2254:Template should be a static expression",
+    Justification = "Logging to PowerShell streams.")]
 public static class TokenManager
 {
     private static TokenCredential? credential;
     private static string? previousTenantId;
+
+    internal static ILogger? Logger { get; set; }
 
     /// <summary>
     /// Gets token noninteractively.
@@ -71,6 +78,11 @@ public static class TokenManager
             new TokenCachePersistenceOptions { Name = tokenCache }
         );
 
+        if (!string.IsNullOrWhiteSpace(tenantId))
+        {
+            options.TenantId = tenantId;
+        }
+
         if (!string.IsNullOrWhiteSpace(username))
         {
             options.Username = username;
@@ -104,7 +116,13 @@ public static class TokenManager
         if (!string.IsNullOrWhiteSpace(tokenCache)) {
             options.TokenCachePersistenceOptions = new TokenCachePersistenceOptions { Name = tokenCache };
         }
-        
+
+        // Set tenant id if provided
+        if (!string.IsNullOrWhiteSpace(tenantId))
+        {
+            options.TenantId = tenantId;
+        }
+
         // Set client id if provided
         if (!string.IsNullOrWhiteSpace(clientId))
         {
@@ -113,6 +131,65 @@ public static class TokenManager
 
         // Create a new credential
         credential = new InteractiveBrowserCredential(options);
+
+        try
+        {
+            // Create a new cancellation token by combining a timeout with existing token
+            using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
+            var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token).Token;
+            return GetToken(tokenRequestContext, combinedToken);
+        }
+        catch (OperationCanceledException ex)
+        {
+            // Only the timeout is caught here, CTRL + C in PowerShell does not throw an error
+            throw new OperationCanceledException($"Login timed out after {timeoutSeconds} seconds, configured by the TimeoutSeconds parameter.", ex);
+        }
+    }
+
+    public static AzToken GetTokenDeviceCode(
+        string resource,
+        string[] scopes,
+        string? claims,
+        string? clientId,
+        string? tenantId,
+        string? tokenCache,
+        int timeoutSeconds,
+        CancellationToken cancellationToken)
+    {
+        var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
+        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
+
+        var options = new DeviceCodeCredentialOptions
+        {
+            // Make sure to log the message
+            DeviceCodeCallback = (deviceCodeInfo, cancellationToken) =>
+            {
+                Logger?.LogInformation(deviceCodeInfo.Message);
+                return Task.CompletedTask;
+            }
+        };
+
+        // Set tenant id if provided
+        if (!string.IsNullOrWhiteSpace(tenantId))
+        {
+            options.TenantId = tenantId;
+        }
+
+        // Serialize to named token cache if provided
+        if (!string.IsNullOrWhiteSpace(tokenCache)) {
+            options.TokenCachePersistenceOptions = new TokenCachePersistenceOptions { Name = tokenCache };
+        }
+
+        // Set client id if provided
+        if (!string.IsNullOrWhiteSpace(clientId))
+        {
+            options.ClientId = clientId;
+        }
+
+        if (credential is not DeviceCodeCredential)
+        {
+            credential = new DeviceCodeCredential(options);
+        }
 
         try
         {
@@ -155,7 +232,7 @@ public static class TokenManager
     {
         if (credential is null)
         {
-            throw new InvalidOperationException("Credential was null when trying to get token!");
+            throw new InvalidOperationException("Credential authorization could not be performed correctly, could not get token!");
         }
         previousTenantId = tokenRequestContext.TenantId;
 

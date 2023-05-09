@@ -21,8 +21,8 @@ public class ModuleAssemblyContextHandler : IModuleAssemblyInitializer
         // It will run when the default load context fails to resolve an assembly
         AssemblyLoadContext.Default.Resolving += ResolveAssembly;
 
-    private static Assembly ResolveAssembly(AssemblyLoadContext defaultAlc, AssemblyName assemblyToResolve) =>
+    private static Assembly? ResolveAssembly(AssemblyLoadContext defaultAlc, AssemblyName assemblyToResolve) =>
         assemblyToResolve.Name == "AzAuth.Core" ?
         dependencyLoadContext.LoadFromAssemblyName(assemblyToResolve) :
-        null!;
+        null;
 }

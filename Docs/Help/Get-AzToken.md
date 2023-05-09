@@ -32,6 +32,13 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-
  [<CommonParameters>]
 ```
 
+### DeviceCode
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+ [-ClientId <String>] [-TokenCache <String>] [-TimeoutSeconds <Int32>] [-DeviceCode] [-Force]
+ [<CommonParameters>]
+```
+
 ### ManagedIdentity
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
@@ -118,10 +125,25 @@ The client id of the application used to authenticate the user or identity. If n
 
 ```yaml
 Type: String
-Parameter Sets: Interactive, ManagedIdentity
+Parameter Sets: Interactive, DeviceCode, ManagedIdentity
 Aliases:
 
 Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DeviceCode
+{{ Fill DeviceCode Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: DeviceCode
+Aliases:
+
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -136,7 +158,7 @@ This may be required when combining interactive and non-interactive authenticati
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: NonInteractive, Interactive, ManagedIdentity
+Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity
 Aliases:
 
 Required: False
@@ -238,7 +260,7 @@ The number of seconds to wait until the interactive login times out.
 
 ```yaml
 Type: Int32
-Parameter Sets: Interactive
+Parameter Sets: Interactive, DeviceCode
 Aliases:
 
 Required: False
@@ -266,7 +288,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Interactive
+Parameter Sets: Interactive, DeviceCode
 Aliases:
 
 Required: False

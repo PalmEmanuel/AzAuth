@@ -4,11 +4,12 @@
 namespace PipeHow.AzAuth
 {
     [Cmdlet(VerbsCommon.Get, "AzToken", DefaultParameterSetName = "NonInteractive")]
-    public class GetAzToken : PSCmdlet
+    public class GetAzToken : PSLoggerCmdletBase
     {
         [Parameter(ParameterSetName = "NonInteractive", Position = 0)]
         [Parameter(ParameterSetName = "Cache", Position = 0)]
         [Parameter(ParameterSetName = "Interactive", Position = 0)]
+        [Parameter(ParameterSetName = "DeviceCode", Position = 0)]
         [Parameter(ParameterSetName = "ManagedIdentity", Position = 0)]
         [ValidateNotNullOrEmpty]
         [Alias("ResourceId", "ResourceUrl")]
@@ -17,6 +18,7 @@ namespace PipeHow.AzAuth
         [Parameter(ParameterSetName = "NonInteractive", Position = 1)]
         [Parameter(ParameterSetName = "Cache", Position = 1)]
         [Parameter(ParameterSetName = "Interactive", Position = 1)]
+        [Parameter(ParameterSetName = "DeviceCode", Position = 1)]
         [Parameter(ParameterSetName = "ManagedIdentity", Position = 1)]
         [ValidateNotNullOrEmpty]
         public string[] Scope { get; set; } = new[] { ".default" };
@@ -24,6 +26,7 @@ namespace PipeHow.AzAuth
         [Parameter(ParameterSetName = "NonInteractive")]
         [Parameter(ParameterSetName = "Cache")]
         [Parameter(ParameterSetName = "Interactive")]
+        [Parameter(ParameterSetName = "DeviceCode")]
         [Parameter(ParameterSetName = "ManagedIdentity")]
         [ValidateNotNullOrEmpty]
         public string TenantId { get; set; }
@@ -31,16 +34,19 @@ namespace PipeHow.AzAuth
         [Parameter(ParameterSetName = "NonInteractive")]
         [Parameter(ParameterSetName = "Cache")]
         [Parameter(ParameterSetName = "Interactive")]
+        [Parameter(ParameterSetName = "DeviceCode")]
         [Parameter(ParameterSetName = "ManagedIdentity")]
         [ValidateNotNullOrEmpty]
         public string Claim { get; set; }
 
         [Parameter(ParameterSetName = "Interactive")]
+        [Parameter(ParameterSetName = "DeviceCode")]
         [Parameter(ParameterSetName = "ManagedIdentity")]
         [ValidateNotNullOrEmpty]
         public string ClientId { get; set; }
 
         [Parameter(ParameterSetName = "Interactive")]
+        [Parameter(ParameterSetName = "DeviceCode")]
         [Parameter(Mandatory = true, ParameterSetName = "Cache")]
         [ValidateNotNullOrEmpty]
         public string TokenCache { get; set; }
@@ -50,17 +56,22 @@ namespace PipeHow.AzAuth
         public string Username { get; set; }
 
         [Parameter(ParameterSetName = "Interactive")]
+        [Parameter(ParameterSetName = "DeviceCode")]
         [ValidateRange(1, int.MaxValue)]
         public int TimeoutSeconds { get; set; } = 120;
 
         [Parameter(Mandatory = true, ParameterSetName = "Interactive")]
         public SwitchParameter Interactive { get; set; }
 
+        [Parameter(Mandatory = true, ParameterSetName = "DeviceCode")]
+        public SwitchParameter DeviceCode { get; set; }
+
         [Parameter(Mandatory = true, ParameterSetName = "ManagedIdentity")]
         public SwitchParameter ManagedIdentity { get; set; }
 
         [Parameter(ParameterSetName = "NonInteractive")]
         [Parameter(ParameterSetName = "Interactive")]
+        [Parameter(ParameterSetName = "DeviceCode")]
         [Parameter(ParameterSetName = "ManagedIdentity")]
         public SwitchParameter Force { get; set; }
 
@@ -103,6 +114,11 @@ Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
             {
                 WriteVerbose("Getting token interactively using the default browser (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential).");
                 WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, cancellationTokenSource.Token));
+            }
+            else if (DeviceCode.IsPresent)
+            {
+                WriteVerbose("Getting token using device code flow (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.devicecodecredential).");
+                WriteObject(TokenManager.GetTokenDeviceCode(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, cancellationTokenSource.Token));
             }
             else if (ManagedIdentity.IsPresent)
             {
