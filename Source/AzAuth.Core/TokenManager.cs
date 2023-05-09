@@ -185,6 +185,7 @@ public static class TokenManager
             DeviceCodeCallback = (deviceCodeInfo, cancellationToken) =>
                 Task.Run(() => {
                     loggingQueue.Add(deviceCodeInfo.Message, cancellationToken);
+                    // Make sure to mark as completed, no more messages can be sent
                     loggingQueue.CompleteAdding();
                 }, cancellationToken),
             TokenCachePersistenceOptions = tokenCache is not null ? new TokenCachePersistenceOptions { Name = tokenCache } : null,
