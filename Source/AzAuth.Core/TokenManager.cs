@@ -258,8 +258,10 @@ public static class TokenManager
         // Parse token to get info from claims
         var handler = new JwtSecurityTokenHandler();
         var jsonToken = handler.ReadJwtToken(token.Token);
-        // Get upn of user if available, otherwise object id of identity used
-        var identity = (jsonToken.Claims.FirstOrDefault(c => c.Type == "upn") ?? jsonToken.Claims.FirstOrDefault(c => c.Type == "oid"))?.Value;
+        // Get upn of user if available, or email if personal account, otherwise object id of identity used (such as managed identity)
+        var identity = (jsonToken.Claims.FirstOrDefault(c => c.Type == "upn") ??
+            jsonToken.Claims.FirstOrDefault(c => c.Type == "email") ??
+            jsonToken.Claims.FirstOrDefault(c => c.Type == "oid"))?.Value;
         var tenantId = jsonToken.Claims.FirstOrDefault(c => c.Type == "tid");
         var scopes = jsonToken.Claims.FirstOrDefault(c => c.Type == "scp");
 
