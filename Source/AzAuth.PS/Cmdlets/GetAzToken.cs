@@ -92,13 +92,9 @@ public class GetAzToken : PSLoggerCmdletBase
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD104:Offer async methods", Justification = "PowerShell doesn't handle async.")]
     protected override void EndProcessing()
     {
-        if (TokenCache != null)
+        if (TokenCache == "msal.cache")
         {
-            if (TokenCache == "msal.cache")
-            {
-                WriteWarning("The name 'msal.cache' is the default cache name in MSAL, changing or clearing this cache might break other tools using it!");
-            }
-            WriteWarning($"Number of accounts in cache: {CacheManager.GetAccounts(TokenCache).Length}");
+            WriteWarning("The name 'msal.cache' is the default cache name in MSAL, changing or clearing this cache might break other tools using it!");
         }
 
         WriteVerbose($"Getting token for {Resource} with scopes: {string.Join(", ", Scope)}.");
@@ -117,18 +113,18 @@ Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
         }
         else if (ParameterSetName == "Cache")
         {
-            WriteVerbose($"Getting token from token cache named \"{TokenCache}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential).");
+            WriteVerbose($"Getting token from token cache named \"{TokenCache}\".");
             WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, ClientId, TenantId, TokenCache!, Username, stopProcessing.Token));
         }
         else if (Interactive.IsPresent)
         {
-            WriteVerbose("Getting token interactively using the default browser (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential).");
+            WriteVerbose("Getting token interactively using the default browser.");
             WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, stopProcessing.Token));
         }
         else if (DeviceCode.IsPresent)
         {
-            WriteVerbose("Getting token using device code flow (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.devicecodecredential).");
-            
+            WriteVerbose("Getting token using the device code flow.");
+
             // Set up a BlockingCollection to use for logging device code message
             BlockingCollection<string> loggingQueue = new();
             // Start device code flow and save task
@@ -149,17 +145,12 @@ Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
         }
         else if (ManagedIdentity.IsPresent)
         {
-            WriteVerbose("Getting token as managed identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential).");
+            WriteVerbose("Getting token using a managed identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential).");
             WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, TenantId, stopProcessing.Token));
         }
         else
         {
             throw new ArgumentException("Invalid parameter combination!");
-        }
-
-        if (TokenCache != null)
-        {
-            WriteWarning($"Number of accounts in cache: {CacheManager.GetAccounts(TokenCache).Length}");
         }
     }
 }
