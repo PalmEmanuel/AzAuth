@@ -22,7 +22,7 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-
 ### Cache
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- -TokenCache <String> [-Username <String>] [<CommonParameters>]
+ [-ClientId <String>] -TokenCache <String> -Username <String> [<CommonParameters>]
 ```
 
 ### Interactive
@@ -125,7 +125,7 @@ The client id of the application used to authenticate the user or identity. If n
 
 ```yaml
 Type: String
-Parameter Sets: Interactive, DeviceCode, ManagedIdentity
+Parameter Sets: Cache, Interactive, DeviceCode, ManagedIdentity
 Aliases:
 
 Required: False
@@ -308,7 +308,7 @@ Type: String
 Parameter Sets: Cache
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
