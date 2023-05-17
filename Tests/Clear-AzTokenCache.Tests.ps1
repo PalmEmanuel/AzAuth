@@ -16,7 +16,7 @@ BeforeDiscovery {
     )
 }
 
-Describe 'Get-AzToken' {
+Describe 'Clear-AzTokenCache' {
     BeforeAll {        
         # Get command from current test file name
         $Command = Get-Command ((Split-Path $PSCommandPath -Leaf) -replace '.Tests.ps1')
