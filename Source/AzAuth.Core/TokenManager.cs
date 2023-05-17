@@ -1,6 +1,8 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client.Extensions.Msal;
+using Microsoft.Identity.Client;
 using Microsoft.VisualStudio.Threading;
 using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
@@ -8,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace PipeHow.AzAuth;
 
-public static class TokenManager
+internal static class TokenManager
 {
     private static TokenCredential? credential;
     private static string? previousTenantId;
@@ -20,13 +22,13 @@ public static class TokenManager
     /// <summary>
     /// Gets token noninteractively.
     /// </summary>
-    public static AzToken GetTokenNonInteractive(string resource, string[] scopes, string? claims, string? tenantId, CancellationToken cancellationToken) =>
+    internal static AzToken GetTokenNonInteractive(string resource, string[] scopes, string? claims, string? tenantId, CancellationToken cancellationToken) =>
         taskFactory.Run(() => GetTokenNonInteractiveAsync(resource, scopes, claims, tenantId, cancellationToken));
 
     /// <summary>
     /// Gets token noninteractively.
     /// </summary>
-    public static async Task<AzToken> GetTokenNonInteractiveAsync(
+    internal static async Task<AzToken> GetTokenNonInteractiveAsync(
         string resource,
         string[] scopes,
         string? claims,
@@ -85,19 +87,20 @@ public static class TokenManager
     /// <summary>
     /// Gets token noninteractively from existing named token cache.
     /// </summary>
-    public static AzToken GetTokenFromCache(string resource, string[] scopes, string? claims, string? tenantId, string tokenCache, string? username, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenFromCacheAsync(resource, scopes, claims, tenantId, tokenCache, username, cancellationToken));
+    internal static AzToken GetTokenFromCache(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string tokenCache, string username, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenFromCacheAsync(resource, scopes, claims, clientId, tenantId, tokenCache, username, cancellationToken));
 
     /// <summary>
     /// Gets token noninteractively from existing named token cache.
     /// </summary>
-    public static async Task<AzToken> GetTokenFromCacheAsync(
+    internal static async Task<AzToken> GetTokenFromCacheAsync(
         string resource,
         string[] scopes,
         string? claims,
+        string? clientId,
         string? tenantId,
         string tokenCache,
-        string? username,
+        string username,
         CancellationToken cancellationToken)
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
@@ -107,26 +110,26 @@ public static class TokenManager
             throw new ArgumentNullException(nameof(tokenCache), "The specified token cache cannot be null or empty!");
         }
 
-        var options = new SharedTokenCacheCredentialOptions(new TokenCachePersistenceOptions { Name = tokenCache }) {
-            Username = username
-        };
-
-        credential = new SharedTokenCacheCredential(options);
-
-        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
-        return await GetTokenAsync(tokenRequestContext, cancellationToken);
+        try
+        {
+            return await CacheManager.GetTokenFromCacheSilentAsync(tokenCache, clientId, tenantId, fullScopes, claims, username, cancellationToken);
+        }
+        catch (MsalServiceException ex) when (ex.Message.Contains("Please do not use the /consumers endpoint to serve this request."))
+        {
+            throw new InvalidOperationException("The account used is a personal account and cannot use a general endpoint. Please specify the tenant using the parameter -TenantId.", ex);
+        }
     }
 
     /// <summary>
     /// Gets token interactively.
     /// </summary>
-    public static AzToken GetTokenInteractive(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string tokenCache, int timeoutSeconds, CancellationToken cancellationToken) =>
+    internal static AzToken GetTokenInteractive(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string? tokenCache, int timeoutSeconds, CancellationToken cancellationToken) =>
         taskFactory.Run(() => GetTokenInteractiveAsync(resource, scopes, claims, clientId, tenantId, tokenCache, timeoutSeconds, cancellationToken));
 
     /// <summary>
     /// Gets token interactively.
     /// </summary>
-    public static async Task<AzToken> GetTokenInteractiveAsync(
+    internal static async Task<AzToken> GetTokenInteractiveAsync(
         string resource,
         string[] scopes,
         string? claims,
@@ -139,14 +142,13 @@ public static class TokenManager
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
         var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
-        var options = new InteractiveBrowserCredentialOptions()
+        if (!string.IsNullOrWhiteSpace(tokenCache))
         {
-            TokenCachePersistenceOptions = tokenCache is not null ? new TokenCachePersistenceOptions { Name = tokenCache } : null,
-            ClientId = clientId
-        };
+            return CacheManager.GetTokenInteractive(tokenCache, clientId, tenantId, fullScopes, claims, cancellationToken);
+        }
 
         // Create a new credential
-        credential = new InteractiveBrowserCredential(options);
+        credential = new InteractiveBrowserCredential();
 
         try
         {
@@ -165,7 +167,7 @@ public static class TokenManager
     /// <summary>
     /// Gets token using a device code.
     /// </summary>
-    public static async Task<AzToken> GetTokenDeviceCodeAsync(
+    internal static async Task<AzToken> GetTokenDeviceCodeAsync(
         string resource,
         string[] scopes,
         string? claims,
@@ -179,6 +181,15 @@ public static class TokenManager
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
         var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
+        // If user specified a cache name, get token using cache manager
+        if (tokenCache != null)
+        {
+            // Create a new cancellation token by combining a timeout with existing token
+            using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
+            var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token).Token;
+            return await CacheManager.GetTokenDeviceCodeAsync(tokenCache, clientId, tenantId, fullScopes, claims, loggingQueue, combinedToken);
+        }
+
         var options = new DeviceCodeCredentialOptions
         {
             // Register message in collection for Cmdlet to process
@@ -188,7 +199,6 @@ public static class TokenManager
                     // Make sure to mark as completed, no more messages can be sent
                     loggingQueue.CompleteAdding();
                 }, cancellationToken),
-            TokenCachePersistenceOptions = tokenCache is not null ? new TokenCachePersistenceOptions { Name = tokenCache } : null,
             ClientId = clientId
         };
 
@@ -216,13 +226,13 @@ public static class TokenManager
     /// <summary>
     /// Gets token as a managed identity.
     /// </summary>
-    public static AzToken GetTokenManagedIdentity(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, CancellationToken cancellationToken) =>
+    internal static AzToken GetTokenManagedIdentity(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, CancellationToken cancellationToken) =>
         taskFactory.Run(() => GetTokenManagedIdentityAsync(resource, scopes, claims, clientId, tenantId, cancellationToken));
 
     /// <summary>
     /// Gets token as a managed identity.
     /// </summary>
-    public static async Task<AzToken> GetTokenManagedIdentityAsync(
+    internal static async Task<AzToken> GetTokenManagedIdentityAsync(
         string resource,
         string[] scopes,
         string? claims,
@@ -245,7 +255,7 @@ public static class TokenManager
     }
 
     // Common method for getting the token from the credential depending on the user's authentication method.
-    private static async Task<AzToken> GetTokenAsync(TokenRequestContext tokenRequestContext, CancellationToken cancellationToken)
+    internal static async Task<AzToken> GetTokenAsync(TokenRequestContext tokenRequestContext, CancellationToken cancellationToken)
     {
         if (credential is null)
         {
@@ -274,7 +284,7 @@ public static class TokenManager
         );
     }
 
-    public static void ClearCredential()
+    internal static void ClearCredential()
     {
         credential = null;
     }

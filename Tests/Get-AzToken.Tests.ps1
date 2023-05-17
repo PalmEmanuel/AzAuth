@@ -60,6 +60,7 @@ BeforeDiscovery {
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
+                @{ Name = 'Cache'; Mandatory = $false }
             )
         }
         @{
@@ -75,7 +76,7 @@ BeforeDiscovery {
             Name          = 'Username'
             Type          = 'string'
             ParameterSets = @(
-                @{ Name = 'Cache'; Mandatory = $false }
+                @{ Name = 'Cache'; Mandatory = $true }
             )
         }
         @{
