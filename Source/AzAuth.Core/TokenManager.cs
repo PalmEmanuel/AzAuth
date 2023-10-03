@@ -147,8 +147,13 @@ internal static class TokenManager
             return CacheManager.GetTokenInteractive(tokenCache, clientId, tenantId, fullScopes, claims, cancellationToken);
         }
 
+        var options = new InteractiveBrowserCredentialOptions
+        {
+            ClientId = clientId
+        };
+
         // Create a new credential
-        credential = new InteractiveBrowserCredential();
+        credential = new InteractiveBrowserCredential(options);
 
         try
         {
