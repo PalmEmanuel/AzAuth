@@ -4,7 +4,7 @@
 RootModule = 'AzAuth.PS.dll'
 
 # Version number of this module.
-ModuleVersion = '2.2.3'
+ModuleVersion = '2.2.4'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core'
@@ -90,7 +90,23 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'azure', 'token', 'oauth', 'identity', 'authentication', 'authorization', 'authn', 'authz'
+        Tags = @(
+            'azure',
+            'auth',
+            'token',
+            'oauth',
+            'identity',
+            'authentication',
+            'authorization',
+            'authn',
+            'authz',
+            'service principal',
+            'managed identity',
+            'workload identity',
+            'federation',
+            'credential'
+            'OIDC'
+        )
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/PalmEmanuel/AzAuth/blob/main/LICENSE'

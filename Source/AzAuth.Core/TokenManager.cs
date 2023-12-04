@@ -207,7 +207,7 @@ internal static class TokenManager
             ClientId = clientId
         };
 
-        if (credential is not DeviceCodeCredential && previousClientId == clientId)
+        if (credential is not DeviceCodeCredential || previousClientId != clientId)
         {
             credential = new DeviceCodeCredential(options);
         }
@@ -249,9 +249,41 @@ internal static class TokenManager
         var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
         // Re-use the previous managed identity credential if client id didn't change
-        if (credential is not ManagedIdentityCredential && previousClientId == clientId)
+        if (credential is not ManagedIdentityCredential || previousClientId != clientId)
         {
             credential = new ManagedIdentityCredential(clientId);
+        }
+
+        previousClientId = clientId;
+
+        return await GetTokenAsync(tokenRequestContext, cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets token as a workload identity.
+    /// </summary>
+    internal static AzToken GetTokenWorkloadIdentity(string resource, string[] scopes, string? claims, string? clientId, string tenantId, string externalToken, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenWorkloadIdentityAsync(resource, scopes, claims, clientId, tenantId, externalToken, cancellationToken));
+
+    /// <summary>
+    /// Gets token as a workload identity.
+    /// </summary>
+    internal static async Task<AzToken> GetTokenWorkloadIdentityAsync(
+        string resource,
+        string[] scopes,
+        string? claims,
+        string? clientId,
+        string tenantId,
+        string externalToken,
+        CancellationToken cancellationToken)
+    {
+        var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
+        var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
+
+        // Re-use the previous credential if client id didn't change
+        if (credential is not ClientAssertionCredential || previousClientId != clientId)
+        {
+            credential = new ClientAssertionCredential(tenantId, clientId, () => externalToken);
         }
 
         previousClientId = clientId;
