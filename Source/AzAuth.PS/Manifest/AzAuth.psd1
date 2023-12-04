@@ -100,9 +100,11 @@ PrivateData = @{
             'authorization',
             'authn',
             'authz',
-            'service principal',
-            'managed identity',
-            'workload identity',
+            'serviceprincipal',
+            'spn',
+            'managedidentity',
+            'workload',
+            'workloadidentity',
             'federation',
             'credential'
             'OIDC'
