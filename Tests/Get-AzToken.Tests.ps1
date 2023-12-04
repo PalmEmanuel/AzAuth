@@ -18,6 +18,7 @@ BeforeDiscovery {
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
+                @{ Name = 'WorkloadIdentity'; Mandatory = $false }
             )
         }
         @{
@@ -29,6 +30,7 @@ BeforeDiscovery {
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
+                @{ Name = 'WorkloadIdentity'; Mandatory = $false }
             )
         }
         @{
@@ -40,6 +42,7 @@ BeforeDiscovery {
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
+                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
             )
         }
         @{
@@ -51,6 +54,7 @@ BeforeDiscovery {
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
+                @{ Name = 'WorkloadIdentity'; Mandatory = $false }
             )
         }
         @{
@@ -60,6 +64,7 @@ BeforeDiscovery {
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
+                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
                 @{ Name = 'Cache'; Mandatory = $false }
             )
         }
@@ -109,6 +114,20 @@ BeforeDiscovery {
             )
         }
         @{
+            Name          = 'WorkloadIdentity'
+            Type          = 'System.Management.Automation.SwitchParameter'
+            ParameterSets = @(
+                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'ExternalToken'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
+            )
+        }
+        @{
             Name          = 'Force'
             Type          = 'System.Management.Automation.SwitchParameter'
             ParameterSets = @(
@@ -116,6 +135,7 @@ BeforeDiscovery {
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
+                @{ Name = 'WorkloadIdentity'; Mandatory = $false }
             )
         }
     )

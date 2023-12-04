@@ -15,8 +15,8 @@ Gets a new Azure access token.
 
 ### NonInteractive (Default)
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>] [-Force]
- [<CommonParameters>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+ [-Force] [<CommonParameters>]
 ```
 
 ### Cache
@@ -43,6 +43,12 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
  [-ClientId <String>] [-ManagedIdentity] [-Force] [<CommonParameters>]
+```
+
+### WorkloadIdentity
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
+ -ClientId <String> [-WorkloadIdentity] -ExternalToken <String> [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -135,6 +141,18 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+```yaml
+Type: String
+Parameter Sets: WorkloadIdentity
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -DeviceCode
 
 Get a token using a device code login interactively, for example on a different device.
@@ -142,6 +160,22 @@ Get a token using a device code login interactively, for example on a different 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: DeviceCode
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ExternalToken
+
+The external token used for the federated credential of the workload identity. Used for the client assertion flow.
+
+```yaml
+Type: String
+Parameter Sets: WorkloadIdentity
 Aliases:
 
 Required: True
@@ -159,7 +193,7 @@ This may be required when combining interactive and non-interactive authenticati
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity
+Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity
 Aliases:
 
 Required: False
@@ -245,10 +279,22 @@ The id of the tenant that the token should be valid for.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: NonInteractive, Cache, Interactive, DeviceCode, ManagedIdentity
 Aliases:
 
 Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+```yaml
+Type: String
+Parameter Sets: WorkloadIdentity
+Aliases:
+
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -315,8 +361,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -WorkloadIdentity
+
+Get a token using a federated credential, or "workload identity federation".
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: WorkloadIdentity
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

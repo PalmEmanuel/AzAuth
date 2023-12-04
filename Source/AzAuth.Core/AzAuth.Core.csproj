@@ -11,10 +11,10 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="AzAuth.PS" />
-	  <PackageReference Include="Azure.Identity" Version="1.8.2" />
+	  <PackageReference Include="Azure.Identity" Version="1.10.4" />
 	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-	  <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.5.22" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
+	  <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.8.14" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
 	  <PackageReference Include="System.Management.Automation" Version="7.2.11" />
 	  <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="7.0.1" />
   </ItemGroup>
