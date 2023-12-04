@@ -15,42 +15,40 @@ Gets a new Azure access token.
 
 ### NonInteractive (Default)
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>] [-Force]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+ [-Force] [<CommonParameters>]
 ```
 
 ### Cache
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- [-ClientId <String>] -TokenCache <String> -Username <String> [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [-ClientId <String>] -TokenCache <String> -Username <String> [<CommonParameters>]
 ```
 
 ### Interactive
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
  [-ClientId <String>] [-TokenCache <String>] [-TimeoutSeconds <Int32>] [-Interactive] [-Force]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [<CommonParameters>]
 ```
 
 ### DeviceCode
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
  [-ClientId <String>] [-TokenCache <String>] [-TimeoutSeconds <Int32>] [-DeviceCode] [-Force]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [<CommonParameters>]
 ```
 
 ### ManagedIdentity
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- [-ClientId <String>] [-ManagedIdentity] [-Force] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-ClientId <String>] [-ManagedIdentity] [-Force] [<CommonParameters>]
 ```
 
 ### WorkloadIdentity
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
- -ClientId <String> [-WorkloadIdentity] -ExternalToken <String> [-Force] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ -ClientId <String> [-WorkloadIdentity] -ExternalToken <String> [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION

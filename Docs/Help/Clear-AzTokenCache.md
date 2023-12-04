@@ -14,7 +14,7 @@ Clear all tokens from a specified token cache.
 ## SYNTAX
 
 ```
-Clear-AzTokenCache -TokenCache <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Clear-AzTokenCache -TokenCache <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
