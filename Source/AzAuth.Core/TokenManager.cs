@@ -1,7 +1,5 @@
 ﻿using Azure.Core;
 using Azure.Identity;
-using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.Identity.Client;
 using Microsoft.VisualStudio.Threading;
 using System.Collections.Concurrent;
@@ -17,7 +15,6 @@ internal static class TokenManager
     private static string? previousClientId;
     private static readonly JoinableTaskFactory taskFactory = new(new JoinableTaskContext());
 
-    internal static ILogger? Logger { get; set; }
 
     /// <summary>
     /// Gets token noninteractively.
