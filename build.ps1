@@ -71,7 +71,6 @@ Copy-Item -Path "$ModuleName.PS\Manifest\$ModuleName.psd1" -Destination $OutDir
 
 # We need to load the DLLs for logging and JoinableTaskFactory in the PS context, not in the assembly load context
 Move-Item -Path @(
-    "$OutDependencies/Microsoft.Extensions.Logging.Abstractions.dll"
     "$OutDependencies/Microsoft.VisualStudio.Threading.dll"
     "$OutDependencies/Microsoft.VisualStudio.Validation.dll"
 )  -Destination $OutDir

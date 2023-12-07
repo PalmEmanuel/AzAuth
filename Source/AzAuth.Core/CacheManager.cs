@@ -2,8 +2,6 @@
 using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.VisualStudio.Threading;
 using System.Collections.Concurrent;
-using System.Threading;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace PipeHow.AzAuth;
 
