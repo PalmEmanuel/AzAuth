@@ -53,6 +53,12 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Cl
  [<CommonParameters>]
 ```
 
+### ClientSecret
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
+ -ClientId <String> -ClientSecret <String> [-Force] [<CommonParameters>]
+```
+
 ## DESCRIPTION
 
 Gets a new Azure access token.
@@ -145,7 +151,23 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity
+Parameter Sets: WorkloadIdentity, ClientSecret
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ClientSecret
+
+The client secret to use for getting a token with the client credentials flow.
+
+```yaml
+Type: String
+Parameter Sets: ClientSecret
 Aliases:
 
 Required: True
@@ -195,7 +217,7 @@ This may be required when combining interactive and non-interactive authenticati
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity
+Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity, ClientSecret
 Aliases:
 
 Required: False
@@ -293,7 +315,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity
+Parameter Sets: WorkloadIdentity, ClientSecret
 Aliases:
 
 Required: True
