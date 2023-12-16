@@ -15,14 +15,15 @@ Gets a new Azure access token.
 
 ### NonInteractive (Default)
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- [-Force] [<CommonParameters>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>] [-Force]
+ [<CommonParameters>]
 ```
 
 ### Cache
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- [-ClientId <String>] -TokenCache <String> -Username <String> [<CommonParameters>]
+ [-ClientId <String>] -TokenCache <String> -Username <String>
+ [<CommonParameters>]
 ```
 
 ### Interactive
@@ -48,7 +49,8 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-
 ### WorkloadIdentity
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
- -ClientId <String> [-WorkloadIdentity] -ExternalToken <String> [-Force] [<CommonParameters>]
+ -ClientId <String> [-WorkloadIdentity] -ExternalToken <String> [-Force]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -378,7 +380,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
