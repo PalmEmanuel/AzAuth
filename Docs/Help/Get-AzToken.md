@@ -53,6 +53,12 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Cl
  [<CommonParameters>]
 ```
 
+### ClientSecret
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
+ -ClientId <String> -ClientSecret <String> [-Force] [<CommonParameters>]
+```
+
 ## DESCRIPTION
 
 Gets a new Azure access token.
@@ -104,10 +110,18 @@ Gets a new Azure access token interactively from an existing token cache named "
 ### Example 5
 
 ```powershell
-PS C:\> Get-AzToken -Scope 'Directory.Read.All' -ClientId '0b279d62-06f2-4175-b008-d9efd0e4f4d3' -ManagedIdentity
+PS C:\> Get-AzToken -Scope 'Directory.Read.All' -ClientId $ClientId -ManagedIdentity
 ```
 
-Gets a new Azure access token for a managed identity, valid for for Microsoft Graph with the scope `Directory.Read.All`, also specifying a client id.
+Gets a new Azure access token for a managed identity, valid for Microsoft Graph with the scope `Directory.Read.All`, also specifying a client id.
+
+### Example 6
+
+```powershell
+PS C:\> Get-AzToken -ClientId $ClientId -ClientSecret $ClientSecret -TenantId $TenantId
+```
+
+Gets a new Azure access token for a client using the client credentials flow by specifying a client secret, valid for the default Microsoft Graph scope, also specifying the tenant as a mandatory parameter.
 
 ## PARAMETERS
 
@@ -145,7 +159,23 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity
+Parameter Sets: WorkloadIdentity, ClientSecret
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ClientSecret
+
+The client secret to use for getting a token with the client credentials flow.
+
+```yaml
+Type: String
+Parameter Sets: ClientSecret
 Aliases:
 
 Required: True
@@ -195,7 +225,7 @@ This may be required when combining interactive and non-interactive authenticati
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity
+Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity, ClientSecret
 Aliases:
 
 Required: False
@@ -293,7 +323,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity
+Parameter Sets: WorkloadIdentity, ClientSecret
 Aliases:
 
 Required: True

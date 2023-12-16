@@ -13,6 +13,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "DeviceCode", Position = 0)]
     [Parameter(ParameterSetName = "ManagedIdentity", Position = 0)]
     [Parameter(ParameterSetName = "WorkloadIdentity", Position = 0)]
+    [Parameter(ParameterSetName = "ClientSecret", Position = 0)]
     [ValidateNotNullOrEmpty]
     [Alias("ResourceId", "ResourceUrl")]
     public string Resource { get; set; } = "https://graph.microsoft.com";
@@ -23,6 +24,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "DeviceCode", Position = 1)]
     [Parameter(ParameterSetName = "ManagedIdentity", Position = 1)]
     [Parameter(ParameterSetName = "WorkloadIdentity", Position = 1)]
+    [Parameter(ParameterSetName = "ClientSecret", Position = 1)]
     [ValidateNotNullOrEmpty]
     public string[] Scope { get; set; } = new[] { ".default" };
 
@@ -32,6 +34,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
+    [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public string TenantId { get; set; }
 
@@ -41,14 +44,16 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "WorkloadIdentity")]
+    [Parameter(ParameterSetName = "ClientSecret")]
     [ValidateNotNullOrEmpty]
     public string Claim { get; set; }
 
     [Parameter(ParameterSetName = "Interactive")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
-    [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
     [Parameter(ParameterSetName = "Cache")]
+    [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
+    [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public string ClientId { get; set; }
 
@@ -84,11 +89,16 @@ public class GetAzToken : PSLoggerCmdletBase
     [ValidateNotNullOrEmpty]
     public string ExternalToken { get; set; }
 
+    [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    public string ClientSecret { get; set; }
+
     [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Interactive")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "WorkloadIdentity")]
+    [Parameter(ParameterSetName = "ClientSecret")]
     public SwitchParameter Force { get; set; }
 
     // If user specifies Force, disregard earlier authentication
@@ -165,6 +175,11 @@ Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
         {
             WriteVerbose($"Getting token using workload identity federation (using client assertion) for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientassertioncredential).");
             WriteObject(TokenManager.GetTokenWorkloadIdentity(Resource, Scope, Claim, ClientId, TenantId, ExternalToken, stopProcessing.Token));
+        }
+        else if (ParameterSetName == "ClientSecret")
+        {
+            WriteVerbose($"Getting token using client secret for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientsecretcredential).");
+            WriteObject(TokenManager.GetTokenClientSecret(Resource, Scope, Claim, ClientId, TenantId, ClientSecret, stopProcessing.Token));
         }
         else
         {

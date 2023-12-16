@@ -19,6 +19,7 @@ BeforeDiscovery {
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
+                @{ Name = 'ClientSecret'; Mandatory = $false }
             )
         }
         @{
@@ -31,6 +32,7 @@ BeforeDiscovery {
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
+                @{ Name = 'ClientSecret'; Mandatory = $false }
             )
         }
         @{
@@ -43,6 +45,7 @@ BeforeDiscovery {
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $true }
+                @{ Name = 'ClientSecret'; Mandatory = $true }
             )
         }
         @{
@@ -55,6 +58,7 @@ BeforeDiscovery {
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
+                @{ Name = 'ClientSecret'; Mandatory = $false }
             )
         }
         @{
@@ -64,8 +68,9 @@ BeforeDiscovery {
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
-                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
                 @{ Name = 'Cache'; Mandatory = $false }
+                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
+                @{ Name = 'ClientSecret'; Mandatory = $true }
             )
         }
         @{
@@ -128,6 +133,13 @@ BeforeDiscovery {
             )
         }
         @{
+            Name          = 'ClientSecret'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'ClientSecret'; Mandatory = $true }
+            )
+        }
+        @{
             Name          = 'Force'
             Type          = 'System.Management.Automation.SwitchParameter'
             ParameterSets = @(
@@ -136,6 +148,7 @@ BeforeDiscovery {
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
+                @{ Name = 'ClientSecret'; Mandatory = $false }
             )
         }
     )
