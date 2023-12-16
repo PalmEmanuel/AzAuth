@@ -1,0 +1,37 @@
+on: pull_request_target
+
+jobs:
+  authorize:
+    environment:
+      ${{ github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository &&
+      'external' || 'internal' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
+
+  test:
+    needs: authorize
+    permissions:
+      id-token: write # This is required for requesting the ID token of the pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v6.0
+        with:
+          modules-to-cache: Pester, PlatyPS
+      - name: Build module
+        run: .\build.ps1 -RunTests None
+        shell: pwsh
+      - name: Get token
+        shell: pwsh
+        env:
+          TENANT_ID: ${{ secrets.TENANT_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Import-Module .\AzAuth
+          Get-AzToken -WorkloadIdentity -ExternalToken $env:GITHUB_TOKEN -TenantId $env:TENANT_ID -ClientId $env:CLIENT_ID
