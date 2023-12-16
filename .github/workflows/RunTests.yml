@@ -8,9 +8,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install and cache PowerShell modules
-      uses: potatoqualitee/psmodulecache@v5.2
+      uses: potatoqualitee/psmodulecache@v6.0
       with:
         modules-to-cache: Pester, PlatyPS
     - name: Build module
