@@ -10,7 +10,7 @@ param(
     $Version,
     
     [string]
-    $DotNetVersion = 'net6.0',
+    $DotNetVersion = 'netstandard2.0',
 
     [Switch]
     $NoClean,
