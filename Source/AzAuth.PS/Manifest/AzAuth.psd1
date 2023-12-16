@@ -4,7 +4,7 @@
 RootModule = 'AzAuth.PS.dll'
 
 # Version number of this module.
-ModuleVersion = '2.2.5'
+ModuleVersion = '2.2.6'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core'
