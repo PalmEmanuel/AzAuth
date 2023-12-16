@@ -110,10 +110,18 @@ Gets a new Azure access token interactively from an existing token cache named "
 ### Example 5
 
 ```powershell
-PS C:\> Get-AzToken -Scope 'Directory.Read.All' -ClientId '0b279d62-06f2-4175-b008-d9efd0e4f4d3' -ManagedIdentity
+PS C:\> Get-AzToken -Scope 'Directory.Read.All' -ClientId $ClientId -ManagedIdentity
 ```
 
-Gets a new Azure access token for a managed identity, valid for for Microsoft Graph with the scope `Directory.Read.All`, also specifying a client id.
+Gets a new Azure access token for a managed identity, valid for Microsoft Graph with the scope `Directory.Read.All`, also specifying a client id.
+
+### Example 6
+
+```powershell
+PS C:\> Get-AzToken -ClientId $ClientId -ClientSecret $ClientSecret -TenantId $TenantId
+```
+
+Gets a new Azure access token for a client using the client credentials flow by specifying a client secret, valid for the default Microsoft Graph scope, also specifying the tenant as a mandatory parameter.
 
 ## PARAMETERS
 
