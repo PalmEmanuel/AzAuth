@@ -1,3 +1,5 @@
+name: Test Workload Identity authentication
+
 on: pull_request_target
 
 jobs:
@@ -31,7 +33,19 @@ jobs:
         env:
           TENANT_ID: ${{ secrets.TENANT_ID }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          $Url = $env:ACTIONS_ID_TOKEN_REQUEST_URL
+          $Params = @{
+            'Uri' = "$Url&audience=api://AzureADTokenExchange"
+            'Headers' = @{
+              'Authorization' = "Bearer $($env:ACTIONS_ID_TOKEN_REQUEST_TOKEN)"
+            }
+          }
+
+          $OidcTokenResponse = Invoke-RestMethod @Params
+          $OidcToken = $OidcTokenResponse.value
+
           Import-Module .\AzAuth
-          Get-AzToken -WorkloadIdentity -ExternalToken $env:GITHUB_TOKEN -TenantId $env:TENANT_ID -ClientId $env:CLIENT_ID
+          Get-AzToken -WorkloadIdentity -ExternalToken $OidcToken -TenantId $env:TENANT_ID -ClientId $env:CLIENT_ID -ErrorAction Stop | Out-Null
+
+          Write-Host "Successfully retrieved token for Workload Identity."
