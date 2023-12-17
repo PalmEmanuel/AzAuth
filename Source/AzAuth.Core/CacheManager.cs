@@ -74,10 +74,17 @@ internal static class CacheManager
 
         var result = await tokenBuilder.ExecuteAsync(cancellationToken);
 
+        var resultClaims = new ClaimsDictionary();
+        foreach (var claim in result.ClaimsPrincipal.Claims)
+        {
+            resultClaims.Add(claim.Type, claim.Value);
+        }
+
         return new AzToken(
             result.AccessToken,
             result.Scopes.ToArray(),
             result.ExpiresOn,
+            resultClaims,
             result.Account.Username ?? result.Account.HomeAccountId.ObjectId,
             result.TenantId
         );
@@ -117,10 +124,17 @@ internal static class CacheManager
 
         var result = await tokenBuilder.ExecuteAsync(cancellationToken);
 
+        var resultClaims = new ClaimsDictionary();
+        foreach (var claim in result.ClaimsPrincipal.Claims)
+        {
+            resultClaims.Add(claim.Type, claim.Value);
+        }
+
         return new AzToken(
             result.AccessToken,
             result.Scopes.ToArray(),
             result.ExpiresOn,
+            resultClaims,
             result.Account.Username ?? result.Account.HomeAccountId.ObjectId,
             result.TenantId
         );
@@ -152,10 +166,17 @@ internal static class CacheManager
 
         var result = await tokenBuilder.ExecuteAsync(cancellationToken);
 
+        var resultClaims = new ClaimsDictionary();
+        foreach (var claim in result.ClaimsPrincipal.Claims)
+        {
+            resultClaims.Add(claim.Type, claim.Value);
+        }
+
         return new AzToken(
             result.AccessToken,
             result.Scopes.ToArray(),
             result.ExpiresOn,
+            resultClaims,
             result.Account.Username ?? result.Account.HomeAccountId.ObjectId,
             result.TenantId
         );

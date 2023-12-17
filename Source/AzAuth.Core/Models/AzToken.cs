@@ -7,18 +7,17 @@ public class AzToken
     public string? Identity { get; }
     public string? TenantId { get; }
     public string[] Scopes { get; }
+    public ClaimsDictionary Claims { get; }
 
-    public AzToken(string token, string[] scopes, DateTimeOffset expiresOn, string? identity = null, string? tenantId = null)
+    public AzToken(string token, string[] scopes, DateTimeOffset expiresOn, ClaimsDictionary claims, string? identity = null, string? tenantId = null)
     {
         Token = token;
         Identity = identity;
         TenantId = tenantId;
         Scopes = scopes;
         ExpiresOn = expiresOn;
+        Claims = claims;
     }
 
-    public override string ToString()
-    {
-        return Token;
-    }
+    public override string ToString() => Token;
 }
