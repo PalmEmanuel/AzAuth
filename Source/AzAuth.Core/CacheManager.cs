@@ -186,14 +186,12 @@ internal static class CacheManager
 
     private static async Task<string[]> GetAccountsAsync(string? cacheName, CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrWhiteSpace(cacheName))
-        {
-            await InitializeCacheManagerAsync(cacheName, null, null, cancellationToken);
-        }
-        else
+        if (string.IsNullOrWhiteSpace(cacheName))
         {
             throw new ArgumentNullException("cacheName", "Cache handling could not be initialized!");
         }
+
+        await InitializeCacheManagerAsync(cacheName!, null, null, cancellationToken);
 
         var accounts = await application!.GetAccountsAsync();
         return accounts.Select(a => a.Username ?? a.HomeAccountId.ObjectId).ToArray();

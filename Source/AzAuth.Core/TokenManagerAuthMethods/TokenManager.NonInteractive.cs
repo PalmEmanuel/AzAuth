@@ -1,0 +1,73 @@
+﻿using Azure.Core;
+using Azure.Identity;
+using System.Text.RegularExpressions;
+
+namespace PipeHow.AzAuth;
+
+internal static partial class TokenManager
+{
+    /// <summary>
+    /// Gets token noninteractively.
+    /// </summary>
+    internal static AzToken GetTokenNonInteractive(string resource, string[] scopes, string? claims, string? tenantId, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenNonInteractiveAsync(resource, scopes, claims, tenantId, cancellationToken));
+
+    /// <summary>
+    /// Gets token noninteractively.
+    /// </summary>
+    internal static async Task<AzToken> GetTokenNonInteractiveAsync(
+        string resource,
+        string[] scopes,
+        string? claims,
+        string? tenantId,
+        CancellationToken cancellationToken)
+    {
+        var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
+
+        // Create our own credential chain because we want to change the order
+        var sources = new List<TokenCredential>()
+        {
+            new EnvironmentCredential(),
+            new AzurePowerShellCredential(),
+            new AzureCliCredential(),
+            new VisualStudioCodeCredential(),
+            new VisualStudioCredential(),
+            new SharedTokenCacheCredential()
+        };
+
+        // If user authenticated interactively in the same session and tenant didn't change, add it as the first option to find tokens from
+        if (credential is InteractiveBrowserCredential && tenantId == previousTenantId)
+        {
+            sources.Insert(0, credential);
+        }
+
+        // Create a new credential if it doesn't exist or tenant changed, otherwise re-use potentially authenticated credential
+        if (credential is not ChainedTokenCredential || tenantId != previousTenantId)
+        {
+            credential = new ChainedTokenCredential(sources.ToArray());
+        }
+
+        try
+        {
+            var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
+            return await GetTokenAsync(tokenRequestContext, cancellationToken);
+        }
+        catch (AuthenticationFailedException ex)
+        {
+            var errorMessage = "Could not get a token!";
+
+            // Azure PowerShell serializes its errors to CLIXML
+            // We parse using regex because the object itself is only an ANSI string from Get-AzAccessToken in the Az module
+            var result = Regex.Match(ex.Message, @".+AAD\w+: (?<Message>.+\.)_x001B_");
+            if (result.Success) {
+                // If we managed to parse error, add it to message
+                errorMessage += $" {result.Groups["Message"].Value}";
+            }
+            else
+            {
+                errorMessage += " See inner exception for more details.";
+            }
+            throw new AuthenticationFailedException(errorMessage, ex);
+        }
+    }
+}
