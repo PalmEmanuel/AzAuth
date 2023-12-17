@@ -25,6 +25,7 @@ internal static partial class TokenManager
         // Parse token to get info from claims
         var handler = new JwtSecurityTokenHandler();
         var jsonToken = handler.ReadJwtToken(token.Token);
+
         // Get upn of user if available, or email if personal account, otherwise object id of identity used (such as managed identity)
         var identity = (jsonToken.Claims.FirstOrDefault(c => c.Type == "upn") ??
             jsonToken.Claims.FirstOrDefault(c => c.Type == "email") ??
@@ -32,10 +33,17 @@ internal static partial class TokenManager
         var tenantId = jsonToken.Claims.FirstOrDefault(c => c.Type == "tid");
         var scopes = jsonToken.Claims.FirstOrDefault(c => c.Type == "scp");
 
+        var claims = new ClaimsDictionary();
+        foreach (var claim in jsonToken.Claims)
+        {
+            claims.Add(claim.Type, claim.Value);
+        }
+
         return new AzToken(
             token.Token,
             scopes?.Value.Split(' ') ?? tokenRequestContext.Scopes,
             token.ExpiresOn,
+            claims,
             identity,
             tenantId?.Value ?? tokenRequestContext.TenantId
         );
