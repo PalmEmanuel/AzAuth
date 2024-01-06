@@ -6,9 +6,14 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ### Added
 
+- Implemented Sampler [#45](https://github.com/PalmEmanuel/AzAuth/issues/45)
+
 ### Fixed
 
 ### Changed
+
+- Improved build and test workflow to run on multiple platforms
+- Updated LICENSE
 
 ### Removed
 
