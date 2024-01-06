@@ -1,0 +1,65 @@
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+name: PublishReleaseAndModule
+on:
+  push:
+    tags: [v*]
+
+jobs:
+  release:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 2
+
+    - name: Configure Git Actor
+      run: |
+        # Configure git with github-actions bot to make commits more pretty
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Get changelog
+      id: get-changelog
+      uses: release-flow/keep-a-changelog-action@v2.0.0
+      with:
+        command: query
+        version: unreleased
+
+    - name: Create Release
+      uses: meeDamian/github-release@2.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        name: ${{ github.ref_name }}
+        draft: true
+        body: ${{ steps.get-changelog.outputs.release-notes }}
+
+    - name: Update Changelog
+      uses: thomaseizinger/keep-a-changelog-new-release@v1
+      with:
+        tag: ${{ github.ref_name }}
+
+    - name: Create Pull Request
+      id: create-pull-request
+      uses: peter-evans/create-pull-request@v5.0.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "docs: update changelog for ${{ github.ref_name }}"
+        title: Update changelog for ${{ github.ref_name }}
+        body: Automatic update of changelog for release ${{ github.ref_name }}.
+        labels: documentation
+        author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+        committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+        branch: changelog-${{ github.ref_name }}
+
+    - name: Merge Pull Request
+      uses: juliangruber/merge-pull-request-action@v1.0.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        number: ${{ steps.create-pull-request.outputs.pull-request-number }}

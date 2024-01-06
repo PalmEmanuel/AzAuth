@@ -1,6 +1,15 @@
 name: Build and Test
 
 on:
+  pull_request_target:
+    branches:
+    - main
+    types:
+    - opened
+    - synchronize
+    paths-ignore:
+    - CHANGELOG.md
+
   pull_request:
     branches:
     - main
@@ -78,3 +87,55 @@ jobs:
 
       - name: 'Publish Test Results'
         uses: ./.github/actions/publish-test-results
+    
+  authorize:
+    environment:
+      ${{ github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository &&
+      'external' || 'internal' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
+
+  workload-identity-test:
+    name: Test Workload Identity Auth
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    needs: authorize
+    permissions:
+      id-token: write # This is required for requesting the ID token of the pipeline
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+        
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.buildArtifactName }}
+          path: ${{ env.buildFolderName }}
+          
+      - name: Get token
+        shell: pwsh
+        env:
+          TENANT_ID: ${{ secrets.TENANT_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        run: |
+          $Url = $env:ACTIONS_ID_TOKEN_REQUEST_URL
+          $Params = @{
+            'Uri' = "$Url&audience=api://AzureADTokenExchange"
+            'Headers' = @{
+              'Authorization' = "Bearer $($env:ACTIONS_ID_TOKEN_REQUEST_TOKEN)"
+            }
+          }
+
+          $OidcTokenResponse = Invoke-RestMethod @Params
+          $OidcToken = $OidcTokenResponse.value
+
+          Import-Module .\AzAuth
+          Get-AzToken -WorkloadIdentity -ExternalToken $OidcToken -TenantId $env:TENANT_ID -ClientId $env:CLIENT_ID -ErrorAction Stop | Out-Null
+
+          Write-Host "Successfully retrieved token for Workload Identity."
