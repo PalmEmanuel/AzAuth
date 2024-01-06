@@ -1,13 +1,4 @@
-param(
-    [Parameter()]
-    [ValidateScript({ $_ -match '\.psd1$' }, ErrorMessage = 'Please input a .psd1 file')]
-    $Manifest
-)
-
 BeforeDiscovery {
-    . "$PSScriptRoot\CommonTestLogic.ps1"
-    Invoke-ModuleReload -Manifest $Manifest
-    
     $ParameterTestCases += @(
         @{
             Name          = 'TokenCache'

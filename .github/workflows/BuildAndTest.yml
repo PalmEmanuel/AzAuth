@@ -1,0 +1,143 @@
+name: Build and Test
+
+on:
+  pull_request_target:
+    branches:
+    - main
+    types:
+    - opened
+    - synchronize
+    paths-ignore:
+    - CHANGELOG.md
+
+  pull_request:
+    branches:
+    - main
+    types:
+    - opened
+    - synchronize
+    paths-ignore:
+    - CHANGELOG.md
+
+  push:
+    branches:
+    - main
+    paths-ignore:
+    - CHANGELOG.md
+    - .github/**
+    tags: [v*]
+
+env:
+  buildFolderName: output
+  buildArtifactName: output
+  testResultFolderName: testResults
+
+jobs:
+  build:
+    name: Build Module
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 0
+
+    - name: 'Build and Package Module'
+      uses: ./.github/actions/build
+
+  test:
+    name: Test Module
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    needs:
+    - build
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: 'Test Module'
+        uses: ./.github/actions/test
+        with:
+          os: ${{ matrix.os }}
+
+  publish-test-results:
+    permissions:
+      checks: write
+      pull-requests: write
+
+    name: Publish Test Results
+    if: success() || failure()
+    runs-on: ubuntu-latest
+    needs:
+    - test
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: 'Publish Test Results'
+        uses: ./.github/actions/publish-test-results
+    
+  authorize:
+    environment:
+      ${{ github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository &&
+      'external' || 'internal' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
+
+  workload-identity-test:
+    if: github.event_name == 'pull_request_target'
+    name: Test Workload Identity Auth
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    needs: authorize
+    permissions:
+      id-token: write # This is required for requesting the ID token of the pipeline
+      
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+        
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.buildArtifactName }}
+          path: ${{ env.buildFolderName }}
+          
+      - name: Get token
+        shell: pwsh
+        env:
+          TENANT_ID: ${{ secrets.TENANT_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        run: |
+          $Url = $env:ACTIONS_ID_TOKEN_REQUEST_URL
+          $Params = @{
+            'Uri' = "$Url&audience=api://AzureADTokenExchange"
+            'Headers' = @{
+              'Authorization' = "Bearer $($env:ACTIONS_ID_TOKEN_REQUEST_TOKEN)"
+            }
+          }
+
+          $OidcTokenResponse = Invoke-RestMethod @Params
+          $OidcToken = $OidcTokenResponse.value
+
+          Import-Module ./output/AzAuth
+          Get-AzToken -WorkloadIdentity -ExternalToken $OidcToken -TenantId $env:TENANT_ID -ClientId $env:CLIENT_ID -ErrorAction Stop | Out-Null
+
+          Write-Host "Successfully retrieved token for Workload Identity."

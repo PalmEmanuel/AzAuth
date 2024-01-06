@@ -2,7 +2,7 @@ version: 2
 updates: 
   # Enable version updates for nuget 
   - package-ecosystem: "nuget"
-    directory: "Source"
+    directory: "source"
     # Check the nuget registry for updates every day (weekdays)
     schedule:
       interval: "daily"
