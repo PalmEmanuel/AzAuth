@@ -89,6 +89,7 @@ jobs:
         uses: ./.github/actions/publish-test-results
     
   authorize:
+    name: Authorization for Secret Access
     if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     steps:
