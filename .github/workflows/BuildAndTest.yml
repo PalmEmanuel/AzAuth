@@ -98,6 +98,7 @@ jobs:
       - run: true
 
   workload-identity-test:
+    if: github.event_name == 'pull_request_target'
     name: Test Workload Identity Auth
     strategy:
       matrix:
@@ -106,6 +107,7 @@ jobs:
     needs: authorize
     permissions:
       id-token: write # This is required for requesting the ID token of the pipeline
+      
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -135,7 +137,7 @@ jobs:
           $OidcTokenResponse = Invoke-RestMethod @Params
           $OidcToken = $OidcTokenResponse.value
 
-          Import-Module .\AzAuth
+          Import-Module ./output/AzAuth
           Get-AzToken -WorkloadIdentity -ExternalToken $OidcToken -TenantId $env:TENANT_ID -ClientId $env:CLIENT_ID -ErrorAction Stop | Out-Null
 
           Write-Host "Successfully retrieved token for Workload Identity."
