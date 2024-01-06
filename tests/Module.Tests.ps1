@@ -1,16 +1,5 @@
-param(
-    [Parameter()]
-    [ValidateScript({ $_ -match '\.psd1$' }, ErrorMessage = 'Please input a .psd1 file')]
-    $Manifest
-)
-
 BeforeDiscovery {
-    # Get module name from manifest
-    $ModuleName = (Get-Module $Manifest -ListAvailable).Name
-    
-    # Remove and import module
-    . "$PSScriptRoot\CommonTestLogic.ps1"
-    Invoke-ModuleReload -Manifest $Manifest
+    $ModuleName = Get-SamplerProjectName -BuildRoot $BuildRoot
 
     # Get exported commands
     $ExportedCommands = (Get-Module $ModuleName).ExportedCommands.Keys
@@ -39,8 +28,7 @@ BeforeDiscovery {
 }
 
 BeforeAll {
-    $RootDirectory = "$(Split-Path -Path $Manifest -Parent)\..\"
-    $ModuleName = (Get-Module $Manifest -ListAvailable).Name
+    $ModuleName = Get-SamplerProjectName -BuildRoot $BuildRoot
 }
 
 Describe "$ModuleName" {
@@ -52,27 +40,27 @@ Describe "$ModuleName" {
         }
         
         It 'has no help file with empty documentation sections' {
-            Get-ChildItem "$RootDirectory\Docs\Help\*.md" | Select-String '{{|}}' | Should -BeNullOrEmpty
+            Get-ChildItem "$BuildRoot\docs\help\*.md" | Select-String '{{|}}' | Should -BeNullOrEmpty
         }
         
         It 'has command <Command> defined in file in the correct directory' -TestCases $CommandTestCases {
             $CommandFileName = $Command -replace '-'
             
-            "$RootDirectory\Source\$ModuleName.PS\Cmdlets\$CommandFileName.cs" | Should -Exist
+            "$BuildRoot\source\$ModuleName.PS\Cmdlets\$CommandFileName.cs" | Should -Exist
         }
 
         It 'has test file for command <Command>' -TestCases $CommandTestCases {
             $Command
             
-            "$RootDirectory\Tests\$Command.Tests.ps1" | Should -Exist
+            "$BuildRoot\tests\$Command.Tests.ps1" | Should -Exist
         }
 
         It 'has markdown help file for command <Command>' -TestCases $CommandTestCases {
-            "$RootDirectory\Docs\Help\$Command.md" | Should -Exist
+            "$BuildRoot\docs\help\$Command.md" | Should -Exist
         }
 
         It 'has parameter <Parameter> documented in markdown help file for command <Command>' -TestCases $ParametersTestCases {
-            "$RootDirectory\Docs\Help\$Command.md" | Should -FileContentMatch $Parameter
+            "$BuildRoot\docs\help\$Command.md" | Should -FileContentMatch $Parameter
         }
     }
 }

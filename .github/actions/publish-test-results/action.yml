@@ -1,0 +1,18 @@
+name: "Publish Test Results"
+description: "Publishes the test results as an artifact."
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Download Test Results Artifacts
+    uses: actions/download-artifact@v4
+    with:
+      pattern: code-coverage-*
+      path: ${{ env.buildFolderName }}/${{ env.testResultFolderName }}/
+      merge-multiple: true
+
+  - name: Publish Test Results
+    uses: EnricoMi/publish-unit-test-result-action@v2
+    if: always()
+    with:
+      nunit_files: ${{ env.buildFolderName }}/${{ env.testResultFolderName }}/NUnit*.xml

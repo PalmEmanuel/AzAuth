@@ -12,9 +12,9 @@ You are more than welcome to contribute to the module, whether it is [Pull Reque
 
 The repository is organized as below:
 
-- **Docs** (`Docs/Help`): Help documentation for the module. Used by `platyPS` to generate help files.
-- **AzAuth.Core** (`Source/AzAuth.Core`): The assembly which wraps the SDK and provides logic and functionality.
-- **AzAuth.PS** (`Source/AzAuth.PS`): The compiled PowerShell module with commands and parameters.
+- **Docs** (`docs/help`): Help documentation for the module. Used by `platyPS` to generate help files.
+- **AzAuth.Core** (`source/AzAuth.Core`): The assembly which wraps the SDK and provides logic and functionality.
+- **AzAuth.PS** (`source/AzAuth.PS`): The compiled PowerShell module with commands and parameters.
 - **build.ps1**: The script that builds the module from source, generates documentation and runs the `Pester` tests.
 
 ### Building the module
@@ -47,10 +47,10 @@ Import-Module platyPS
 ```powershell
 # you need the module imported in the session
 Import-Module .\AzAuth
-New-MarkdownHelp -Module AzAuth -OutputFolder .\Docs\Help
+New-MarkdownHelp -Module AzAuth -OutputFolder .\docs\help
 ```
 
-Edit the new markdown files in the `.\Docs\Help` folder and replace `{{ ... }}` placeholders with missing help content.
+Edit the new markdown files in the `.\docs\help` folder and replace `{{ ... }}` placeholders with missing help content.
 
 - Run the build script to update the documentation.
 
@@ -63,7 +63,7 @@ Edit the new markdown files in the `.\Docs\Help` folder and replace `{{ ... }}` 
 ```powershell
 # re-import your module with latest changes
 Import-Module .\AzAuth -Force
-Update-MarkdownHelp .\Docs\Help
+Update-MarkdownHelp .\docs\help
 ```
 
 ## Pull Requests

@@ -1,0 +1,32 @@
+name: "Test Module"
+description: "Tests the PowerShell module and uploads test results as an artifact."
+
+inputs:
+  os:
+    description: "The operating system to run the tests on."
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 0
+        
+    - name: Download Build Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ env.buildArtifactName }}
+        path: ${{ env.buildFolderName }}
+    
+    - name: Run Tests
+      run: .\build.ps1 -tasks test
+      shell: pwsh
+  
+    - name: Publish Test Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ env.buildFolderName }}/${{ env.testResultFolderName }}/
+        name: code-coverage-${{ inputs.os }}
+      if: success() || failure()

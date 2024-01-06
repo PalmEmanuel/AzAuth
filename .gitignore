@@ -351,4 +351,9 @@ MigrationBackup/
 
 # Ignore build publish artifacts
 *.zip
-AzAuth/
+output/
+
+.kitchen/
+*.local.*
+**.bak
+markdownissues.txt
