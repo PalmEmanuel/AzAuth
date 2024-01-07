@@ -59,7 +59,7 @@ jobs:
         committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         branch: changelog-${{ github.ref_name }}
     
-    - name: GitHub Checks
+    - name: Await GitHub Checks
       uses: poseidon/wait-for-status-checks@v0.3.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
