@@ -23,10 +23,22 @@ env:
   buildArtifactName: output
   testResultFolderName: testResults
 
-jobs:
+jobs:    
+  authorize:
+    name: Authorization for Secret Access
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
+    environment:
+      ${{ github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository && 'external' || 'internal' }}
+
   build:
     name: Build Module
     runs-on: ubuntu-latest
+    needs:
+    - authorize
 
     steps:
     - uses: actions/checkout@v4
@@ -44,6 +56,7 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
 
     needs:
+    - authorize  
     - build
 
     runs-on: ${{ matrix.os }}
@@ -68,6 +81,7 @@ jobs:
     if: success() || failure()
     runs-on: ubuntu-latest
     needs:
+    - authorize  
     - test
 
     steps:
@@ -78,16 +92,6 @@ jobs:
 
       - name: 'Publish Test Results'
         uses: ./.github/actions/publish-test-results
-    
-  authorize:
-    name: Authorization for Secret Access
-    if: github.event_name == 'pull_request_target'
-    runs-on: ubuntu-latest
-    steps:
-      - run: true
-    environment:
-      ${{ github.event_name == 'pull_request_target' &&
-      github.event.pull_request.head.repo.full_name != github.repository && 'external' || 'internal' }}
 
   workload-identity-test:
     if: github.event_name == 'pull_request_target'
@@ -95,8 +99,9 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
+    needs:
+      - authorize
 
-    needs: authorize
     permissions:
       id-token: write # This is required for requesting the ID token of the pipeline
       
