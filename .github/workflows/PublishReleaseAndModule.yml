@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      checks: read
     runs-on: ubuntu-latest
 
     steps:
@@ -57,6 +58,11 @@ jobs:
         author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         branch: changelog-${{ github.ref_name }}
+    
+    - name: GitHub Checks
+      uses: poseidon/wait-for-status-checks@v0.3.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Merge Pull Request
       uses: juliangruber/merge-pull-request-action@v1.0.0
