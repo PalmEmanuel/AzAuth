@@ -10,15 +10,6 @@ on:
     paths-ignore:
     - CHANGELOG.md
 
-  pull_request:
-    branches:
-    - main
-    types:
-    - opened
-    - synchronize
-    paths-ignore:
-    - CHANGELOG.md
-
   push:
     branches:
     - main
