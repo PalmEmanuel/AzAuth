@@ -101,6 +101,7 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
     needs:
       - authorize
+      - build
 
     permissions:
       id-token: write # This is required for requesting the ID token of the pipeline
