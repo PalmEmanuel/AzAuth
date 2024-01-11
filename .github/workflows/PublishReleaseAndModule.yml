@@ -96,17 +96,6 @@ jobs:
         author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         branch: changelog-${{ github.ref_name }}
-    
-    - name: Await GitHub Checks
-      uses: poseidon/wait-for-status-checks@v0.3.0
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Merge Pull Request
-      uses: juliangruber/merge-pull-request-action@v1.0.0
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        number: ${{ steps.create-pull-request.outputs.pull-request-number }}
 
   release-psgallery:
     name: Publish to PowerShell Gallery
