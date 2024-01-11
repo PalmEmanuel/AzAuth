@@ -16,7 +16,6 @@ on:
     paths-ignore:
     - CHANGELOG.md
     - .github/**
-    tags: [v*]
 
 env:
   buildFolderName: output
