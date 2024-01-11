@@ -1,13 +1,51 @@
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 name: PublishReleaseAndModule
 on:
   push:
     tags: [v*]
 
-jobs:
-  release:
+env:
+  buildFolderName: output
+  buildArtifactName: output
+  testResultFolderName: testResults
+  
+jobs:  
+  build:
+    name: Build Module
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 0
+
+    - name: 'Build and Package Module'
+      uses: ./.github/actions/build
+
+  test:
+    name: Test Module
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    needs:
+    - build
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 0
+
+    - name: 'Test Module'
+      uses: ./.github/actions/test
+      with:
+        os: ${{ matrix.os }}
+
+  release-github:
+    name: Publish Release to GitHub
     permissions:
       contents: write
       pull-requests: write
@@ -69,3 +107,31 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         number: ${{ steps.create-pull-request.outputs.pull-request-number }}
+
+  release-psgallery:
+    name: Publish to PowerShell Gallery
+    runs-on: ubuntu-latest
+    needs:
+    - build
+    - test
+    env:
+      GalleryApiToken: ${{ secrets.PSGALLERY_KEY }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 0
+
+    - name: Download Build Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ env.buildArtifactName }}
+        path: ${{ env.buildFolderName }}
+        
+    - name: Publish Release
+      shell: pwsh
+      run: Import-Module ./output/RequiredModules/PowerShellForGitHub; ./build.ps1 -tasks publish
+      env:
+        GitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        GalleryApiToken: ${{ secrets.PSGALLERY_KEY }}
