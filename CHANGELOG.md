@@ -4,9 +4,11 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+## [2.2.9] - 2024-01-22
+
 ### Added
 
-- Added support for ClientCertificate authentication [#16](https://github.com/PalmEmanuel/AzAuth/issues/16)
+-   Added support for ClientCertificate authentication [#16](https://github.com/PalmEmanuel/AzAuth/issues/16)
 
 ## [2.2.8] - 2024-01-11
 
@@ -20,6 +22,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 -   Improved build and test workflow to run on multiple platforms
 -   Updated LICENSE year
 
-[Unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.2.8...HEAD
+[Unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.2.9...HEAD
+
+[2.2.9]: https://github.com/PalmEmanuel/AzAuth/compare/v2.2.8...v2.2.9
 
 [2.2.8]: https://github.com/PalmEmanuel/AzAuth/compare/1371440a317d3b48245636c58caeabea85331e21...v2.2.8
