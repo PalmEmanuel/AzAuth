@@ -11,6 +11,8 @@ BeforeDiscovery {
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
                 @{ Name = 'ClientSecret'; Mandatory = $false }
+                @{ Name = 'ClientCertificate'; Mandatory = $false }
+                @{ Name = 'ClientCertificatePath'; Mandatory = $false }
             )
         }
         @{
@@ -24,6 +26,8 @@ BeforeDiscovery {
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
                 @{ Name = 'ClientSecret'; Mandatory = $false }
+                @{ Name = 'ClientCertificate'; Mandatory = $false }
+                @{ Name = 'ClientCertificatePath'; Mandatory = $false }
             )
         }
         @{
@@ -37,6 +41,8 @@ BeforeDiscovery {
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $true }
                 @{ Name = 'ClientSecret'; Mandatory = $true }
+                @{ Name = 'ClientCertificate'; Mandatory = $true }
+                @{ Name = 'ClientCertificatePath'; Mandatory = $true }
             )
         }
         @{
@@ -50,6 +56,8 @@ BeforeDiscovery {
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
                 @{ Name = 'ClientSecret'; Mandatory = $false }
+                @{ Name = 'ClientCertificate'; Mandatory = $false }
+                @{ Name = 'ClientCertificatePath'; Mandatory = $false }
             )
         }
         @{
@@ -62,6 +70,8 @@ BeforeDiscovery {
                 @{ Name = 'Cache'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $true }
                 @{ Name = 'ClientSecret'; Mandatory = $true }
+                @{ Name = 'ClientCertificate'; Mandatory = $true }
+                @{ Name = 'ClientCertificatePath'; Mandatory = $true }
             )
         }
         @{
@@ -131,6 +141,20 @@ BeforeDiscovery {
             )
         }
         @{
+            Name          = 'ClientCertificate'
+            Type          = 'System.Security.Cryptography.X509Certificates.X509Certificate2'
+            ParameterSets = @(
+                @{ Name = 'ClientCertificate'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'ClientCertificatePath'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'ClientCertificatePath'; Mandatory = $true }
+            )
+        }
+        @{
             Name          = 'Force'
             Type          = 'System.Management.Automation.SwitchParameter'
             ParameterSets = @(
@@ -140,6 +164,8 @@ BeforeDiscovery {
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
                 @{ Name = 'ClientSecret'; Mandatory = $false }
+                @{ Name = 'ClientCertificate'; Mandatory = $false }
+                @{ Name = 'ClientCertificatePath'; Mandatory = $false }
             )
         }
     )

@@ -59,6 +59,20 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Cl
  -ClientId <String> -ClientSecret <String> [-Force] [<CommonParameters>]
 ```
 
+### ClientCertificate
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
+ -ClientId <String> -ClientCertificate <X509Certificate2> [-Force]
+ [<CommonParameters>]
+```
+
+### ClientCertificatePath
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
+ -ClientId <String> -ClientCertificatePath <String> [-Force]
+ [<CommonParameters>]
+```
+
 ## DESCRIPTION
 
 Gets a new Azure access token.
@@ -123,6 +137,22 @@ PS C:\> Get-AzToken -ClientId $ClientId -ClientSecret $ClientSecret -TenantId $T
 
 Gets a new Azure access token for a client using the client credentials flow by specifying a client secret, valid for the default Microsoft Graph scope, also specifying the tenant as a mandatory parameter.
 
+### Example 7
+
+```powershell
+PS C:\> Get-AzToken -ClientCertificate (Get-Item "Cert:\CurrentUser\My\$Thumbprint") -ClientId $ClientId -TenantId $TenantId
+```
+
+Gets a new Azure access token for a client using the client certificate flow by getting and providing an installed certificate from the user certificate store.
+
+### Example 8
+
+```powershell
+PS C:\> Get-AzToken -ClientCertificatePath ".\certAndPrivateKey.pem" -ClientId $ClientId -TenantId $TenantId
+```
+
+Gets a new Azure access token for a client using the client certificate flow by specifying a path to a file containing both the certificate and the private key.
+
 ## PARAMETERS
 
 ### -Claim
@@ -135,6 +165,38 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ClientCertificate
+
+The certificate to be used for getting a token with the client certificate flow.
+
+```yaml
+Type: X509Certificate2
+Parameter Sets: ClientCertificate
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ClientCertificatePath
+
+The path to a file containing both the certificate and private key, used for getting a token with the client certificate flow.
+
+```yaml
+Type: String
+Parameter Sets: ClientCertificatePath
+Aliases:
+
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -159,7 +221,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity, ClientSecret
+Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
 Aliases:
 
 Required: True
@@ -225,7 +287,7 @@ This may be required when combining interactive and non-interactive authenticati
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity, ClientSecret
+Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
 Aliases:
 
 Required: False
@@ -323,7 +385,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity, ClientSecret
+Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
 Aliases:
 
 Required: True

@@ -8,7 +8,7 @@ internal static partial class TokenManager
     /// <summary>
     /// Gets token with a client secret.
     /// </summary>
-    internal static AzToken GetTokenClientSecret(string resource, string[] scopes, string? claims, string? clientId, string tenantId, string clientSecret, CancellationToken cancellationToken) =>
+    internal static AzToken GetTokenClientSecret(string resource, string[] scopes, string? claims, string clientId, string tenantId, string clientSecret, CancellationToken cancellationToken) =>
         taskFactory.Run(() => GetTokenClientSecretAsync(resource, scopes, claims, clientId, tenantId, clientSecret, cancellationToken));
 
     /// <summary>
@@ -18,7 +18,7 @@ internal static partial class TokenManager
         string resource,
         string[] scopes,
         string? claims,
-        string? clientId,
+        string clientId,
         string tenantId,
         string clientSecret,
         CancellationToken cancellationToken)

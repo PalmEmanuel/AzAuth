@@ -4,6 +4,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Added
+
+- Added support for ClientCertificate authentication [#16](https://github.com/PalmEmanuel/AzAuth/issues/16)
+
 ## [2.2.8] - 2024-01-11
 
 ### Added
