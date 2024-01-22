@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Management.Automation;
+using System.Security.Cryptography.X509Certificates;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 namespace PipeHow.AzAuth;
@@ -14,6 +15,8 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ManagedIdentity", Position = 0)]
     [Parameter(ParameterSetName = "WorkloadIdentity", Position = 0)]
     [Parameter(ParameterSetName = "ClientSecret", Position = 0)]
+    [Parameter(ParameterSetName = "ClientCertificate", Position = 0)]
+    [Parameter(ParameterSetName = "ClientCertificatePath", Position = 0)]
     [ValidateNotNullOrEmpty]
     [Alias("ResourceId", "ResourceUrl")]
     public string Resource { get; set; } = "https://graph.microsoft.com";
@@ -25,6 +28,8 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ManagedIdentity", Position = 1)]
     [Parameter(ParameterSetName = "WorkloadIdentity", Position = 1)]
     [Parameter(ParameterSetName = "ClientSecret", Position = 1)]
+    [Parameter(ParameterSetName = "ClientCertificate", Position = 1)]
+    [Parameter(ParameterSetName = "ClientCertificatePath", Position = 1)]
     [ValidateNotNullOrEmpty]
     public string[] Scope { get; set; } = new[] { ".default" };
 
@@ -35,6 +40,8 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
+    [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
+    [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public string TenantId { get; set; }
 
@@ -45,6 +52,8 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "WorkloadIdentity")]
     [Parameter(ParameterSetName = "ClientSecret")]
+    [Parameter(ParameterSetName = "ClientCertificate")]
+    [Parameter(ParameterSetName = "ClientCertificatePath")]
     [ValidateNotNullOrEmpty]
     public string Claim { get; set; }
 
@@ -54,6 +63,8 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "Cache")]
     [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
+    [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
+    [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public string ClientId { get; set; }
 
@@ -93,12 +104,23 @@ public class GetAzToken : PSLoggerCmdletBase
     [ValidateNotNullOrEmpty]
     public string ClientSecret { get; set; }
 
+    [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    public X509Certificate2 ClientCertificate { get; set; }
+
+    [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    [ValidateCertificatePath]
+    public string ClientCertificatePath { get; set; }
+
     [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Interactive")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "WorkloadIdentity")]
     [Parameter(ParameterSetName = "ClientSecret")]
+    [Parameter(ParameterSetName = "ClientCertificate")]
+    [Parameter(ParameterSetName = "ClientCertificatePath")]
     public SwitchParameter Force { get; set; }
 
     // If user specifies Force, disregard earlier authentication
@@ -180,6 +202,16 @@ Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
         {
             WriteVerbose($"Getting token using client secret for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientsecretcredential).");
             WriteObject(TokenManager.GetTokenClientSecret(Resource, Scope, Claim, ClientId, TenantId, ClientSecret, stopProcessing.Token));
+        }
+        else if (ParameterSetName == "ClientCertificate")
+        {
+            WriteVerbose($"Getting token using client certificate for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
+            WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, TenantId, ClientCertificate, stopProcessing.Token));
+        }
+        else if (ParameterSetName == "ClientCertificatePath")
+        {
+            WriteVerbose($"Getting token using client certificate for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
+            WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, TenantId, ClientCertificatePath, stopProcessing.Token));
         }
         else
         {
