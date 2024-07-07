@@ -11,6 +11,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "NonInteractive", Position = 0)]
     [Parameter(ParameterSetName = "Cache", Position = 0)]
     [Parameter(ParameterSetName = "Interactive", Position = 0)]
+    [Parameter(ParameterSetName = "Broker", Position = 0)]
     [Parameter(ParameterSetName = "DeviceCode", Position = 0)]
     [Parameter(ParameterSetName = "ManagedIdentity", Position = 0)]
     [Parameter(ParameterSetName = "WorkloadIdentity", Position = 0)]
@@ -24,6 +25,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "NonInteractive", Position = 1)]
     [Parameter(ParameterSetName = "Cache", Position = 1)]
     [Parameter(ParameterSetName = "Interactive", Position = 1)]
+    [Parameter(ParameterSetName = "Broker", Position = 1)]
     [Parameter(ParameterSetName = "DeviceCode", Position = 1)]
     [Parameter(ParameterSetName = "ManagedIdentity", Position = 1)]
     [Parameter(ParameterSetName = "WorkloadIdentity", Position = 1)]
@@ -36,6 +38,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Cache")]
     [Parameter(ParameterSetName = "Interactive")]
+    [Parameter(ParameterSetName = "Broker")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
@@ -48,6 +51,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Cache")]
     [Parameter(ParameterSetName = "Interactive")]
+    [Parameter(ParameterSetName = "Broker")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "WorkloadIdentity")]
@@ -58,6 +62,7 @@ public class GetAzToken : PSLoggerCmdletBase
     public string Claim { get; set; }
 
     [Parameter(ParameterSetName = "Interactive")]
+    [Parameter(ParameterSetName = "Broker")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "Cache")]
@@ -69,6 +74,7 @@ public class GetAzToken : PSLoggerCmdletBase
     public string ClientId { get; set; }
 
     [Parameter(ParameterSetName = "Interactive")]
+    [Parameter(ParameterSetName = "Broker")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "Cache", Mandatory = true)]
     [ValidateNotNullOrEmpty]
@@ -86,6 +92,9 @@ public class GetAzToken : PSLoggerCmdletBase
 
     [Parameter(ParameterSetName = "Interactive", Mandatory = true)]
     public SwitchParameter Interactive { get; set; }
+
+    [Parameter(ParameterSetName = "Broker", Mandatory = true)]
+    public SwitchParameter Broker { get; set; }
 
     [Parameter(ParameterSetName = "DeviceCode", Mandatory = true)]
     public SwitchParameter DeviceCode { get; set; }
@@ -165,6 +174,11 @@ Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
         {
             WriteVerbose("Getting token interactively using the default browser.");
             WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, stopProcessing.Token));
+        }
+        else if (Broker.IsPresent)
+        {
+            WriteVerbose("Getting token interactively using the WAM broker.");
+            WriteObject(TokenManager.GetTokenInteractiveBroker(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, stopProcessing.Token));
         }
         else if (DeviceCode.IsPresent)
         {

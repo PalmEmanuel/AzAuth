@@ -33,6 +33,13 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-
  [<CommonParameters>]
 ```
 
+### Broker
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+ [-ClientId <String>] [-TokenCache <String>] [-Broker]
+ [<CommonParameters>]
+```
+
 ### DeviceCode
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
@@ -155,6 +162,21 @@ Gets a new Azure access token for a client using the client certificate flow by 
 
 ## PARAMETERS
 
+### -Broker
+{{ Fill Broker Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Broker
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Claim
 
 Additional claims to be included in the token.
@@ -209,7 +231,7 @@ The client id of the application used to authenticate the user or identity. If n
 
 ```yaml
 Type: String
-Parameter Sets: Cache, Interactive, DeviceCode, ManagedIdentity
+Parameter Sets: Cache, Interactive, Broker, DeviceCode, ManagedIdentity
 Aliases:
 
 Required: False
@@ -373,7 +395,7 @@ The id of the tenant that the token should be valid for.
 
 ```yaml
 Type: String
-Parameter Sets: NonInteractive, Cache, Interactive, DeviceCode, ManagedIdentity
+Parameter Sets: NonInteractive, Cache, Interactive, Broker, DeviceCode, ManagedIdentity
 Aliases:
 
 Required: False
@@ -429,7 +451,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Interactive, DeviceCode
+Parameter Sets: Interactive, Broker, DeviceCode
 Aliases:
 
 Required: False
