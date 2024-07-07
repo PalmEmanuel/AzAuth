@@ -42,7 +42,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ github.head_ref }}
+        ref: ${{github.event.pull_request.head.ref}}
+        repository: ${{github.event.pull_request.head.repo.full_name}}
         fetch-depth: 0
 
     - name: 'Build and Package Module'
@@ -61,9 +62,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
           fetch-depth: 0
 
       - name: 'Test Module'
@@ -84,9 +86,10 @@ jobs:
     - test
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
           fetch-depth: 0
 
       - name: 'Publish Test Results'
@@ -109,7 +112,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{github.event.pull_request.head.ref}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+          fetch-depth: 0
         
       - name: Download Build Artifact
         uses: actions/download-artifact@v3
