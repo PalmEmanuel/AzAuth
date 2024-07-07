@@ -15,7 +15,7 @@ runs:
 
   - name: Setup assets cache
     id: assetscache
-    uses: actions/cache@v3
+    uses: actions/cache@v4
     with:
       path: output/RequiredModules
       key: ${{ hashFiles('RequiredModules.psd1') }}
@@ -32,7 +32,7 @@ runs:
       ModuleVersion: ${{ env.gitVersion.NuGetVersionV2 }}
 
   - name: Publish build artifacts
-    uses: actions/upload-artifact@v3
+    uses: actions/upload-artifact@v4
     with:
       name: ${{ env.buildArtifactName }}
       path: ${{ env.buildFolderName }}/
