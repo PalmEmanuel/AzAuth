@@ -153,6 +153,14 @@ PS C:\> Get-AzToken -ClientCertificatePath ".\certAndPrivateKey.pem" -ClientId $
 
 Gets a new Azure access token for a client using the client certificate flow by specifying a path to a file containing both the certificate and the private key.
 
+### Example 9
+
+```powershell
+PS C:\> Get-AzToken -WorkloadIdentity -ExternalToken $OidcToken -ClientId $ClientId -TenantId $TenantId
+```
+
+Gets a new Azure access token for a client using the workload identity federation pattern by specifying a valid id token. For more details, see blog post in related links of this command.
+
 ## PARAMETERS
 
 ### -Claim
@@ -265,7 +273,7 @@ Accept wildcard characters: False
 
 ### -ExternalToken
 
-The external token used for the federated credential of the workload identity. Used for the client assertion flow.
+The external token used for the federated credential of the workload identity, used together with parameter -WorkloadIdentity for the client assertion flow. For more details, see blog post in related links of this command.
 
 ```yaml
 Type: String
@@ -457,7 +465,7 @@ Accept wildcard characters: False
 
 ### -WorkloadIdentity
 
-Get a token using a federated credential, or "workload identity federation".
+Get a token using a federated credential, or "workload identity federation". For an example of how to use this in a pipeline, see related links of this command.
 
 ```yaml
 Type: SwitchParameter
@@ -485,3 +493,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
+
+[Blog Post "OAuth 2.0 Fundamentals for Azure APIs"](https://pipe.how/connect-azure/)
+
+[Blog Post "Azure Workload Identity Federation"](https://pipe.how/get-oidctoken/)
