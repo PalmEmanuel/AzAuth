@@ -4,6 +4,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Added
+
+- Adds related links links to blog posts for Get-AzToken and the parameters -WorkloadIdentity & -ExternalToken
+
 ## [2.2.10] - 2024-05-22
 
 ### Changed
