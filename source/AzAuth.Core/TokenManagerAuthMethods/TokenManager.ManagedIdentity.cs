@@ -8,8 +8,8 @@ internal static partial class TokenManager
     /// <summary>
     /// Gets token as a managed identity.
     /// </summary>
-    internal static AzToken GetTokenManagedIdentity(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenManagedIdentityAsync(resource, scopes, claims, clientId, tenantId, cancellationToken));
+    internal static AzToken GetTokenManagedIdentity(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, int timeoutSeconds, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenManagedIdentityAsync(resource, scopes, claims, clientId, tenantId, timeoutSeconds, cancellationToken));
 
     /// <summary>
     /// Gets token as a managed identity.
@@ -20,6 +20,7 @@ internal static partial class TokenManager
         string? claims,
         string? clientId,
         string? tenantId,
+        int timeoutSeconds,
         CancellationToken cancellationToken)
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
@@ -28,7 +29,14 @@ internal static partial class TokenManager
         // Re-use the previous managed identity credential if client id didn't change
         if (credential is not ManagedIdentityCredential || previousClientId != clientId)
         {
-            credential = new ManagedIdentityCredential(clientId);
+            credential = new ManagedIdentityCredential(clientId, options: new TokenCredentialOptions{
+                Retry = {
+                    NetworkTimeout = TimeSpan.FromSeconds(timeoutSeconds),
+                    MaxRetries = 0,
+                    Delay = TimeSpan.Zero,
+                    MaxDelay = TimeSpan.Zero
+                }
+            });
         }
 
         previousClientId = clientId;

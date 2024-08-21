@@ -11,6 +11,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 ### Added
 
 - Adds related links links to blog posts for Get-AzToken and the parameters -WorkloadIdentity & -ExternalToken
+- Added `-TimeoutSeconds` parameter for Managed Identity authentication and non-interactive authentication
+- Added Managed Identity authentication as first option of non-interactive login
 
 ## [2.2.10] - 2024-05-22
 
