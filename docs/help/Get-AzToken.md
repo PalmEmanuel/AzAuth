@@ -15,8 +15,8 @@ Gets a new Azure access token.
 
 ### NonInteractive (Default)
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>] [-Force]
- [<CommonParameters>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+ [-TimeoutSeconds <Int32>] [-Force] [<CommonParameters>]
 ```
 
 ### Cache
@@ -43,7 +43,8 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-
 ### ManagedIdentity
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- [-ClientId <String>] [-ManagedIdentity] [-Force] [<CommonParameters>]
+ [-ClientId <String>] [-TimeoutSeconds <Int32>] [-ManagedIdentity] [-Force]
+ [<CommonParameters>]
 ```
 
 ### WorkloadIdentity
@@ -409,7 +410,7 @@ The number of seconds to wait until the login times out.
 
 ```yaml
 Type: Int32
-Parameter Sets: Interactive, DeviceCode
+Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity
 Aliases:
 
 Required: False
