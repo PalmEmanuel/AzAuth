@@ -11,18 +11,22 @@ branches:
     label: preview
     regex: ^main$
     increment: Patch
+    is-main-branch: true
   pull-request:
     label: PR
+    is-main-branch: false
   feature:
     label: useBranchName
     increment: Minor
     regex: f(eature(s)?)?[\/-]
     source-branches: ['main']
+    is-main-branch: false
   hotfix:
     label: fix
     increment: Patch
     regex: (hot)?fix(es)?[\/-]
     source-branches: ['main']
+    is-main-branch: false
 
 ignore:
   sha: []
