@@ -5,13 +5,15 @@ runs:
   using: 'composite'
   steps:
   - name: Install GitVersion
-    uses: gittools/actions/gitversion/setup@v0.10.0
+    uses: gittools/actions/gitversion/setup@v3.0.0
     with:
-      versionSpec: '5.x'
+      versionSpec: '6.x'
 
   - name: Determine Version
-    id:   gitversion
-    uses: gittools/actions/gitversion/execute@v0.10.0
+    id: gitversion
+    uses: gittools/actions/gitversion/execute@v3.0.0
+    with:
+      useConfigFile: true
 
   - name: Setup assets cache
     id: assetscache
