@@ -4,6 +4,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Fixed
+
+- Upgraded gitversion config in repo to support version 6
+
 ### Added
 
 - Adds related links links to blog posts for Get-AzToken and the parameters -WorkloadIdentity & -ExternalToken
