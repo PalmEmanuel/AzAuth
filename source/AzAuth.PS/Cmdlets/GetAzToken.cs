@@ -57,6 +57,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [ValidateNotNullOrEmpty]
     public string Claim { get; set; }
 
+    [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Interactive")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
@@ -148,6 +149,20 @@ public class GetAzToken : PSLoggerCmdletBase
 
         if (ParameterSetName == "NonInteractive")
         {
+            if (MyInvocation.BoundParameters.ContainsKey("ClientId"))
+            {
+                if (TokenManager.HasClientId())
+                {
+                    WriteWarning(@"The ClientId is saved in the session from the previous interactive authentication. If you wish to use the same authentication, omit the ClientId parameter and any parameters indicating interactive authentication. For example:
+'Get-AzToken -Interactive -ClientId $ClientId -Resource $Resource -Scope $Scope'
+
+should be
+
+'Get-AzToken -Resource $Resource -Scope $Scope'");
+                }
+                throw new ArgumentException("The ClientId parameter is not supported for this parameter combination.");
+            }
+
             // If user didn't specify a timeout, default to 1 second for managed identity
             int managedIdentityTimeoutSeconds = 1;
             int? noninteractiveTimeoutSeconds = null;

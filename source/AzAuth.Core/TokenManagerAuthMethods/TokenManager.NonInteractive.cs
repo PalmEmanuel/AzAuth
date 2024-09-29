@@ -1,8 +1,5 @@
 ﻿using Azure.Core;
-using Azure.Core.Diagnostics;
-using Azure.Core.Pipeline;
 using Azure.Identity;
-using System.Diagnostics.Tracing;
 using System.Text.RegularExpressions;
 
 namespace PipeHow.AzAuth;

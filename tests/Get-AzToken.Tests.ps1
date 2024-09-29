@@ -64,6 +64,7 @@ BeforeDiscovery {
             Name          = 'ClientId'
             Type          = 'string'
             ParameterSets = @(
+                @{ Name = 'NonInteractive'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
