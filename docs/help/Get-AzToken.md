@@ -16,7 +16,8 @@ Gets a new Azure access token.
 ### NonInteractive (Default)
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- [-TimeoutSeconds <Int32>] [-Force] [<CommonParameters>]
+ [-ClientId <String>] [-TimeoutSeconds <Int32>] [-Force]
+ [<CommonParameters>]
 ```
 
 ### Cache
@@ -218,7 +219,7 @@ The client id of the application used to authenticate the user or identity. If n
 
 ```yaml
 Type: String
-Parameter Sets: Cache, Interactive, DeviceCode, ManagedIdentity
+Parameter Sets: NonInteractive, Cache, Interactive, DeviceCode, ManagedIdentity
 Aliases:
 
 Required: False

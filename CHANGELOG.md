@@ -4,6 +4,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Changed
+
+- Parameter -ClientId now explains usage in a warning message when used with non-interactive parameter set
+
 ## [2.3.0] - 2024-08-21
 
 ### Fixed
