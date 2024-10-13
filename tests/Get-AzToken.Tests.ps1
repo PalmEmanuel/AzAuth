@@ -7,6 +7,7 @@ BeforeDiscovery {
                 @{ Name = 'NonInteractive'; Mandatory = $false }
                 @{ Name = 'Cache'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
+                @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
@@ -22,6 +23,7 @@ BeforeDiscovery {
                 @{ Name = 'NonInteractive'; Mandatory = $false }
                 @{ Name = 'Cache'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
+                @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
@@ -37,6 +39,7 @@ BeforeDiscovery {
                 @{ Name = 'NonInteractive'; Mandatory = $false }
                 @{ Name = 'Cache'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
+                @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $true }
@@ -52,6 +55,7 @@ BeforeDiscovery {
                 @{ Name = 'NonInteractive'; Mandatory = $false }
                 @{ Name = 'Cache'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
+                @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'WorkloadIdentity'; Mandatory = $false }
@@ -66,6 +70,7 @@ BeforeDiscovery {
             ParameterSets = @(
                 @{ Name = 'NonInteractive'; Mandatory = $false }
                 @{ Name = 'Interactive'; Mandatory = $false }
+                @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'Cache'; Mandatory = $false }
@@ -80,6 +85,7 @@ BeforeDiscovery {
             Type          = 'string'
             ParameterSets = @(
                 @{ Name = 'Interactive'; Mandatory = $false }
+                @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'Cache'; Mandatory = $true }
             )
@@ -89,6 +95,13 @@ BeforeDiscovery {
             Type          = 'string'
             ParameterSets = @(
                 @{ Name = 'Cache'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'Broker'
+            Type          = 'System.Management.Automation.SwitchParameter'
+            ParameterSets = @(
+                @{ Name = 'Broker'; Mandatory = $true }
             )
         }
         @{

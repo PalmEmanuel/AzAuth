@@ -173,7 +173,8 @@ Gets a new Azure access token for a client using the workload identity federatio
 ## PARAMETERS
 
 ### -Broker
-{{ Fill Broker Description }}
+
+Get a token using the Web Account Manager (WAM) broker authentication flow for Windows devices.
 
 ```yaml
 Type: SwitchParameter
