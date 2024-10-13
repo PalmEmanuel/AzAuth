@@ -61,6 +61,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [ValidateNotNullOrEmpty]
     public string Claim { get; set; }
 
+    [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Interactive")]
     [Parameter(ParameterSetName = "Broker")]
     [Parameter(ParameterSetName = "DeviceCode")]
@@ -85,7 +86,9 @@ public class GetAzToken : PSLoggerCmdletBase
     [ArgumentCompleter(typeof(ExistingAccounts))]
     public string Username { get; set; }
 
+    [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Interactive")]
+    [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [ValidateRange(1, int.MaxValue)]
     public int TimeoutSeconds { get; set; } = 120;
@@ -155,7 +158,31 @@ public class GetAzToken : PSLoggerCmdletBase
 
         if (ParameterSetName == "NonInteractive")
         {
+            if (MyInvocation.BoundParameters.ContainsKey("ClientId"))
+            {
+                if (TokenManager.HasClientId())
+                {
+                    WriteWarning(@"The ClientId is saved in the session from the previous interactive authentication. If you wish to use the same authentication, omit the ClientId parameter and any parameters indicating interactive authentication. For example:
+'Get-AzToken -Interactive -ClientId $ClientId -Resource $Resource -Scope $Scope'
+
+should be
+
+'Get-AzToken -Resource $Resource -Scope $Scope'");
+                }
+                throw new ArgumentException("The ClientId parameter is not supported for this parameter combination.");
+            }
+
+            // If user didn't specify a timeout, default to 1 second for managed identity
+            int managedIdentityTimeoutSeconds = 1;
+            int? noninteractiveTimeoutSeconds = null;
+            if (MyInvocation.BoundParameters.ContainsKey("TimeoutSeconds"))
+            {
+                managedIdentityTimeoutSeconds = TimeoutSeconds;
+                noninteractiveTimeoutSeconds = TimeoutSeconds;
+            }
+
             WriteVerbose(@"Looking for a token from the following sources:
+Managed Identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential)
 Environment variables (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
 Azure PowerShell (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
 Azure CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
@@ -163,7 +190,7 @@ Visual Studio Code (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
 Visual Studio (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
 Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential)
 ");
-            WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, TenantId, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, TenantId, noninteractiveTimeoutSeconds, managedIdentityTimeoutSeconds, stopProcessing.Token));
         }
         else if (ParameterSetName == "Cache")
         {
@@ -204,8 +231,13 @@ Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
         }
         else if (ManagedIdentity.IsPresent)
         {
+            // If user didn't specify a timeout, default to 1 second for managed identity
+            if (!MyInvocation.BoundParameters.ContainsKey("TimeoutSeconds"))
+            {
+                TimeoutSeconds = 1;
+            }
             WriteVerbose("Getting token using a managed identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential).");
-            WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, TenantId, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, TenantId, TimeoutSeconds, stopProcessing.Token));
         }
         else if (WorkloadIdentity.IsPresent)
         {

@@ -9,8 +9,8 @@ internal static partial class TokenManager
     /// <summary>
     /// Gets token noninteractively.
     /// </summary>
-    internal static AzToken GetTokenNonInteractive(string resource, string[] scopes, string? claims, string? tenantId, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenNonInteractiveAsync(resource, scopes, claims, tenantId, cancellationToken));
+    internal static AzToken GetTokenNonInteractive(string resource, string[] scopes, string? claims, string? tenantId, int? timeoutSeconds, int managedIdentityTimeoutSeconds, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenNonInteractiveAsync(resource, scopes, claims, tenantId, timeoutSeconds, managedIdentityTimeoutSeconds, cancellationToken));
 
     /// <summary>
     /// Gets token noninteractively.
@@ -20,19 +20,42 @@ internal static partial class TokenManager
         string[] scopes,
         string? claims,
         string? tenantId,
+        int? timeoutSeconds,
+        int managedIdentityTimeoutSeconds,
         CancellationToken cancellationToken)
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
 
+        // If timeoutSeconds is not null, create a new TokenCredentialOptions with the specified timeout
+        // Otherwise, set to null to use default timeout
+        TokenCredentialOptions? genericTimeoutOptions = timeoutSeconds.HasValue ? new TokenCredentialOptions
+        {
+            Retry = {
+                NetworkTimeout = TimeSpan.FromSeconds(timeoutSeconds.Value),
+                MaxRetries = 0,
+                Delay = TimeSpan.Zero,
+                MaxDelay = TimeSpan.Zero
+            }
+        } : null;
+
         // Create our own credential chain because we want to change the order
         var sources = new List<TokenCredential>()
         {
-            new EnvironmentCredential(),
-            new AzurePowerShellCredential(),
-            new AzureCliCredential(),
-            new VisualStudioCodeCredential(),
-            new VisualStudioCredential(),
-            new SharedTokenCacheCredential()
+            // ManagedIdentityCredential with custom timeout
+            new ManagedIdentityCredential(options: new TokenCredentialOptions{
+                Retry = {
+                    NetworkTimeout = TimeSpan.FromSeconds(managedIdentityTimeoutSeconds),
+                    MaxRetries = 0,
+                    Delay = TimeSpan.Zero,
+                    MaxDelay = TimeSpan.Zero
+                }
+            }),
+            new EnvironmentCredential(genericTimeoutOptions),
+            new AzurePowerShellCredential(genericTimeoutOptions as AzurePowerShellCredentialOptions),
+            new AzureCliCredential(genericTimeoutOptions as AzureCliCredentialOptions),
+            new VisualStudioCodeCredential(genericTimeoutOptions as VisualStudioCodeCredentialOptions),
+            new VisualStudioCredential(genericTimeoutOptions as VisualStudioCredentialOptions),
+            new SharedTokenCacheCredential(genericTimeoutOptions as SharedTokenCacheCredentialOptions)
         };
 
         // If user authenticated interactively in the same session and tenant didn't change, add it as the first option to find tokens from

@@ -8,7 +8,7 @@ env:
   buildArtifactName: output
   testResultFolderName: testResults
   
-jobs:  
+jobs:
   build:
     name: Build Module
     runs-on: ubuntu-latest

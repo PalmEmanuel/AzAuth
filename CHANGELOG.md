@@ -4,6 +4,22 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Changed
+
+- Parameter -ClientId now explains usage in a warning message when used with non-interactive parameter set
+
+## [2.3.0] - 2024-08-21
+
+### Fixed
+
+-   Upgraded gitversion config in repo to support version 6
+
+### Added
+
+-   Adds related links links to blog posts for Get-AzToken and the parameters -WorkloadIdentity & -ExternalToken
+-   Added `-TimeoutSeconds` parameter for Managed Identity authentication and non-interactive authentication
+-   Added Managed Identity authentication as first option of non-interactive login
+
 ## [2.2.10] - 2024-05-22
 
 ### Changed
@@ -30,7 +46,9 @@ The format is based on and uses the types of changes according to [Keep a Change
 -   Improved build and test workflow to run on multiple platforms
 -   Updated LICENSE year
 
-[Unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.2.10...HEAD
+[Unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.3.0...HEAD
+
+[2.3.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.2.10...v2.3.0
 
 [2.2.10]: https://github.com/PalmEmanuel/AzAuth/compare/v2.2.9...v2.2.10
 

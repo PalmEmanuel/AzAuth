@@ -39,7 +39,9 @@ internal static partial class TokenManager
 
         // Create a new credential
         credential = new InteractiveBrowserCredential(options);
-
+        
+        previousClientId = clientId;
+        
         try
         {
             // Create a new cancellation token by combining a timeout with existing token

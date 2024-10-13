@@ -53,4 +53,9 @@ internal static partial class TokenManager
     {
         credential = null;
     }
+
+    internal static bool HasClientId()
+    {
+        return !string.IsNullOrEmpty(previousClientId);
+    }
 }
