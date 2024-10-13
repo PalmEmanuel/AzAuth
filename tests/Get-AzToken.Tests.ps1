@@ -85,7 +85,6 @@ BeforeDiscovery {
             Type          = 'string'
             ParameterSets = @(
                 @{ Name = 'Interactive'; Mandatory = $false }
-                @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'Cache'; Mandatory = $true }
             )
