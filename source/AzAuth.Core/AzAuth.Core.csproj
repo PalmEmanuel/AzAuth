@@ -17,7 +17,7 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
 	  <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
 	  <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Identity.Client.NativeInterop" Version="0.17.0" GeneratePathProperty="true"/>
+    <PackageReference Include="Microsoft.Identity.Client.NativeInterop" Version="0.17.2" GeneratePathProperty="true"/>
   </ItemGroup>
 
   <ItemGroup>
