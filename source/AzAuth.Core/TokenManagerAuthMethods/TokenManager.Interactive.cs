@@ -29,7 +29,7 @@ internal static partial class TokenManager
 
         if (!string.IsNullOrWhiteSpace(tokenCache))
         {
-            return CacheManager.GetTokenInteractive(tokenCache!, clientId, tenantId, fullScopes, claims, cancellationToken);
+            return await CacheManager.GetTokenInteractiveAsync(tokenCache!, clientId, tenantId, fullScopes, claims, cancellationToken);
         }
 
         var options = new InteractiveBrowserCredentialOptions

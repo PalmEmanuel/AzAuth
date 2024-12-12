@@ -209,7 +209,7 @@ should be
             {
                 throw new PlatformNotSupportedException("The WAM broker authentication is only supported on Windows.");
             }
-            WriteObject(TokenManager.GetTokenInteractiveBroker(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenInteractiveBroker(Resource, Scope, Claim, ClientId, TenantId, TimeoutSeconds, stopProcessing.Token));
         }
         else if (DeviceCode.IsPresent)
         {
