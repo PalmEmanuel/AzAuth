@@ -21,12 +21,11 @@ internal static partial class TokenManager
     /// <param name="claims"></param>
     /// <param name="clientId"></param>
     /// <param name="tenantId"></param>
-    /// <param name="tokenCache"></param>
     /// <param name="timeoutSeconds"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    internal static AzToken GetTokenInteractiveBroker(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string? tokenCache, int timeoutSeconds, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenInteractiveBrokerAsync(resource, scopes, claims, clientId, tenantId, tokenCache, timeoutSeconds, cancellationToken));
+    internal static AzToken GetTokenInteractiveBroker(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, int timeoutSeconds, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenInteractiveBrokerAsync(resource, scopes, claims, clientId, tenantId, timeoutSeconds, cancellationToken));
 
     /// <summary>
     /// Gets token interactively using the Web Account Manager Broker.
@@ -36,7 +35,6 @@ internal static partial class TokenManager
     /// <param name="claims"></param>
     /// <param name="clientId"></param>
     /// <param name="tenantId"></param>
-    /// <param name="tokenCache"></param>
     /// <param name="timeoutSeconds"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
@@ -47,23 +45,22 @@ internal static partial class TokenManager
         string? claims,
         string? clientId,
         string? tenantId,
-        string? tokenCache,
         int timeoutSeconds,
         CancellationToken cancellationToken)
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
         var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
-        if (!string.IsNullOrWhiteSpace(tokenCache))
-            return await CacheManager.GetTokenInteractiveAsync(tokenCache!, clientId, tenantId, fullScopes, claims, cancellationToken);
-
         IntPtr parentWindow = GetForegroundWindowHandle();
-        var options = new InteractiveBrowserCredentialBrokerOptions(parentWindow);
+        var options = new InteractiveBrowserCredentialBrokerOptions(parentWindow)
+        {
+            ClientId = clientId
+        };
 
         // Create a new credential
         credential = new InteractiveBrowserCredential(options);
 
-        try 
+        try
         {
             // Create a new cancellation token by combining a timeout with existing token
             using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
