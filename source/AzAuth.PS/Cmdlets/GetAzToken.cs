@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Management.Automation;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -92,6 +93,11 @@ public class GetAzToken : PSLoggerCmdletBase
     [ValidateRange(1, int.MaxValue)]
     public int TimeoutSeconds { get; set; } = 120;
 
+    [Parameter(ParameterSetName = "NonInteractive")]
+    [ValidateSet("ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "VisualStudioCode", "VisualStudio", "SharedTokenCache")]
+    [ValidateNotNullOrEmpty()]
+    public string[] CredentialPrecedence { get; set; } = ["ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "VisualStudioCode", "VisualStudio", "SharedTokenCache"];
+
     [Parameter(ParameterSetName = "Interactive", Mandatory = true)]
     public SwitchParameter Interactive { get; set; }
 
@@ -180,16 +186,11 @@ should be
                 noninteractiveTimeoutSeconds = TimeoutSeconds;
             }
 
-            WriteVerbose(@"Looking for a token from the following sources:
-Managed Identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential)
-Environment variables (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
-Azure PowerShell (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
-Azure CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
-Visual Studio Code (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
-Visual Studio (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
-Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential)
-");
-            WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, TenantId, noninteractiveTimeoutSeconds, managedIdentityTimeoutSeconds, stopProcessing.Token));
+            CredentialPrecedence = CredentialPrecedence.Distinct().ToArray();
+
+            WriteVerbose(@$"Looking for a token from the following sources:
+{string.Join(Environment.NewLine, CredentialPrecedence.Select(cred => $"{cred} ({TokenManager.GetCredentialDocumentationUrl(cred)})"))}");
+            WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, TenantId, CredentialPrecedence, noninteractiveTimeoutSeconds, managedIdentityTimeoutSeconds, stopProcessing.Token));
         }
         else if (ParameterSetName == "Cache")
         {
@@ -204,6 +205,10 @@ Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.
         else if (Broker.IsPresent)
         {
             WriteVerbose("Getting token interactively using the WAM broker.");
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new PlatformNotSupportedException("The WAM broker authentication is only supported on Windows.");
+            }
             WriteObject(TokenManager.GetTokenInteractiveBroker(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, stopProcessing.Token));
         }
         else if (DeviceCode.IsPresent)

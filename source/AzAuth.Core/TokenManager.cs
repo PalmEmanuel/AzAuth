@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Azure.Identity;
 using Microsoft.VisualStudio.Threading;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -9,7 +10,23 @@ internal static partial class TokenManager
     private static TokenCredential? credential;
     private static string? previousTenantId;
     private static string? previousClientId;
+    private static string[]? previousCredentialPrecedence = null;
     private static readonly JoinableTaskFactory taskFactory = new(new JoinableTaskContext());
+
+    internal static string GetCredentialDocumentationUrl(string credentialType)
+    {
+        return credentialType switch
+        {
+            "ManagedIdentity" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential",
+            "Environment" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential",
+            "AzurePowerShell" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential",
+            "AzureCLI" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential",
+            "VisualStudioCode" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential",
+            "VisualStudio" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential",
+            "SharedTokenCache" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential",
+            _ => throw new ArgumentException("Invalid credential type", nameof(credentialType))
+        };
+    }
 
     // Common method for getting the token from the credential depending on the user's authentication method.
     internal static async Task<AzToken> GetTokenAsync(TokenRequestContext tokenRequestContext, CancellationToken cancellationToken)
@@ -19,6 +36,8 @@ internal static partial class TokenManager
             throw new InvalidOperationException("Credential authorization could not be performed correctly, could not get token!");
         }
         previousTenantId = tokenRequestContext.TenantId;
+        // If the credential is not a ChainedTokenCredential, reset the previous credential precedence
+        if (credential is not ChainedTokenCredential) { previousCredentialPrecedence = null; }
 
         AccessToken token = await credential.GetTokenAsync(tokenRequestContext, cancellationToken);
 
