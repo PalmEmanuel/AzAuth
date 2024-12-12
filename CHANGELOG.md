@@ -4,17 +4,19 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+## [2.4.0] - 2024-12-12
+
 ### Added
 
-- Added -CredentialPrecedence parameter to allow for setting the precedence of the credentials used for non-interactive authentication #13
+-   Added -CredentialPrecedence parameter to allow for setting the precedence of the credentials used for non-interactive authentication #13
 
 ### Changed
 
-- Parameter -ClientId now explains usage in a warning message when used with non-interactive parameter set
+-   Parameter -ClientId now explains usage in a warning message when used with non-interactive parameter set
 
 ### Fixed
 
-- Downgraded Azure.Identity until issue https://github.com/Azure/azure-sdk-for-net/issues/47057 is resolved #112
+-   Downgraded Azure.Identity until issue <https://github.com/Azure/azure-sdk-for-net/issues/47057> is resolved #112
 
 ## [2.3.0] - 2024-08-21
 
@@ -54,7 +56,9 @@ The format is based on and uses the types of changes according to [Keep a Change
 -   Improved build and test workflow to run on multiple platforms
 -   Updated LICENSE year
 
-[Unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.4.0...HEAD
+
+[2.4.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.3.0...v2.4.0
 
 [2.3.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.2.10...v2.3.0
 
