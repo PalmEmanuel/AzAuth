@@ -4,9 +4,17 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Added
+
+- Added -CredentialPrecedence parameter to allow for setting the precedence of the credentials used for non-interactive authentication #13
+
 ### Changed
 
 - Parameter -ClientId now explains usage in a warning message when used with non-interactive parameter set
+
+### Fixed
+
+- Downgraded Azure.Identity until issue https://github.com/Azure/azure-sdk-for-net/issues/47057 is resolved #112
 
 ## [2.3.0] - 2024-08-21
 

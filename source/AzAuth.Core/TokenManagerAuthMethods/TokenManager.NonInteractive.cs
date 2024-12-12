@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Azure.Core.Pipeline;
 using Azure.Identity;
 using System.Text.RegularExpressions;
 
@@ -9,8 +10,8 @@ internal static partial class TokenManager
     /// <summary>
     /// Gets token noninteractively.
     /// </summary>
-    internal static AzToken GetTokenNonInteractive(string resource, string[] scopes, string? claims, string? tenantId, int? timeoutSeconds, int managedIdentityTimeoutSeconds, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenNonInteractiveAsync(resource, scopes, claims, tenantId, timeoutSeconds, managedIdentityTimeoutSeconds, cancellationToken));
+    internal static AzToken GetTokenNonInteractive(string resource, string[] scopes, string? claims, string? tenantId, string[] credentialPrecedence, int? timeoutSeconds, int managedIdentityTimeoutSeconds, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenNonInteractiveAsync(resource, scopes, claims, tenantId, credentialPrecedence, timeoutSeconds, managedIdentityTimeoutSeconds, cancellationToken));
 
     /// <summary>
     /// Gets token noninteractively.
@@ -20,6 +21,7 @@ internal static partial class TokenManager
         string[] scopes,
         string? claims,
         string? tenantId,
+        string[] credentialPrecedence,
         int? timeoutSeconds,
         int managedIdentityTimeoutSeconds,
         CancellationToken cancellationToken)
@@ -38,36 +40,45 @@ internal static partial class TokenManager
             }
         } : null;
 
-        // Create our own credential chain because we want to change the order
-        var sources = new List<TokenCredential>()
+        // Create our own credential chain based on user parameter to change the order
+        var sources = new List<TokenCredential>();
+        foreach (var credentialType in credentialPrecedence)
         {
-            // ManagedIdentityCredential with custom timeout
-            new ManagedIdentityCredential(options: new TokenCredentialOptions{
-                Retry = {
-                    NetworkTimeout = TimeSpan.FromSeconds(managedIdentityTimeoutSeconds),
-                    MaxRetries = 0,
-                    Delay = TimeSpan.Zero,
-                    MaxDelay = TimeSpan.Zero
-                }
-            }),
-            new EnvironmentCredential(genericTimeoutOptions),
-            new AzurePowerShellCredential(genericTimeoutOptions as AzurePowerShellCredentialOptions),
-            new AzureCliCredential(genericTimeoutOptions as AzureCliCredentialOptions),
-            new VisualStudioCodeCredential(genericTimeoutOptions as VisualStudioCodeCredentialOptions),
-            new VisualStudioCredential(genericTimeoutOptions as VisualStudioCredentialOptions),
-            new SharedTokenCacheCredential(genericTimeoutOptions as SharedTokenCacheCredentialOptions)
-        };
+            sources.Add(credentialType switch
+            {
+                "ManagedIdentity" => new ManagedIdentityCredential(options: new TokenCredentialOptions
+                {
+                    Retry = {
+                        NetworkTimeout = TimeSpan.FromSeconds(managedIdentityTimeoutSeconds),
+                        MaxRetries = 0,
+                        Delay = TimeSpan.Zero,
+                        MaxDelay = TimeSpan.Zero
+                    }
+                }),
+                "Environment" => new EnvironmentCredential(genericTimeoutOptions),
+                "AzurePowerShell" => new AzurePowerShellCredential(genericTimeoutOptions as AzurePowerShellCredentialOptions),
+                "AzureCLI" => new AzureCliCredential(genericTimeoutOptions as AzureCliCredentialOptions),
+                "VisualStudioCode" => new VisualStudioCodeCredential(genericTimeoutOptions as VisualStudioCodeCredentialOptions),
+                "VisualStudio" => new VisualStudioCredential(genericTimeoutOptions as VisualStudioCredentialOptions),
+                "SharedTokenCache" => new SharedTokenCacheCredential(genericTimeoutOptions as SharedTokenCacheCredentialOptions),
+                _ => throw new ArgumentException("Invalid credential type", nameof(credentialType))
+            });
+        }
+
+        bool sameTenant = tenantId == previousTenantId;
+        bool sameCredentialPrecedence = previousCredentialPrecedence is not null && credentialPrecedence.SequenceEqual(previousCredentialPrecedence);
 
         // If user authenticated interactively in the same session and tenant didn't change, add it as the first option to find tokens from
-        if (credential is InteractiveBrowserCredential && tenantId == previousTenantId)
+        if (credential is InteractiveBrowserCredential && sameTenant && sameCredentialPrecedence)
         {
             sources.Insert(0, credential);
         }
 
-        // Create a new credential if it doesn't exist or tenant changed, otherwise re-use potentially authenticated credential
-        if (credential is not ChainedTokenCredential || tenantId != previousTenantId)
+        // Create a new credential if it doesn't exist, or tenant or credential precedence changed, otherwise re-use potentially authenticated credential
+        if (credential is not ChainedTokenCredential || !sameTenant || !sameCredentialPrecedence)
         {
             credential = new ChainedTokenCredential(sources.ToArray());
+            previousCredentialPrecedence = credentialPrecedence;
         }
 
         try
@@ -88,7 +99,7 @@ internal static partial class TokenManager
             }
             else
             {
-                errorMessage += " See inner exception for more details.";
+                errorMessage += " See inner exception for more details: " + Environment.NewLine + ex.Message;
             }
             throw new AuthenticationFailedException(errorMessage, ex);
         }

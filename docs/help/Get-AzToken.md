@@ -16,7 +16,7 @@ Gets a new Azure access token.
 ### NonInteractive (Default)
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- [-ClientId <String>] [-TimeoutSeconds <Int32>] [-Force]
+ [-ClientId <String>] [-TimeoutSeconds <Int32>] [-CredentialPrecedence <String[]>] [-Force]
  [<CommonParameters>]
 ```
 
@@ -37,8 +37,7 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-
 ### Broker
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
- [-ClientId <String>] [-TokenCache <String>] [-Broker]
- [<CommonParameters>]
+ [-ClientId <String>] [-Broker] [<CommonParameters>]
 ```
 
 ### DeviceCode
@@ -280,6 +279,23 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -CredentialPrecedence
+
+The order of precedence for the credentials to be used for getting a token non-interactively.
+
+```yaml
+Type: String[]
+Parameter Sets: NonInteractive
+Aliases:
+Accepted values: ManagedIdentity, Environment, AzurePowerShell, AzureCLI, VisualStudioCode, VisualStudio, SharedTokenCache
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -DeviceCode
 
 Get a token using a device code login interactively, for example on a different device.
@@ -462,7 +478,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: Interactive, Broker, DeviceCode
+Parameter Sets: Interactive, DeviceCode
 Aliases:
 
 Required: False

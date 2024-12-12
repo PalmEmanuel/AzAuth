@@ -4,7 +4,7 @@
 RootModule = 'AzAuth.PS.dll'
 
 # Version number of this module.
-ModuleVersion = '2.2.9'
+ModuleVersion = '2.4.0'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core'
@@ -25,7 +25,7 @@ Copyright = '(c) Emanuel Palm. All rights reserved.'
 Description = 'A lightweight PowerShell module to handle Azure authentication, using the Azure.Identity MSAL library.'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '7.2'
+PowerShellVersion = '7.4'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''

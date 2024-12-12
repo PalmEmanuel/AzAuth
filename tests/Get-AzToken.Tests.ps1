@@ -114,6 +114,13 @@ BeforeDiscovery {
             )
         }
         @{
+            Name          = 'CredentialPrecedence'
+            Type          = 'string[]'
+            ParameterSets = @(
+                @{ Name = 'NonInteractive'; Mandatory = $false }
+            )
+        }
+        @{
             Name          = 'Interactive'
             Type          = 'System.Management.Automation.SwitchParameter'
             ParameterSets = @(
