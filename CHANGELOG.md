@@ -4,6 +4,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Changed
+
+- `-TenantId` parameter is now called `-Tenant`, but `-TenantId` alias is still supported #99
+
 ## [2.4.0] - 2024-12-12
 
 ### Added
