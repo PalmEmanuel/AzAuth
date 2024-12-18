@@ -4,9 +4,11 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+## [2.4.1] - 2024-12-18
+
 ### Changed
 
-- `-TenantId` parameter is now called `-Tenant`, but `-TenantId` alias is still supported #99
+-   `-TenantId` parameter is now called `-Tenant`, but `-TenantId` alias is still supported #99
 
 ## [2.4.0] - 2024-12-12
 
@@ -60,7 +62,9 @@ The format is based on and uses the types of changes according to [Keep a Change
 -   Improved build and test workflow to run on multiple platforms
 -   Updated LICENSE year
 
-[Unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.4.1...HEAD
+
+[2.4.1]: https://github.com/PalmEmanuel/AzAuth/compare/v2.4.0...v2.4.1
 
 [2.4.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.3.0...v2.4.0
 
