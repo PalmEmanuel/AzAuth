@@ -15,70 +15,67 @@ Gets a new Azure access token.
 
 ### NonInteractive (Default)
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
  [-ClientId <String>] [-TimeoutSeconds <Int32>] [-CredentialPrecedence <String[]>] [-Force]
  [<CommonParameters>]
 ```
 
 ### Cache
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
  [-ClientId <String>] -TokenCache <String> -Username <String>
  [<CommonParameters>]
 ```
 
 ### Interactive
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
  [-ClientId <String>] [-TokenCache <String>] [-TimeoutSeconds <Int32>] [-Interactive] [-Force]
  [<CommonParameters>]
 ```
 
 ### Broker
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
  [-ClientId <String>] [-Broker] [<CommonParameters>]
 ```
 
 ### DeviceCode
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
  [-ClientId <String>] [-TokenCache <String>] [-TimeoutSeconds <Int32>] [-DeviceCode] [-Force]
  [<CommonParameters>]
 ```
 
 ### ManagedIdentity
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-TenantId <String>] [-Claim <String>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
  [-ClientId <String>] [-TimeoutSeconds <Int32>] [-ManagedIdentity] [-Force]
  [<CommonParameters>]
 ```
 
 ### WorkloadIdentity
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
- -ClientId <String> [-WorkloadIdentity] -ExternalToken <String> [-Force]
- [<CommonParameters>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ [-WorkloadIdentity] -ExternalToken <String> [-Force] [<CommonParameters>]
 ```
 
 ### ClientSecret
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
- -ClientId <String> -ClientSecret <String> [-Force] [<CommonParameters>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ -ClientSecret <String> [-Force] [<CommonParameters>]
 ```
 
 ### ClientCertificate
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
- -ClientId <String> -ClientCertificate <X509Certificate2> [-Force]
- [<CommonParameters>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ -ClientCertificate <X509Certificate2> [-Force] [<CommonParameters>]
 ```
 
 ### ClientCertificatePath
 ```
-Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -TenantId <String> [-Claim <String>]
- -ClientId <String> -ClientCertificatePath <String> [-Force]
- [<CommonParameters>]
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ -ClientCertificatePath <String> [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -416,14 +413,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TenantId
-
-The id of the tenant that the token should be valid for.
+### -Tenant
+The id or name of the tenant that the token should be valid for.
 
 ```yaml
 Type: String
 Parameter Sets: NonInteractive, Cache, Interactive, Broker, DeviceCode, ManagedIdentity
-Aliases:
+Aliases: TenantId
 
 Required: False
 Position: Named
@@ -435,7 +431,7 @@ Accept wildcard characters: False
 ```yaml
 Type: String
 Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
-Aliases:
+Aliases: TenantId
 
 Required: True
 Position: Named

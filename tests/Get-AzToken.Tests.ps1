@@ -33,7 +33,7 @@ BeforeDiscovery {
             )
         }
         @{
-            Name          = 'TenantId'
+            Name          = 'Tenant'
             Type          = 'string'
             ParameterSets = @(
                 @{ Name = 'NonInteractive'; Mandatory = $false }

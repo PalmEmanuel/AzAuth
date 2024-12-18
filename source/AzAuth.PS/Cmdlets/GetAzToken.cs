@@ -47,7 +47,8 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
     [ValidateNotNullOrEmpty]
-    public string TenantId { get; set; }
+    [Alias("TenantId")]
+    public string Tenant { get; set; }
 
     [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Cache")]
@@ -190,17 +191,17 @@ should be
 
             WriteVerbose(@$"Looking for a token from the following sources:
 {string.Join(Environment.NewLine, CredentialPrecedence.Select(cred => $"{cred} ({TokenManager.GetCredentialDocumentationUrl(cred)})"))}");
-            WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, TenantId, CredentialPrecedence, noninteractiveTimeoutSeconds, managedIdentityTimeoutSeconds, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, Tenant, CredentialPrecedence, noninteractiveTimeoutSeconds, managedIdentityTimeoutSeconds, stopProcessing.Token));
         }
         else if (ParameterSetName == "Cache")
         {
             WriteVerbose($"Getting token from token cache named \"{TokenCache}\".");
-            WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, ClientId, TenantId, TokenCache!, Username, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, ClientId, Tenant, TokenCache!, Username, stopProcessing.Token));
         }
         else if (Interactive.IsPresent)
         {
             WriteVerbose("Getting token interactively using the default browser.");
-            WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, Tenant, TokenCache, TimeoutSeconds, stopProcessing.Token));
         }
         else if (Broker.IsPresent)
         {
@@ -209,7 +210,7 @@ should be
             {
                 throw new PlatformNotSupportedException("The WAM broker authentication is only supported on Windows.");
             }
-            WriteObject(TokenManager.GetTokenInteractiveBroker(Resource, Scope, Claim, ClientId, TenantId, TimeoutSeconds, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenInteractiveBroker(Resource, Scope, Claim, ClientId, Tenant, TimeoutSeconds, stopProcessing.Token));
         }
         else if (DeviceCode.IsPresent)
         {
@@ -218,7 +219,7 @@ should be
             // Set up a BlockingCollection to use for logging device code message
             BlockingCollection<string> loggingQueue = new();
             // Start device code flow and save task
-            var tokenTask = joinableTaskFactory.RunAsync(() => TokenManager.GetTokenDeviceCodeAsync(Resource, Scope, Claim, ClientId, TenantId, TokenCache, TimeoutSeconds, loggingQueue, stopProcessing.Token));
+            var tokenTask = joinableTaskFactory.RunAsync(() => TokenManager.GetTokenDeviceCodeAsync(Resource, Scope, Claim, ClientId, Tenant, TokenCache, TimeoutSeconds, loggingQueue, stopProcessing.Token));
 
             // Loop through messages and log them to warning stream (verbose is silent by default)
             try
@@ -241,27 +242,27 @@ should be
                 TimeoutSeconds = 1;
             }
             WriteVerbose("Getting token using a managed identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential).");
-            WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, TenantId, TimeoutSeconds, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, Tenant, TimeoutSeconds, stopProcessing.Token));
         }
         else if (WorkloadIdentity.IsPresent)
         {
             WriteVerbose($"Getting token using workload identity federation (using client assertion) for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientassertioncredential).");
-            WriteObject(TokenManager.GetTokenWorkloadIdentity(Resource, Scope, Claim, ClientId, TenantId, ExternalToken, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenWorkloadIdentity(Resource, Scope, Claim, ClientId, Tenant, ExternalToken, stopProcessing.Token));
         }
         else if (ParameterSetName == "ClientSecret")
         {
             WriteVerbose($"Getting token using client secret for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientsecretcredential).");
-            WriteObject(TokenManager.GetTokenClientSecret(Resource, Scope, Claim, ClientId, TenantId, ClientSecret, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenClientSecret(Resource, Scope, Claim, ClientId, Tenant, ClientSecret, stopProcessing.Token));
         }
         else if (ParameterSetName == "ClientCertificate")
         {
             WriteVerbose($"Getting token using client certificate for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
-            WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, TenantId, ClientCertificate, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, Tenant, ClientCertificate, stopProcessing.Token));
         }
         else if (ParameterSetName == "ClientCertificatePath")
         {
             WriteVerbose($"Getting token using client certificate for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
-            WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, TenantId, ClientCertificatePath, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, Tenant, ClientCertificatePath, stopProcessing.Token));
         }
         else
         {
