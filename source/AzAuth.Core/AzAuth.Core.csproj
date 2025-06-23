@@ -1,21 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
     <RootNamespace>PipeHow.$(MSBuildProjectName.Replace(" ", "_").TrimEnd(".Core"))</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="AzAuth.Net" />
     <InternalsVisibleTo Include="AzAuth.PS" />
 	  <PackageReference Include="Azure.Identity" Version="1.12.1" />
 	  <PackageReference Include="Azure.Identity.Broker" Version="1.1.0" />
 	  <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.12.19" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
-	  <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
+    <PackageReference Include="System.Management.Automation" Version="7.4.6" />
 	  <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
     <PackageReference Include="Microsoft.Identity.Client.NativeInterop" Version="0.17.2" GeneratePathProperty="true"/>
   </ItemGroup>

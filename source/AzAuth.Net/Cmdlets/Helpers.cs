@@ -32,7 +32,7 @@ public class ValidateCertificatePathAttribute : ValidateArgumentsAttribute
     {
         var path = arguments as string;
 
-        if (!Regex.Match(path, "\\.(pfx|pem)$").Success)
+        if (!Regex.Match(path!, "\\.(pfx|pem)$").Success)
         {
             throw new ArgumentException("Only .pfx and .pem files are supported!");
         }

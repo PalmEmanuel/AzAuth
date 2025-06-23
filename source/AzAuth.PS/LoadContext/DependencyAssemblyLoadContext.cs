@@ -8,7 +8,9 @@ public class DependencyAssemblyLoadContext : AssemblyLoadContext
     private readonly string dependenciesDirectory;
 
     // Save the full path to the dependencies directory when creating the context
-    public DependencyAssemblyLoadContext(string path) => dependenciesDirectory = path;
+    public DependencyAssemblyLoadContext(string path) : base("AzAuthALC") {
+        dependenciesDirectory = path;
+    }
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {

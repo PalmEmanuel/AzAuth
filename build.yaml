@@ -10,6 +10,7 @@ OutputDirectory: ../../output/AzAuth
 CopyPaths:
   # - ..source/en-US
   - ../source/AzAuth.Core/bin/AzAuth.Core
+  - ../source/AzAuth.Net/bin/AzAuth.Net
   - ../source/AzAuth.PS/bin/AzAuth.PS
   - ../LICENSE
   - ../CHANGELOG.md

@@ -1,6 +1,8 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using System.Collections.Concurrent;
+using System.Management.Automation;
+using System.Threading.Tasks;
 
 namespace PipeHow.AzAuth;
 
@@ -9,7 +11,7 @@ internal static partial class TokenManager
     /// <summary>
     /// Gets token using a device code.
     /// </summary>
-    internal static async Task<AzToken> GetTokenDeviceCodeAsync(
+    internal static AzToken GetTokenDeviceCode(
         string resource,
         string[] scopes,
         string? claims,
@@ -17,9 +19,12 @@ internal static partial class TokenManager
         string? tenantId,
         string? tokenCache,
         int timeoutSeconds,
-        BlockingCollection<string> loggingQueue,
+        PSCmdlet cmdlet,
         CancellationToken cancellationToken)
     {
+        // Set up a BlockingCollection to use for logging device code message
+        BlockingCollection<string> loggingQueue = new();
+
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
         var tokenRequestContext = new TokenRequestContext(fullScopes, null, claims, tenantId);
 
@@ -29,7 +34,7 @@ internal static partial class TokenManager
             // Create a new cancellation token by combining a timeout with existing token
             using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
             var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token).Token;
-            return await CacheManager.GetTokenDeviceCodeAsync(tokenCache, clientId, tenantId, fullScopes, claims, loggingQueue, combinedToken);
+            return taskFactory.Run(() => CacheManager.GetTokenDeviceCodeAsync(tokenCache, clientId, tenantId, fullScopes, claims, loggingQueue, combinedToken));
         }
 
         var options = new DeviceCodeCredentialOptions
@@ -56,7 +61,19 @@ internal static partial class TokenManager
             // Create a new cancellation token by combining a timeout with existing token
             using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
             var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token).Token;
-            return await GetTokenAsync(tokenRequestContext, combinedToken);
+            var tokenTask = taskFactory.RunAsync(() => GetTokenAsync(tokenRequestContext, combinedToken));
+
+            // Loop through messages and log them to warning stream (verbose is silent by default)
+            try
+            {
+                while (loggingQueue.TryTake(out string? message, Timeout.Infinite, cancellationToken))
+                {
+                    cmdlet.WriteWarning(message);
+                }
+            }
+            catch (OperationCanceledException) { /* It's fine if user cancels here, no need to write error message */ }
+
+            return tokenTask.Join(cancellationToken);
         }
         catch (OperationCanceledException ex)
         {

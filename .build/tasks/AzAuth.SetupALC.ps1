@@ -9,14 +9,10 @@ task setupALC {
     Push-Location $ModuleFolder
 
     Rename-Item -Path 'AzAuth.Core' -NewName 'dependencies'
+    Get-ChildItem -Path 'AzAuth.Net' -File | Move-Item -Destination .
     Get-ChildItem -Path 'AzAuth.PS' -File -Filter AzAuth.PS* | Move-Item -Destination .
     
-    # We need to load the DLLs for logging and JoinableTaskFactory in the PS context, not in the assembly load context
-    Move-Item -Path @(
-        "./dependencies/Microsoft.VisualStudio.Threading.dll"
-        "./dependencies/Microsoft.VisualStudio.Validation.dll"
-    ) -Destination .
-    
+    Remove-Item AzAuth.Net
     Remove-Item AzAuth.PS
 
     Pop-Location

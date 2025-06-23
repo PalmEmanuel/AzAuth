@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzAuth.PS", ".\AzAuth.PS\Az
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzAuth.Core", ".\AzAuth.Core\AzAuth.Core.csproj", "{15B9DAB8-10A6-492C-9688-C36A71016338}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzAuth.Net", "AzAuth.Net\AzAuth.Net.csproj", "{A00D7C6D-A529-4C96-A2B9-A676C23C5A1E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{15B9DAB8-10A6-492C-9688-C36A71016338}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15B9DAB8-10A6-492C-9688-C36A71016338}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15B9DAB8-10A6-492C-9688-C36A71016338}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A00D7C6D-A529-4C96-A2B9-A676C23C5A1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A00D7C6D-A529-4C96-A2B9-A676C23C5A1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A00D7C6D-A529-4C96-A2B9-A676C23C5A1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A00D7C6D-A529-4C96-A2B9-A676C23C5A1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

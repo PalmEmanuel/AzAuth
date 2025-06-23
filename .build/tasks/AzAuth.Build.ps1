@@ -1,7 +1,7 @@
 param(
     [string[]]
     # Naming this $ProjectPath would cause it to overwrite the variable passed to Pester
-    $Paths = @('source/AzAuth.Core', 'source/AzAuth.PS'),
+    $Paths = @('source/AzAuth.Core', 'source/AzAuth.Net', 'source/AzAuth.PS'),
 
     [ValidateSet('Debug', 'Release')]
     [string]
