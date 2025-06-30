@@ -66,7 +66,7 @@ jobs:
 
     - name: Get changelog
       id: get-changelog
-      uses: release-flow/keep-a-changelog-action@v2.0.0
+      uses: release-flow/keep-a-changelog-action@v3.0.0
       with:
         command: query
         version: unreleased
