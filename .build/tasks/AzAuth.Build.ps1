@@ -5,7 +5,7 @@ param(
 
     [ValidateSet('Debug', 'Release')]
     [string]
-    $Configuration = 'Release'
+    $Configuration = (property CompileConfiguration 'Release')
 )
 
 task dotnetBuild {

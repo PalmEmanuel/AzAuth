@@ -29,7 +29,7 @@ internal static partial class TokenManager
         // Re-use the previous managed identity credential if client id didn't change
         if (credential is not ManagedIdentityCredential || previousClientId != clientId)
         {
-            credential = new ManagedIdentityCredential(clientId, options: new TokenCredentialOptions{
+            credential = new ManagedIdentityCredential(clientId, options: new ManagedIdentityCredentialOptions{
                 Retry = {
                     NetworkTimeout = TimeSpan.FromSeconds(timeoutSeconds),
                     MaxRetries = 0,

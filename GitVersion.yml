@@ -67,14 +67,13 @@ branches:
     pre-release-weight: 30000
   pull-request:
     mode: ContinuousDelivery
-    label: PullRequest
+    label: PullRequest{Number}
     increment: Inherit
     prevent-increment:
       of-merged-branch: true
       when-current-commit-tagged: false
-    label-number-pattern: '[/-](?<number>\d+)'
     track-merge-message: true
-    regex: ^(pull|pull\-requests|pr)[/-]
+    regex: ^(pull-requests|pull|pr)[\/-](?<Number>\d*)
     source-branches:
     - main
     - release
