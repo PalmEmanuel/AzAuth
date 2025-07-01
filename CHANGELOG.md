@@ -4,6 +4,20 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Removed
+
+- Removed Visual Studio Code credential option which has been deprecated
+
+### Changed
+
+- When getting Tokens non-interactively, Managed Identity is now last in the credential chain until #112 is fixed
+- Bumped Azure.Identity from 1.12.1 to 1.14.1
+- Bumped Microsoft.VisualStudio.Threading from 17.12.19 to 17.14.15
+- Bumped Azure.Identity.Broker from 1.1.0 to 1.2.0
+- Bumped System.IdentityModel.Tokens.Jwt from 8.3.0 to 8.12.1
+- Bumped System.Security.Cryptography.ProtectedData from 9.0.0 to 9.0.6
+- Bumped Microsoft.Identity.Client.NativeInterop from 0.17.2 to 0.19.3
+
 ## [2.4.1] - 2024-12-18
 
 ### Changed
