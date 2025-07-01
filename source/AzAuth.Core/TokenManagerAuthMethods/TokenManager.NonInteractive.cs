@@ -46,7 +46,7 @@ internal static partial class TokenManager
         {
             sources.Add(credentialType switch
             {
-                "ManagedIdentity" => new ManagedIdentityCredential(options: new TokenCredentialOptions
+                "ManagedIdentity" => new ManagedIdentityCredential(options: new ManagedIdentityCredentialOptions
                 {
                     Retry = {
                         NetworkTimeout = TimeSpan.FromSeconds(managedIdentityTimeoutSeconds),
@@ -58,7 +58,6 @@ internal static partial class TokenManager
                 "Environment" => new EnvironmentCredential(genericTimeoutOptions),
                 "AzurePowerShell" => new AzurePowerShellCredential(genericTimeoutOptions as AzurePowerShellCredentialOptions),
                 "AzureCLI" => new AzureCliCredential(genericTimeoutOptions as AzureCliCredentialOptions),
-                "VisualStudioCode" => new VisualStudioCodeCredential(genericTimeoutOptions as VisualStudioCodeCredentialOptions),
                 "VisualStudio" => new VisualStudioCredential(genericTimeoutOptions as VisualStudioCredentialOptions),
                 "SharedTokenCache" => new SharedTokenCacheCredential(genericTimeoutOptions as SharedTokenCacheCredentialOptions),
                 _ => throw new ArgumentException("Invalid credential type", nameof(credentialType))

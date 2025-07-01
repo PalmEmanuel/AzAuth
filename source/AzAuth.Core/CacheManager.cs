@@ -2,6 +2,7 @@
 using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.VisualStudio.Threading;
 using System.Collections.Concurrent;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace PipeHow.AzAuth;
 
@@ -74,8 +75,11 @@ internal static class CacheManager
 
         var result = await tokenBuilder.ExecuteAsync(cancellationToken);
 
+        // result.ClaimsPrincipal doesnt have the correct claims, so we extract claims from the token instead
         var resultClaims = new ClaimsDictionary();
-        foreach (var claim in result.ClaimsPrincipal.Claims)
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadJwtToken(result.AccessToken);
+        foreach (var claim in jsonToken.Claims)
         {
             resultClaims.Add(claim.Type, claim.Value);
         }
@@ -124,8 +128,11 @@ internal static class CacheManager
 
         var result = await tokenBuilder.ExecuteAsync(cancellationToken);
 
+        // result.ClaimsPrincipal doesnt have all the correct claims, so we extract claims from the token instead
         var resultClaims = new ClaimsDictionary();
-        foreach (var claim in result.ClaimsPrincipal.Claims)
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadJwtToken(result.AccessToken);
+        foreach (var claim in jsonToken.Claims)
         {
             resultClaims.Add(claim.Type, claim.Value);
         }
@@ -166,8 +173,11 @@ internal static class CacheManager
 
         var result = await tokenBuilder.ExecuteAsync(cancellationToken);
 
+        // result.ClaimsPrincipal doesnt have all the correct claims, so we extract claims from the token instead
         var resultClaims = new ClaimsDictionary();
-        foreach (var claim in result.ClaimsPrincipal.Claims)
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadJwtToken(result.AccessToken);
+        foreach (var claim in jsonToken.Claims)
         {
             resultClaims.Add(claim.Type, claim.Value);
         }

@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "AzAuth",
+            "name": "Debug AzAuth",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -14,13 +14,16 @@
                 "-NoExit",
                 "-NoProfile",
                 "-Command",
-                "Import-Module ${workspaceFolder}/AzAuth/AzAuth.psd1",
+                "Import-Module ${workspaceFolder}/output/AzAuth -Verbose",
             ],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "console": "integratedTerminal",
-            "justMyCode": false,
-            "requireExactSource": false
+            "justMyCode": true,
+            "requireExactSource": false,
+            "env": {
+                "CompileConfiguration": "Debug",
+            }
         },
         {
           "name": "PowerShell: Binary Module Interactive Session",

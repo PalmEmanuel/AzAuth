@@ -95,9 +95,10 @@ public class GetAzToken : PSLoggerCmdletBase
     public int TimeoutSeconds { get; set; } = 120;
 
     [Parameter(ParameterSetName = "NonInteractive")]
-    [ValidateSet("ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "VisualStudioCode", "VisualStudio", "SharedTokenCache")]
+    [ValidateSet("ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "VisualStudio", "SharedTokenCache")]
     [ValidateNotNullOrEmpty()]
-    public string[] CredentialPrecedence { get; set; } = ["ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "VisualStudioCode", "VisualStudio", "SharedTokenCache"];
+    // TODO: Change back ManagedIdentity to first position in the chain once issue #112 is solved, likely in Azure.Identity 1.14.2 or later
+    public string[] CredentialPrecedence { get; set; } = ["Environment", "AzurePowerShell", "AzureCLI", "VisualStudio", "SharedTokenCache", "ManagedIdentity"];
 
     [Parameter(ParameterSetName = "Interactive", Mandatory = true)]
     public SwitchParameter Interactive { get; set; }
@@ -178,7 +179,7 @@ should be
                 throw new ArgumentException("The ClientId parameter is not supported for this parameter combination.");
             }
 
-            // If user didn't specify a timeout, default to 1 second for managed identity
+            // If user didn't specify a timeout, set default for managed identity
             int managedIdentityTimeoutSeconds = 1;
             int? noninteractiveTimeoutSeconds = null;
             if (MyInvocation.BoundParameters.ContainsKey("TimeoutSeconds"))
