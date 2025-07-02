@@ -284,7 +284,7 @@ The order of precedence for the credentials to be used for getting a token non-i
 Type: String[]
 Parameter Sets: NonInteractive
 Aliases:
-Accepted values: ManagedIdentity, Environment, AzurePowerShell, AzureCLI, VisualStudioCode, VisualStudio, SharedTokenCache
+Accepted values: ManagedIdentity, Environment, AzurePowerShell, AzureCLI, VisualStudio, SharedTokenCache
 
 Required: False
 Position: Named

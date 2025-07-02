@@ -6,3 +6,9 @@ updates:
     # Check the nuget registry for updates every day (weekdays)
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      # Check for updates to GitHub Actions every day
+      interval: "daily"

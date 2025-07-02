@@ -21,7 +21,6 @@ internal static partial class TokenManager
             "Environment" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential",
             "AzurePowerShell" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential",
             "AzureCLI" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential",
-            "VisualStudioCode" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential",
             "VisualStudio" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential",
             "SharedTokenCache" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential",
             _ => throw new ArgumentException("Invalid credential type", nameof(credentialType))
