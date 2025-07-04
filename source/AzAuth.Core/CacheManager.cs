@@ -292,6 +292,38 @@ internal static class CacheManager
 
     internal static async Task RemoveCacheAsync(string cacheName, string rootDir, CancellationToken cancellationToken)
     {
+        var cacheDir = Path.Combine(rootDir, cacheName);
+        
+        // Safety checks
+        // Prevent dangerous path characters and patterns
+        var dangerousPatterns = new[] { "..", "\\", ":", "*", "?", "<", ">", "|" };
+        if (dangerousPatterns.Any(pattern => cacheName.Contains(pattern)))
+        {
+            throw new ArgumentException($"Cache name '{cacheName}' contains invalid characters that could be dangerous to attempt to delete.", nameof(cacheName));
+        }
+        
+        // Ensure it exists
+        if (!Directory.Exists(cacheDir))
+        {
+            throw new DirectoryNotFoundException($"Cache directory '{cacheDir}' does not exist.");
+        }
+
+        // Check directory size (prevent deletion of massive directories)
+        var (fileCount, totalSize) = GetDirectoryInfo(cacheDir);
+        // Set large limits for a typical cache, but it should prevent accidental deletion of large directories
+        const long MaxCacheSizeBytes = 5 * 1024 * 1024;
+        const int MaxCacheFiles = 10;
+
+        if (totalSize > MaxCacheSizeBytes)
+        {
+            throw new InvalidOperationException($"Directory '{cacheDir}' is too large ({totalSize / (1024 * 1024)} MB) to be a typical cache. Deletion aborted for safety.");
+        }
+
+        if (fileCount > MaxCacheFiles)
+        {
+            throw new InvalidOperationException($"Directory '{cacheDir}' contains too many files ({fileCount}) to be a typical cache. Deletion aborted for safety.");
+        }
+
         try
         {
             // First try to clear the cache using MSAL to clean up properly
@@ -303,28 +335,36 @@ internal static class CacheManager
             // This could happen if the cache is corrupted or inaccessible
         }
 
-        // Get the cache directory path
-        var cacheDir = $"{rootDir}/{cacheName}";
-        
-        if (Directory.Exists(cacheDir))
+        try
         {
-            try
-            {
-                // Delete the entire cache directory and all its contents
-                Directory.Delete(cacheDir, recursive: true);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                throw new InvalidOperationException($"Access denied when trying to delete cache directory '{cacheDir}'. The cache may be in use by another process.");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                throw new InvalidOperationException($"Cache directory '{cacheDir}' does not exist. It may have already been deleted or never existed.");
-            }
-            catch (IOException ex)
-            {
-                throw new InvalidOperationException($"Unable to delete cache directory '{cacheDir}': {ex.Message}. The cache may be in use by another process.");
-            }
+            // Delete the entire cache directory and all its contents
+            Directory.Delete(cacheDir, recursive: true);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw new InvalidOperationException($"Access denied when trying to delete cache directory '{cacheDir}'. The cache may be in use by another process.");
+        }
+        catch (IOException ex)
+        {
+            throw new InvalidOperationException($"Unable to delete cache directory '{cacheDir}': {ex.Message}. The cache may be in use by another process.");
+        }
+    }
+
+    /// <summary>
+    /// Gets file count and total size of a directory.
+    /// </summary>
+    private static (int fileCount, long totalSize) GetDirectoryInfo(string directory)
+    {
+        try
+        {
+            var files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
+            var totalSize = files.Sum(file => new FileInfo(file).Length);
+            return (files.Length, totalSize);
+        }
+        catch
+        {
+            // If we can't read the directory info, assume it's small for safety
+            return (0, 0);
         }
     }
 }
