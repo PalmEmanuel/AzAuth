@@ -8,7 +8,16 @@ public class ClearAzTokenCache : PSLoggerCmdletBase
 {
     [Parameter(Mandatory = true)]
     [ValidateNotNullOrEmpty]
+    [ArgumentCompleter(typeof(ExistingCaches))]
+    [Alias("Name")]
     public string TokenCache { get; set; }
+
+    [Parameter]
+    public SwitchParameter Force { get; set; }
+
+    [Parameter]
+    [ValidateNotNullOrEmpty]
+    public string RootPath { get; set; } = CacheManager.GetCacheRootDirectory();
 
     protected override void EndProcessing()
     {
@@ -16,6 +25,15 @@ public class ClearAzTokenCache : PSLoggerCmdletBase
         {
             WriteWarning("The name 'msal.cache' is the default cache name in MSAL, changing or clearing this cache might break other tools using it!");
         }
-        CacheManager.ClearCache(TokenCache, stopProcessing.Token);
+
+        if (Force)
+        {
+            WriteWarning("Will attempt to delete all files for the token cache, this may cause issues with other applications using the same cache!");
+            CacheManager.RemoveCache(TokenCache, RootPath, stopProcessing.Token);
+        }
+        else
+        {
+            CacheManager.ClearCache(TokenCache, RootPath, stopProcessing.Token);
+        }
     }
 }

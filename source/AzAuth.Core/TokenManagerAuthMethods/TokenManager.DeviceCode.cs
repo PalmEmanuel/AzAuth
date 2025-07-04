@@ -16,6 +16,7 @@ internal static partial class TokenManager
         string? clientId,
         string? tenantId,
         string? tokenCache,
+        string rootDir,
         int timeoutSeconds,
         BlockingCollection<string> loggingQueue,
         CancellationToken cancellationToken)
@@ -29,7 +30,7 @@ internal static partial class TokenManager
             // Create a new cancellation token by combining a timeout with existing token
             using var timeoutSource = new CancellationTokenSource(timeoutSeconds * 1000);
             var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token).Token;
-            return await CacheManager.GetTokenDeviceCodeAsync(tokenCache, clientId, tenantId, fullScopes, claims, loggingQueue, combinedToken);
+            return await CacheManager.GetTokenDeviceCodeAsync(tokenCache, rootDir, clientId, tenantId, fullScopes, claims, loggingQueue, combinedToken);
         }
 
         var options = new DeviceCodeCredentialOptions

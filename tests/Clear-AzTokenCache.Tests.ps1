@@ -3,6 +3,14 @@ BeforeDiscovery {
         @{
             Name          = 'TokenCache'
             Type          = 'string'
+        },
+        @{
+            Name          = 'Force'
+            Type          = 'switch'
+        },
+        @{
+            Name          = 'RootPath'
+            Type          = 'string'
         }
     )
 }

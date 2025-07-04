@@ -14,7 +14,7 @@ Lists all available token caches in the default cache directory.
 ## SYNTAX
 
 ```
-Get-AzTokenCache [-IncludeAccounts] [-RootPath <String>]
+Get-AzTokenCache [-IncludeAccounts] [-TokenCache <String>] [-RootPath <String>]
  [<CommonParameters>]
 ```
 
@@ -82,6 +82,22 @@ Optional parameter to override the default cache directory path (at your own ris
 Type: String
 Parameter Sets: (All)
 Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TokenCache
+
+The name of the token cache to find. If not specified, all caches found in the RootPath will be listed.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: Name
 
 Required: False
 Position: Named

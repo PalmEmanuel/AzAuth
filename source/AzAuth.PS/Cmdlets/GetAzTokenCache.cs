@@ -2,12 +2,19 @@ using System.Management.Automation;
 
 namespace PipeHow.AzAuth.Cmdlets;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 [Cmdlet(VerbsCommon.Get, "AzTokenCache")]
 [OutputType(typeof(TokenCacheInfo[]))]
 public class GetAzTokenCache : PSLoggerCmdletBase
 {
     [Parameter]
     public SwitchParameter IncludeAccounts { get; set; }
+
+    [Parameter]
+    [ValidateNotNullOrEmpty]
+    [ArgumentCompleter(typeof(ExistingCaches))]
+    [Alias("Name")]
+    public string? TokenCache { get; set; } = null;
 
     [Parameter]
     [ValidateNotNullOrEmpty]
@@ -21,18 +28,16 @@ public class GetAzTokenCache : PSLoggerCmdletBase
 
             if (IncludeAccounts.IsPresent)
             {
-                WriteWarning("Including account information may prompt for access depending on the platform.");
+                WriteWarning("Including account information may prompt for access permissions, depending on the platform.");
             }
 
-            var caches = CacheManager.GetAvailableCaches(RootPath, IncludeAccounts.IsPresent, stopProcessing.Token);
+            var caches = CacheManager.GetAvailableCaches(TokenCache, RootPath, IncludeAccounts.IsPresent, stopProcessing.Token);
 
             if (caches.Length == 0)
             {
                 WriteVerbose("No token caches found.");
                 return;
             }
-
-            WriteVerbose($"Found {caches.Count()} token cache(s).");
 
             WriteObject(caches, true);
         }
