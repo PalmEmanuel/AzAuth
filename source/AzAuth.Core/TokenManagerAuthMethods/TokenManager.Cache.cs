@@ -7,8 +7,8 @@ internal static partial class TokenManager
     /// <summary>
     /// Gets token noninteractively from existing named token cache.
     /// </summary>
-    internal static AzToken GetTokenFromCache(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string tokenCache, string username, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenFromCacheAsync(resource, scopes, claims, clientId, tenantId, tokenCache, username, cancellationToken));
+    internal static AzToken GetTokenFromCache(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string tokenCache, string rootDir, string username, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenFromCacheAsync(resource, scopes, claims, clientId, tenantId, tokenCache, rootDir, username, cancellationToken));
 
     /// <summary>
     /// Gets token noninteractively from existing named token cache.
@@ -20,6 +20,7 @@ internal static partial class TokenManager
         string? clientId,
         string? tenantId,
         string tokenCache,
+        string rootDir,
         string username,
         CancellationToken cancellationToken)
     {
@@ -32,7 +33,7 @@ internal static partial class TokenManager
 
         try
         {
-            return await CacheManager.GetTokenFromCacheSilentAsync(tokenCache, clientId, tenantId, fullScopes, claims, username, cancellationToken);
+            return await CacheManager.GetTokenFromCacheSilentAsync(tokenCache, rootDir, clientId, tenantId, fullScopes, claims, username, cancellationToken);
         }
         catch (MsalServiceException ex) when (ex.Message.Contains("Please do not use the /consumers endpoint to serve this request."))
         {

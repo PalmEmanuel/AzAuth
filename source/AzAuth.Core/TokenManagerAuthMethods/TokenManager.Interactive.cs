@@ -8,8 +8,8 @@ internal static partial class TokenManager
     /// <summary>
     /// Gets token interactively.
     /// </summary>
-    internal static AzToken GetTokenInteractive(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string? tokenCache, int timeoutSeconds, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenInteractiveAsync(resource, scopes, claims, clientId, tenantId, tokenCache, timeoutSeconds, cancellationToken));
+    internal static AzToken GetTokenInteractive(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string? tokenCache, string rootDir, int timeoutSeconds, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenInteractiveAsync(resource, scopes, claims, clientId, tenantId, tokenCache, rootDir, timeoutSeconds, cancellationToken));
 
     /// <summary>
     /// Gets token interactively.
@@ -21,6 +21,7 @@ internal static partial class TokenManager
         string? clientId,
         string? tenantId,
         string? tokenCache,
+        string rootDir,
         int timeoutSeconds,
         CancellationToken cancellationToken)
     {
@@ -29,7 +30,7 @@ internal static partial class TokenManager
 
         if (!string.IsNullOrWhiteSpace(tokenCache))
         {
-            return await CacheManager.GetTokenInteractiveAsync(tokenCache!, clientId, tenantId, fullScopes, claims, cancellationToken);
+            return await CacheManager.GetTokenInteractiveAsync(tokenCache!, rootDir, clientId, tenantId, fullScopes, claims, cancellationToken);
         }
 
         var options = new InteractiveBrowserCredentialOptions
