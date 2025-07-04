@@ -225,6 +225,56 @@ internal static class CacheManager
         await InitializeCacheManagerAsync(cacheName!, null, null, cancellationToken);
 
         var accounts = await application!.GetAccountsAsync();
-        return accounts.Select(a => a.Username ?? a.HomeAccountId.ObjectId).ToArray();
+        return [.. accounts.Select(a => a.Username ?? a.HomeAccountId.ObjectId)];
     }
+
+    /// <summary>
+    /// Gets all available token caches in the default cache directory.
+    /// </summary>
+    internal static TokenCacheInfo[] GetAvailableCaches(string path, bool includeAccountInfo = false, CancellationToken cancellationToken = default) =>
+        taskFactory.Run(() => GetAvailableCachesAsync(path, includeAccountInfo, cancellationToken));
+
+    private static async Task<TokenCacheInfo[]> GetAvailableCachesAsync(string path, bool includeAccountInfo, CancellationToken cancellationToken)
+    {
+        var caches = new List<TokenCacheInfo>();
+        var cacheRootDir = path ?? GetCacheRootDirectory();
+
+        if (!Directory.Exists(cacheRootDir))
+        {
+            return [];
+        }
+
+        // Get all cache directories
+        var cacheDirectories = Directory.GetDirectories(cacheRootDir);
+
+        foreach (var cacheDir in cacheDirectories)
+        {
+            var cacheName = Path.GetFileName(cacheDir);
+            var cacheInfo = new TokenCacheInfo
+            {
+                Name = cacheName,
+                Path = cacheDir,
+                CreatedDate = Directory.GetCreationTime(cacheDir),
+                LastModified = Directory.GetLastWriteTime(cacheDir)
+            };
+
+            // Try to get account information if requested and possible
+            if (includeAccountInfo)
+            {
+                var accounts = await GetAccountsAsync(cacheName, cancellationToken);
+                cacheInfo.AccountCount = accounts.Length;
+                cacheInfo.Accounts = accounts;
+                cacheInfo.AccountInfoChecked = true;
+            }
+
+            caches.Add(cacheInfo);
+        }
+
+        return [.. caches];
+    }
+
+    /// <summary>
+    /// Gets the default cache directory path.
+    /// </summary>
+    internal static string GetCacheRootDirectory() => $"{MsalCacheHelper.UserRootDirectory}/.IdentityService";
 }
