@@ -80,6 +80,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "Cache", Mandatory = true)]
     [ValidateNotNullOrEmpty]
+    [ArgumentCompleter(typeof(ExistingCaches))]
     public string TokenCache { get; set; }
 
     [Parameter(ParameterSetName = "Cache", Mandatory = true)]
@@ -156,6 +157,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD104:Offer async methods", Justification = "PowerShell doesn't handle async.")]
     protected override void EndProcessing()
     {
+        string cacheRootDir = CacheManager.GetCacheRootDirectory();
         if (TokenCache == "msal.cache")
         {
             WriteWarning("The name 'msal.cache' is the default cache name in MSAL, changing or clearing this cache might break other tools using it!");
@@ -197,12 +199,12 @@ should be
         else if (ParameterSetName == "Cache")
         {
             WriteVerbose($"Getting token from token cache named \"{TokenCache}\".");
-            WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, ClientId, Tenant, TokenCache!, Username, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, ClientId, Tenant, TokenCache!, cacheRootDir, Username, stopProcessing.Token));
         }
         else if (Interactive.IsPresent)
         {
             WriteVerbose("Getting token interactively using the default browser.");
-            WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, Tenant, TokenCache, TimeoutSeconds, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, Tenant, TokenCache, cacheRootDir, TimeoutSeconds, stopProcessing.Token));
         }
         else if (Broker.IsPresent)
         {
@@ -220,7 +222,7 @@ should be
             // Set up a BlockingCollection to use for logging device code message
             BlockingCollection<string> loggingQueue = new();
             // Start device code flow and save task
-            var tokenTask = joinableTaskFactory.RunAsync(() => TokenManager.GetTokenDeviceCodeAsync(Resource, Scope, Claim, ClientId, Tenant, TokenCache, TimeoutSeconds, loggingQueue, stopProcessing.Token));
+            var tokenTask = joinableTaskFactory.RunAsync(() => TokenManager.GetTokenDeviceCodeAsync(Resource, Scope, Claim, ClientId, Tenant, TokenCache, cacheRootDir, TimeoutSeconds, loggingQueue, stopProcessing.Token));
 
             // Loop through messages and log them to warning stream (verbose is silent by default)
             try

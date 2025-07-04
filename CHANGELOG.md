@@ -4,6 +4,17 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+## [2.6.0] - 2025-07-04
+
+### Added
+
+- New command `Get-AzTokenCache`, closes #96 
+- New parameters for `Clear-AzTokenCache`
+  - The new `-Force` parameter will attempt to delete the entire token cache directory instead of only clearing it from tokens. _Use at your own risk_, since it deletes a directory and recursively deletes its files on disk.
+  - The new `-RootPath` allows for specifying a custom root directory for token caches. This may show up in other commands in the future.
+- All token cache parameters now support argument completers to suggest existing caches in the chosen root directory
+- Alias `-Name` added for `TokenCache` parameter for Clear- & Get-commands.
+
 ## [2.5.0] - 2025-07-01
 
 ### Removed
@@ -78,7 +89,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 - Improved build and test workflow to run on multiple platforms
 - Updated LICENSE year
 
-[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.5.0...HEAD
+[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.0...HEAD
+[2.6.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.5.0...v2.6.0
 [2.5.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.4.1...v2.5.0
 [2.4.1]: https://github.com/PalmEmanuel/AzAuth/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.3.0...v2.4.0
