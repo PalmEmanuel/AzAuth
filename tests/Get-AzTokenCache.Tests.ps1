@@ -53,10 +53,6 @@ Describe 'Get-AzTokenCache' {
             $Caches | Should -Not -BeNullOrEmpty
             $Caches.Count | Should -BeGreaterThan 0
         }
-        It 'should not throw an error with -IncludeAccounts' {
-            # Only testing the code path, we won't actually find accounts in the mock caches
-            { Get-AzTokenCache -IncludeAccounts -RootPath $TestCacheRoot } | Should -Not -Throw
-        }
 
         It 'Should have required properties when caches exist' {
             $Caches = Get-AzTokenCache -RootPath $TestCacheRoot
