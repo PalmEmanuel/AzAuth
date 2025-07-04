@@ -4,6 +4,15 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Added
+
+- New command `Get-AzTokenCache`, closes #96 
+- New parameters for `Clear-AzTokenCache`
+  - The new `-Force` parameter will attempt to delete the entire token cache directory instead of only clearing it from tokens. *Use at your own risk*, since it deletes a directory and recursively deletes its files on disk.
+  - The new `-RootPath` allows for specifying a custom root directory for token caches. This may show up in other commands in the future.
+- All token cache parameters now support argument completers to suggest existing caches in the chosen root directory
+- Alias `-Name` added for `TokenCache` parameter for Clear- & Get-commands.
+
 ## [2.5.0] - 2025-07-01
 
 ### Removed
