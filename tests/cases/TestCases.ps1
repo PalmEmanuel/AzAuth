@@ -8,6 +8,7 @@ $CommonSplat = @{
 }
 
 # Define specific parameters for each authentication flow scenario
+# Make sure they're ordered to ensure consistent test execution
 $InteractiveAuthFlows = [ordered]@{
     'Interactive'            = @{
         Interactive   = $true
