@@ -1,20 +1,20 @@
-BeforeDiscovery {
-    # These tests require user interaction and should only be run manually
-    Write-Host @'
-These tests require user interaction and will prompt for authentication.
-The tokens acquired in the integration tests are real, and should be handled as secrets!
-'@
-
-    . "$BuildRoot\tests\cases\TestCases.ps1"
-    $InteractiveTestCases = Get-TestCaseByType -CaseType 'InteractiveTests'
-}
-
 BeforeAll {
     $script:CachesToRemove = @()
 }
 
-Describe 'Get-AzToken interactive tests' -Tag 'Interactive' {
+Describe 'Get-AzToken interactive integration tests' -Tag 'Interactive', 'Integration' {
+    BeforeDiscovery {
+
+        . "$BuildRoot\tests\cases\TestCases.ps1"
+        $InteractiveTestCases = Get-TestCaseByType -CaseType 'InteractiveTests'
+    }
+    
     BeforeAll {
+        # These tests require user interaction and should only be run manually
+        Write-Host @'
+These tests require user interaction and will prompt for authentication.
+The tokens acquired in the integration tests are real, and should be handled as secrets!
+'@
         # Create a variable to hold the last username used
         # This allows us to save the username used in interactive tests
         # and use it for cache tests (silent login)
