@@ -28,7 +28,7 @@ public class ClearAzTokenCache : PSLoggerCmdletBase
 
         if (Force)
         {
-            WriteWarning("Will attempt to delete all files for the token cache, this may cause issues with other applications using the same cache!");
+            WriteWarning($"Will attempt to delete all files for the token cache '{TokenCache}', this may cause issues with other applications using the same cache!");
             CacheManager.RemoveCache(TokenCache, RootPath, stopProcessing.Token);
         }
         else
