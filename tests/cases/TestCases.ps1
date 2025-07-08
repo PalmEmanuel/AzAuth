@@ -1,168 +1,114 @@
 # Azure PowerShell Client ID
 $AzurePowerShellClientId = '1950a258-227b-4e31-a9cf-717495945fc2'
 
-# Define authentication flows
-$AuthFlows = @(
-    @{
-        Name = 'Interactive'
-        Parameters = @{ Interactive = $true }
-        RequiresUserInteraction = $true
-        Tag = 'Interactive'
-    },
-    @{
-        Name = 'DeviceCode'
-        Parameters = @{ DeviceCode = $true }
-        RequiresUserInteraction = $true
-        Tag = 'Interactive'
-    },
-    @{
-        Name = 'ClientSecret'
-        Parameters = @{ 
-            ClientId = $env:AZURE_CLIENT_ID
-            ClientSecret = $env:AZURE_CLIENT_SECRET
-            TenantId = $env:AZURE_TENANT_ID
-        }
-        RequiresUserInteraction = $false
-        Tag = 'Integration'
-        RequiresSecrets = $true
-    },
-    @{
-        Name = 'ClientCertificate'
-        Parameters = @{
-            ClientId = $env:AZURE_CLIENT_ID
-            CertificatePath = $env:TEST_CERTIFICATE_PATH
-            TenantId = $env:AZURE_TENANT_ID
-        }
-        RequiresUserInteraction = $false
-        Tag = 'Integration'
-        RequiresSecrets = $true
-    },
-    @{
-        Name = 'ManagedIdentity'
-        Parameters = @{ ManagedIdentity = $true }
-        RequiresUserInteraction = $false
-        Tag = 'Integration'
-        RequiresAzureEnvironment = $true
-    }
-)
+# Define common parameters for all test cases
+$CommonSplat = @{
+    Tenant   = 'common'
+    ClientId = $AzurePowerShellClientId
+}
 
-# Define test resources with different scenarios
-$TestResources = @(
-    @{
-        Name = 'GraphDefault'
-        Resource = 'https://graph.microsoft.com'
-        Scopes = @('.default')
-        Description = 'Microsoft Graph API'
-        ExpectedAudience = 'https://graph.microsoft.com'
-    },
-    @{
-        Name = 'AzureResourceManager'
-        Resource = 'https://management.azure.com'
-        Scopes = @('.default')
-        Description = 'Azure Resource Manager'
-        ExpectedAudience = 'https://management.azure.com'
-    },
-    @{
-        Name = 'KeyVault'
-        Resource = 'https://vault.azure.net'
-        Scopes = @('.default')
-        Description = 'Azure Key Vault'
-        ExpectedAudience = 'https://vault.azure.net'
-    },
-    @{
-        Name = 'Storage'
-        Resource = 'https://storage.azure.com'
-        Scopes = @('.default')
-        Description = 'Azure Storage'
-        ExpectedAudience = 'https://storage.azure.com'
-    },
-    @{
-        Name = 'GraphSpecificScopes'
-        Resource = 'https://graph.microsoft.com'
-        Scopes = @('User.Read', 'Mail.Read')
-        Description = 'Microsoft Graph with specific scopes'
-        ExpectedAudience = 'https://graph.microsoft.com'
+# Define specific parameters for each authentication flow scenario
+$InteractiveAuthFlows = [ordered]@{
+    'Interactive'            = @{
+        Interactive   = $true
+        Resource      = 'https://graph.microsoft.com'
+        Scope         = @('.default')
+        ExpectedScope = 'openid'
     }
-)
-
-# Define tenant scenarios
-$TenantScenarios = @(
-    @{
-        Name = 'CommonTenant'
-        TenantId = 'common'
-        Description = 'Use default tenant'
-    },
-    @{
-        Name = 'SpecificTenant'
-        TenantId = $env:AZURE_TENANT_ID
-        Description = 'Use specific tenant ID'
+    'Interactive with Cache' = @{
+        Interactive   = $true
+        TokenCache    = 'IntegrationInteractiveTestCache'
+        Resource      = 'https://management.azure.com'
+        Scope         = @('.default')
+        ExpectedScope = 'https://management.azure.com/user_impersonation'
     }
-)
+    'Cache from Interactive' = @{
+        TokenCache    = 'IntegrationInteractiveTestCache'
+        Username      = '' # Will be set by the test
+        Resource      = 'cfa8b339-82a2-471a-a3c9-0fc0be7a4093' # Azure Key Vault
+        Scope         = @('.default')
+        ExpectedScope = 'cfa8b339-82a2-471a-a3c9-0fc0be7a4093/user_impersonation'
+    }
+    # 'Device Code'            = @{
+    #     DeviceCode = $true
+    # }
+    'Device Code with Cache' = @{
+        DeviceCode   = $true
+        TokenCache    = 'IntegrationDeviceCodeTestCache'
+        Resource      = 'https://storage.azure.com'
+        Scope         = @('.default')
+        ExpectedScope = 'https://storage.azure.com/user_impersonation'
+    }
+    'Cache from Device Code' = @{
+        TokenCache    = 'IntegrationDeviceCodeTestCache'
+        Username      = '' # Will be set by the test
+        Resource      = 'https://database.windows.net' # Azure SQL Database
+        Scope         = @('.default')
+        ExpectedScope = 'https://database.windows.net/.default'
+    }
+}
 
-# Generate test matrix combinations
-function Get-TestMatrix {
+# Generate test splatting hashtable based on test cases
+function Get-TestSplat {
     param(
-        [string[]]$IncludeFlows = @('Interactive', 'DeviceCode', 'ClientSecret', 'Certificate', 'ManagedIdentity'),
-        [string[]]$IncludeResources = @('MicrosoftGraph', 'AzureResourceManager'),
-        [string[]]$IncludeTenants = @('DefaultTenant'),
-        [string[]]$Tags = @()
+        [Parameter(Mandatory)]
+        [ValidateSet(
+            'Interactive',
+            'Interactive with Cache',
+            'Cache from Interactive',
+            'Device Code',
+            'Device Code with Cache',
+            'Cache from Device Code'
+        )]
+        [string]$Flow
     )
     
-    $TestCases = @()
-    
-    foreach ($flow in $AuthFlows | Where-Object { $_.Name -in $IncludeFlows }) {
-        foreach ($resource in $TestResources | Where-Object { $_.Name -in $IncludeResources }) {
-            foreach ($tenant in $TenantScenarios | Where-Object { $_.Name -in $IncludeTenants }) {
-                
-                # Skip combinations that don't make sense
-                if ($flow.RequiresSecrets -and -not $env:AZURE_CLIENT_ID) {
-                    continue
-                }
-                
-                if ($tenant.RequiresSecrets -and -not $env:AZURE_TENANT_ID) {
-                    continue
-                }
-                
-                if ($Tags.Count -gt 0 -and $flow.Tag -notin $Tags) {
-                    continue
-                }
-                
-                $testCase = @{
-                    TestName = "$($flow.Name)_$($resource.Name)_$($tenant.Name)"
-                    FlowName = $flow.Name
-                    ResourceName = $resource.Name
-                    TenantName = $tenant.Name
-                    
-                    # Auth parameters
-                    AuthParameters = $flow.Parameters.Clone()
-                    
-                    # Resource parameters
-                    Resource = $resource.Resource
-                    Scopes = $resource.Scopes
-                    ExpectedAudience = $resource.ExpectedAudience
-                    
-                    # Tenant parameters
-                    TenantId = $tenant.TenantId
-                    
-                    # Test metadata
-                    RequiresUserInteraction = $flow.RequiresUserInteraction
-                    RequiresSecrets = $flow.RequiresSecrets -or $tenant.RequiresSecrets
-                    RequiresAzureEnvironment = $flow.RequiresAzureEnvironment
-                    Tag = $flow.Tag
-                    
-                    # Description for test output
-                    Description = "Authenticate using $($flow.Name) for $($resource.Description) in $($tenant.Description)"
-                }
-                
-                # Add tenant ID to auth parameters if specified
-                if ($tenant.TenantId) {
-                    $testCase.AuthParameters.TenantId = $tenant.TenantId
-                }
-                
-                $TestCases += $testCase
-            }
-        }
+    $TestSplat = $CommonSplat.Clone()
+    # Transfer all parameters from the testcase to the splat
+    foreach ($AuthFlowKey in $InteractiveAuthFlows[$Flow].Keys) {
+        $TestSplat[$AuthFlowKey] = $InteractiveAuthFlows[$Flow][$AuthFlowKey]
     }
     
-    return $TestCases
+    return $TestSplat.Clone()
+}
+
+function Get-TestCaseByType {
+    param(
+        [Parameter(Mandatory)]
+        [ValidateSet('InteractiveTests', 'NonInteractiveTests', 'CITests')]
+        [string[]]$CaseType
+    )
+
+    $AuthFlows = [ordered]@{}
+
+    if ('InteractiveTests' -in $CaseType) {
+        # Add interactive test cases
+        $AuthFlows += $InteractiveAuthFlows
+    }
+    if ('NonInteractiveTests' -in $CaseType) {
+        # Add non-interactive test cases
+        $AuthFlows += @{
+        }
+    }
+    if ('CITests' -in $CaseType) {
+        # Add CI tests (default)
+        $AuthFlows += @{
+        }
+    }
+
+    foreach ($Flow in $AuthFlows.Keys) {
+        # Get test splat for the current flow
+        $TestSplat = Get-TestSplat -Flow $Flow
+        # Remove the expected scope from the splat to avoid passing it as a parameter
+        $ExpectedScope = $TestSplat['ExpectedScope']
+        $TestSplat.Remove('ExpectedScope')  # Remove ExpectedScope from splat
+        @(
+            @{
+                Splat         = $TestSplat
+                ExpectedScope = $ExpectedScope
+                Flow          = $Flow
+                Resource      = $TestSplat['Resource']
+            }
+        )
+    }
 }
