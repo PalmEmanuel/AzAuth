@@ -357,3 +357,9 @@ output/
 *.local.*
 **.bak
 markdownissues.txt
+
+# Ignore local test files
+test.ps1
+*.crt
+*.key
+*.pem

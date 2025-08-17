@@ -4,6 +4,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Added
+
+- The name of the token cache being removed is now shown in the warning message when using `Clear-AzTokenCache` with the `-Force` parameter
+
 ## [2.6.0] - 2025-07-04
 
 ### Added
