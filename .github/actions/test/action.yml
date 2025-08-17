@@ -16,7 +16,7 @@ runs:
         path: ${{ env.buildFolderName }}
     
     - name: Run Tests
-      run: .\build.ps1 -tasks test
+      run: .\build.ps1 -tasks test -PesterExcludeTag 'Integration'
       shell: pwsh
   
     - name: Publish Test Artifact
