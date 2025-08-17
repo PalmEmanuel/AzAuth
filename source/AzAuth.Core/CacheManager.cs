@@ -323,18 +323,7 @@ internal static class CacheManager
         {
             throw new InvalidOperationException($"Directory '{cacheDir}' contains too many files ({fileCount}) to be a typical cache. Deletion aborted for safety.");
         }
-
-        try
-        {
-            // First try to clear the cache using MSAL to clean up properly
-            await ClearCacheAsync(cacheName, rootDir, cancellationToken);
-        }
-        catch
-        {
-            // If MSAL clearing fails, we'll still try to delete the files
-            // This could happen if the cache is corrupted or inaccessible
-        }
-
+        
         try
         {
             // Delete the entire cache directory and all its contents
