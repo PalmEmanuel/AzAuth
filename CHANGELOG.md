@@ -8,6 +8,14 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 - The name of the token cache being removed is now shown in the warning message when using `Clear-AzTokenCache` with the `-Force` parameter
 
+### Changed
+
+- Bumped Azure.Identity to 1.15.0
+- Bumped Azure.Identity.Broker to 1.2.1
+- Bumped System.IdentityModel.Tokens.Jwt to 8.14.0
+- Bumped System.Security.Cryptography.ProtectedData to 9.0.7
+- Bumped Microsoft.Identity.Client.NativeInterop to 0.19.4
+
 ## [2.6.0] - 2025-07-04
 
 ### Added
