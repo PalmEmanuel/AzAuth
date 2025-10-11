@@ -4,6 +4,12 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Changed
+
+- Bumped Azure.Identity to 1.17.0
+- Bumped Azure.Identity.Broker to 1.3.0
+- Bumped System.Security.Cryptography.ProtectedData to 9.0.9
+
 ## [2.6.1] - 2025-08-17
 
 ### Added
