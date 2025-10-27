@@ -113,7 +113,7 @@ jobs:
         fetch-depth: 0
 
     - name: Download Build Artifact
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: ${{ env.buildArtifactName }}
         path: ${{ env.buildFolderName }}
