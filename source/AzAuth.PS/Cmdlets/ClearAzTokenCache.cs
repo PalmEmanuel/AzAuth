@@ -33,7 +33,8 @@ public class ClearAzTokenCache : PSLoggerCmdletBase
         }
         else
         {
-            CacheManager.ClearCache(TokenCache, RootPath, stopProcessing.Token);
+            CacheManager.ClearCache(TokenCache, RootPath, false, stopProcessing.Token);
+            CacheManager.ClearCache(TokenCache, RootPath, true, stopProcessing.Token);
         }
     }
 }

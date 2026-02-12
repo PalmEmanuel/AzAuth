@@ -83,6 +83,11 @@ public class GetAzToken : PSLoggerCmdletBase
     [ArgumentCompleter(typeof(ExistingCaches))]
     public string TokenCache { get; set; }
 
+    [Parameter(ParameterSetName = "Interactive")]
+    [Parameter(ParameterSetName = "DeviceCode")]
+    [Parameter(ParameterSetName = "Cache")]
+    public SwitchParameter UseUnprotectedTokenCache { get; set; }
+
     [Parameter(ParameterSetName = "Cache", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     [ArgumentCompleter(typeof(ExistingAccounts))]
@@ -165,6 +170,16 @@ public class GetAzToken : PSLoggerCmdletBase
 
         WriteVerbose($"Getting token for {Resource} with scopes: {string.Join(", ", Scope)}.");
 
+        if (UseUnprotectedTokenCache.IsPresent)
+        {
+            if (!(Interactive.IsPresent || DeviceCode.IsPresent || MyInvocation.BoundParameters.ContainsKey("TokenCache")))
+            {
+                throw new ArgumentException("The -UseUnprotectedTokenCache switch can only be used with -TokenCache in combination with -Interactive or -DeviceCode authentication methods!");
+            }
+
+            WriteWarning("Unprotected token caches store tokens as plain text on the file system! Only use this in secure environments at your own risk!");
+        }
+
         if (ParameterSetName == "NonInteractive")
         {
             if (MyInvocation.BoundParameters.ContainsKey("ClientId"))
@@ -199,12 +214,12 @@ should be
         else if (ParameterSetName == "Cache")
         {
             WriteVerbose($"Getting token from token cache named \"{TokenCache}\".");
-            WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, ClientId, Tenant, TokenCache!, cacheRootDir, Username, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, ClientId, Tenant, TokenCache!, cacheRootDir, Username, UseUnprotectedTokenCache.IsPresent, stopProcessing.Token));
         }
         else if (Interactive.IsPresent)
         {
             WriteVerbose("Getting token interactively using the default browser.");
-            WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, Tenant, TokenCache, cacheRootDir, TimeoutSeconds, stopProcessing.Token));
+            WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, Tenant, TokenCache, cacheRootDir, TimeoutSeconds, UseUnprotectedTokenCache.IsPresent, stopProcessing.Token));
         }
         else if (Broker.IsPresent)
         {
@@ -222,7 +237,7 @@ should be
             // Set up a BlockingCollection to use for logging device code message
             BlockingCollection<string> loggingQueue = new();
             // Start device code flow and save task
-            var tokenTask = joinableTaskFactory.RunAsync(() => TokenManager.GetTokenDeviceCodeAsync(Resource, Scope, Claim, ClientId, Tenant, TokenCache, cacheRootDir, TimeoutSeconds, loggingQueue, stopProcessing.Token));
+            var tokenTask = joinableTaskFactory.RunAsync(() => TokenManager.GetTokenDeviceCodeAsync(Resource, Scope, Claim, ClientId, Tenant, TokenCache, cacheRootDir, TimeoutSeconds, UseUnprotectedTokenCache.IsPresent, loggingQueue, stopProcessing.Token));
 
             // Loop through messages and log them to warning stream (verbose is silent by default)
             try
