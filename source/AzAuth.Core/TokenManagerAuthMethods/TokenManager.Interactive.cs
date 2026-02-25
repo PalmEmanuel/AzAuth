@@ -8,8 +8,8 @@ internal static partial class TokenManager
     /// <summary>
     /// Gets token interactively.
     /// </summary>
-    internal static AzToken GetTokenInteractive(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string? tokenCache, string rootDir, int timeoutSeconds, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenInteractiveAsync(resource, scopes, claims, clientId, tenantId, tokenCache, rootDir, timeoutSeconds, cancellationToken));
+    internal static AzToken GetTokenInteractive(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string? tokenCache, string rootDir, int timeoutSeconds, bool useUnprotectedTokenCache, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenInteractiveAsync(resource, scopes, claims, clientId, tenantId, tokenCache, rootDir, timeoutSeconds, useUnprotectedTokenCache, cancellationToken));
 
     /// <summary>
     /// Gets token interactively.
@@ -23,6 +23,7 @@ internal static partial class TokenManager
         string? tokenCache,
         string rootDir,
         int timeoutSeconds,
+        bool useUnprotectedTokenCache,
         CancellationToken cancellationToken)
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
@@ -30,7 +31,7 @@ internal static partial class TokenManager
 
         if (!string.IsNullOrWhiteSpace(tokenCache))
         {
-            return await CacheManager.GetTokenInteractiveAsync(tokenCache!, rootDir, clientId, tenantId, fullScopes, claims, cancellationToken);
+            return await CacheManager.GetTokenInteractiveAsync(tokenCache!, rootDir, clientId, tenantId, fullScopes, claims, useUnprotectedTokenCache, cancellationToken);
         }
 
         var options = new InteractiveBrowserCredentialOptions
