@@ -6,6 +6,15 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [2.7.0] - 2026-02-25
 
+### Added
+
+- Adds -UnprotectedTokenCache parameter to solve caching on platforms without encryption functionality
+
+### Changed
+
+- Bump System.IdentityModel.Tokens.Jwt from 8.14.0 to 8.15.0
+- Bump System.Security.Cryptography.ProtectedData from 9.0.9 to 10.0.2
+
 ## [2.6.2] - 2025-10-11
 
 ### Changed
