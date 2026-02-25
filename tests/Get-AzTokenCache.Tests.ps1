@@ -64,7 +64,8 @@ Describe 'Get-AzTokenCache' {
             $CachePropertyNames | Should -Contain 'CreatedDate'
             $CachePropertyNames | Should -Contain 'LastModified'
             $CachePropertyNames | Should -Contain 'AccountCount'
-            $CachePropertyNames | Should -Contain 'AccountInfoChecked'
+            $CachePropertyNames | Should -Contain 'CacheDetailsChecked'
+            $CachePropertyNames | Should -Contain 'Protection'
             $CachePropertyNames | Should -Contain 'Accounts'
         }
     }

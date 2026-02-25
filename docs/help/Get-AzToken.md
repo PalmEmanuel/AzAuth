@@ -23,15 +23,15 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Cl
 ### Cache
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
- [-ClientId <String>] -TokenCache <String> -Username <String>
+ [-ClientId <String>] -TokenCache <String> [-UseUnprotectedTokenCache] -Username <String>
  [<CommonParameters>]
 ```
 
 ### Interactive
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
- [-ClientId <String>] [-TokenCache <String>] [-TimeoutSeconds <Int32>] [-Interactive] [-Force]
- [<CommonParameters>]
+ [-ClientId <String>] [-TokenCache <String>] [-UseUnprotectedTokenCache] [-TimeoutSeconds <Int32>]
+ [-Interactive] [-Force] [<CommonParameters>]
 ```
 
 ### Broker
@@ -43,8 +43,8 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Cl
 ### DeviceCode
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
- [-ClientId <String>] [-TokenCache <String>] [-TimeoutSeconds <Int32>] [-DeviceCode] [-Force]
- [<CommonParameters>]
+ [-ClientId <String>] [-TokenCache <String>] [-UseUnprotectedTokenCache] [-TimeoutSeconds <Int32>]
+ [-DeviceCode] [-Force] [<CommonParameters>]
 ```
 
 ### ManagedIdentity
@@ -475,6 +475,22 @@ Accept wildcard characters: False
 ```yaml
 Type: String
 Parameter Sets: Interactive, DeviceCode
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -UseUnprotectedTokenCache
+
+Specifies that the token cache will not be created with encryption, or that the token cache to find is unencrypted. Unencrypted token caches store tokens in plain text, and should not be used unless absolutely necessary. It may be necessary in some environments or on certain platforms where encryption functionality is not available.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Cache, Interactive, DeviceCode
 Aliases:
 
 Required: False
