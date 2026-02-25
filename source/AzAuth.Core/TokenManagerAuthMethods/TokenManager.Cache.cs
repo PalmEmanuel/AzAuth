@@ -7,8 +7,8 @@ internal static partial class TokenManager
     /// <summary>
     /// Gets token noninteractively from existing named token cache.
     /// </summary>
-    internal static AzToken GetTokenFromCache(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string tokenCache, string rootDir, string username, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenFromCacheAsync(resource, scopes, claims, clientId, tenantId, tokenCache, rootDir, username, cancellationToken));
+    internal static AzToken GetTokenFromCache(string resource, string[] scopes, string? claims, string? clientId, string? tenantId, string tokenCache, string rootDir, string username, bool useUnprotectedTokenCache, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenFromCacheAsync(resource, scopes, claims, clientId, tenantId, tokenCache, rootDir, username, useUnprotectedTokenCache, cancellationToken));
 
     /// <summary>
     /// Gets token noninteractively from existing named token cache.
@@ -22,6 +22,7 @@ internal static partial class TokenManager
         string tokenCache,
         string rootDir,
         string username,
+        bool useUnprotectedTokenCache,
         CancellationToken cancellationToken)
     {
         var fullScopes = scopes.Select(s => $"{resource.TrimEnd('/')}/{s}").ToArray();
@@ -33,7 +34,11 @@ internal static partial class TokenManager
 
         try
         {
-            return await CacheManager.GetTokenFromCacheSilentAsync(tokenCache, rootDir, clientId, tenantId, fullScopes, claims, username, cancellationToken);
+            return await CacheManager.GetTokenFromCacheSilentAsync(tokenCache, rootDir, clientId, tenantId, fullScopes, claims, username, useUnprotectedTokenCache, cancellationToken);
+        }
+        catch (MsalUiRequiredException ex) when (ex.Classification == UiRequiredExceptionClassification.AcquireTokenSilentFailed)
+        {
+            throw new InvalidOperationException("No token could be acquired silently from the cache. Either the account was not found in the cache, or the cache was created unprotected. For unprotected caches, the parameter -UseUnprotectedTokenCache must be used to retrieve the token.", ex);
         }
         catch (MsalServiceException ex) when (ex.Message.Contains("Please do not use the /consumers endpoint to serve this request."))
         {

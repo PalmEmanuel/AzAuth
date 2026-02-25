@@ -1,4 +1,5 @@
-﻿using Microsoft.Identity.Client;
+﻿using Azure.Identity;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.VisualStudio.Threading;
 using System.Collections.Concurrent;
@@ -20,16 +21,26 @@ internal static class CacheManager
     /// </summary>
     internal static string GetCacheRootDirectory() => $"{MsalCacheHelper.UserRootDirectory}/.IdentityService";
 
-    private static async Task InitializeCacheManagerAsync(string cacheName, string rootDir, string? clientId, string? tenantId, CancellationToken cancellationToken)
+    private static async Task InitializeCacheManagerAsync(string cacheName, string rootDir, string? clientId, string? tenantId, CancellationToken cancellationToken, bool useUnprotectedTokenCache = false)
     {
         var cacheDir = $"{rootDir ?? GetCacheRootDirectory()}/{cacheName}";
         
-        var storageProperties = new StorageCreationPropertiesBuilder(cacheName, cacheDir)
-            .WithMacKeyChain("PipeHow.AzAuth", cacheName)
-            .WithLinuxKeyring(cacheName, MsalCacheHelper.LinuxKeyRingDefaultCollection, "AzAuthTokenCache",
-                new KeyValuePair<string, string>("Product", "PipeHow.AzAuth"),
-                new KeyValuePair<string, string>("PipeHow.AzAuth", "1.0.0.0"))
-            .Build();
+        var storageBuilder = new StorageCreationPropertiesBuilder(cacheName, cacheDir);
+
+        if (useUnprotectedTokenCache)
+        {
+            storageBuilder = storageBuilder.WithUnprotectedFile();
+        }
+        else
+        {
+            storageBuilder = storageBuilder
+                .WithMacKeyChain("PipeHow.AzAuth", cacheName)
+                .WithLinuxKeyring(cacheName, MsalCacheHelper.LinuxKeyRingDefaultCollection, "AzAuthTokenCache",
+                    new KeyValuePair<string, string>("Product", "PipeHow.AzAuth"),
+                    new KeyValuePair<string, string>("PipeHow.AzAuth", "1.0.0.0"));
+        }
+
+        var storageProperties = storageBuilder.Build();
 
         // Task.Run to use cancellationToken
         cacheHelper = await Task.Run(() => MsalCacheHelper.CreateAsync(storageProperties), cancellationToken);
@@ -40,7 +51,15 @@ internal static class CacheManager
            .Build();
 
         cacheHelper.RegisterCache(application.UserTokenCache);
-        cacheHelper.VerifyPersistence();
+
+        try
+        {
+            cacheHelper.VerifyPersistence();        
+        }
+        catch (MsalCachePersistenceException ex) when (ex.InnerException is DllNotFoundException)
+        {
+            throw new PlatformNotSupportedException("The current platform does not support token caching with protected storage! If you really need unprotected caching, use the -UseUnprotectedTokenCache which stores tokens as plain text. Do so only at your own risk in controlled scenarios! See inner exception for details for more information such as missing dependency information.", ex.InnerException);
+        }
     }
 
     /// <summary>
@@ -57,8 +76,8 @@ internal static class CacheManager
     /// <summary>
     /// Get an access token interactively.
     /// </summary>
-    internal static AzToken GetTokenInteractive(string cacheName, string rootDir, string? clientId, string? tenantId, IEnumerable<string> scopes, string? claims, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenInteractiveAsync(cacheName, rootDir, clientId, tenantId, scopes, claims, cancellationToken));
+    internal static AzToken GetTokenInteractive(string cacheName, string rootDir, string? clientId, string? tenantId, IEnumerable<string> scopes, string? claims, bool useUnprotectedTokenCache, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenInteractiveAsync(cacheName, rootDir, clientId, tenantId, scopes, claims, useUnprotectedTokenCache, cancellationToken));
 
     internal static async Task<AzToken> GetTokenInteractiveAsync(
         string cacheName,
@@ -67,9 +86,10 @@ internal static class CacheManager
         string? tenantId,
         IEnumerable<string> scopes,
         string? claims,
+        bool useUnprotectedTokenCache,
         CancellationToken cancellationToken)
     {
-        await InitializeCacheManagerAsync(cacheName, rootDir, clientId, tenantId, cancellationToken);
+        await InitializeCacheManagerAsync(cacheName, rootDir, clientId, tenantId, cancellationToken, useUnprotectedTokenCache);
 
         var tokenBuilder = application!.AcquireTokenInteractive(scopes);
 
@@ -102,8 +122,8 @@ internal static class CacheManager
     /// <summary>
     /// Get an access token using a device code.
     /// </summary>
-    internal static AzToken GetTokenDeviceCode(string cacheName, string rootDir, string? clientId, string? tenantId, IEnumerable<string> scopes, string? claims, BlockingCollection<string> loggingQueue, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenDeviceCodeAsync(cacheName, rootDir, clientId, tenantId, scopes, claims, loggingQueue, cancellationToken));
+    internal static AzToken GetTokenDeviceCode(string cacheName, string rootDir, string? clientId, string? tenantId, IEnumerable<string> scopes, string? claims, bool useUnprotectedTokenCache, BlockingCollection<string> loggingQueue, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenDeviceCodeAsync(cacheName, rootDir, clientId, tenantId, scopes, claims, useUnprotectedTokenCache, loggingQueue, cancellationToken));
 
     internal static async Task<AzToken> GetTokenDeviceCodeAsync(
         string cacheName,
@@ -112,10 +132,11 @@ internal static class CacheManager
         string? tenantId,
         IEnumerable<string> scopes,
         string? claims,
+        bool useUnprotectedTokenCache,
         BlockingCollection<string> loggingQueue,
         CancellationToken cancellationToken)
     {
-        await InitializeCacheManagerAsync(cacheName, rootDir, clientId, tenantId, cancellationToken);
+        await InitializeCacheManagerAsync(cacheName, rootDir, clientId, tenantId, cancellationToken, useUnprotectedTokenCache);
 
         var tokenBuilder = application!.AcquireTokenWithDeviceCode(
             scopes,
@@ -156,8 +177,8 @@ internal static class CacheManager
     /// <summary>
     /// Get an access token silently from existing cache.
     /// </summary>
-    internal static void GetTokenFromCacheSilent(string cacheName, string rootDir, string? clientId, string? tenantId, IEnumerable<string> scopes, string? claims, string username, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => GetTokenFromCacheSilentAsync(cacheName, rootDir, clientId, tenantId, scopes, claims, username, cancellationToken));
+    internal static void GetTokenFromCacheSilent(string cacheName, string rootDir, string? clientId, string? tenantId, IEnumerable<string> scopes, string? claims, string username, bool useUnprotectedTokenCache, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => GetTokenFromCacheSilentAsync(cacheName, rootDir, clientId, tenantId, scopes, claims, username, useUnprotectedTokenCache, cancellationToken));
 
     internal static async Task<AzToken> GetTokenFromCacheSilentAsync(
         string cacheName,
@@ -167,9 +188,10 @@ internal static class CacheManager
         IEnumerable<string> scopes,
         string? claims,
         string username,
+        bool useUnprotectedTokenCache,
         CancellationToken cancellationToken)
     {
-        await InitializeCacheManagerAsync(cacheName, rootDir, clientId, tenantId, cancellationToken);
+        await InitializeCacheManagerAsync(cacheName, rootDir, clientId, tenantId, cancellationToken, useUnprotectedTokenCache);
 
         var tokenBuilder = application!.AcquireTokenSilent(scopes, username);
 
@@ -202,12 +224,12 @@ internal static class CacheManager
     /// <summary>
     /// Clears an existing cache and unregisters it from disk. The file may remain without tokens.
     /// </summary>
-    internal static void ClearCache(string cacheName, string rootDir, CancellationToken cancellationToken) =>
-        taskFactory.Run(() => ClearCacheAsync(cacheName, rootDir, cancellationToken));
+    internal static void ClearCache(string cacheName, string rootDir, bool useUnprotectedTokenCache, CancellationToken cancellationToken) =>
+        taskFactory.Run(() => ClearCacheAsync(cacheName, rootDir, useUnprotectedTokenCache, cancellationToken));
 
-    internal static async Task ClearCacheAsync(string cacheName, string rootDir, CancellationToken cancellationToken)
+    internal static async Task ClearCacheAsync(string cacheName, string rootDir, bool useUnprotectedTokenCache, CancellationToken cancellationToken)
     {
-        await InitializeCacheManagerAsync(cacheName, rootDir, null, null, cancellationToken);
+        await InitializeCacheManagerAsync(cacheName, rootDir, null, null, cancellationToken, useUnprotectedTokenCache);
 
         // Remove all accounts from cache async
         var accounts = await application!.GetAccountsAsync();
@@ -219,17 +241,17 @@ internal static class CacheManager
         cacheHelper!.UnregisterCache(application.UserTokenCache);
     }
 
-    internal static string[] GetAccounts(string? cacheName, string rootDir, CancellationToken cancellationToken = default) =>
-        taskFactory.Run(() => GetAccountsAsync(cacheName, rootDir, cancellationToken));
+    internal static string[] GetAccounts(string? cacheName, string rootDir, bool useUnprotectedTokenCache, CancellationToken cancellationToken = default) =>
+        taskFactory.Run(() => GetAccountsAsync(cacheName, rootDir, useUnprotectedTokenCache, cancellationToken));
 
-    private static async Task<string[]> GetAccountsAsync(string? cacheName, string rootDir, CancellationToken cancellationToken)
+    private static async Task<string[]> GetAccountsAsync(string? cacheName, string rootDir, bool useUnprotectedTokenCache, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(cacheName))
         {
             throw new ArgumentNullException("cacheName", "Cache handling could not be initialized!");
         }
 
-        await InitializeCacheManagerAsync(cacheName!, rootDir, null, null, cancellationToken);
+        await InitializeCacheManagerAsync(cacheName!, rootDir, null, null, cancellationToken, useUnprotectedTokenCache);
 
         var accounts = await application!.GetAccountsAsync();
         return [.. accounts.Select(a => a.Username ?? a.HomeAccountId.ObjectId)];
@@ -238,10 +260,10 @@ internal static class CacheManager
     /// <summary>
     /// Gets all available token caches in the default cache directory.
     /// </summary>
-    internal static TokenCacheInfo[] GetAvailableCaches(string? cacheFilter, string rootDir, bool includeAccountInfo = false, CancellationToken cancellationToken = default) =>
-        taskFactory.Run(() => GetAvailableCachesAsync(cacheFilter, rootDir, includeAccountInfo, cancellationToken));
+    internal static TokenCacheInfo[] GetAvailableCaches(string? cacheFilter, string rootDir, bool includeDetails = false, CancellationToken cancellationToken = default) =>
+        taskFactory.Run(() => GetAvailableCachesAsync(cacheFilter, rootDir, includeDetails, cancellationToken));
 
-    private static async Task<TokenCacheInfo[]> GetAvailableCachesAsync(string? cacheFilter, string rootDir, bool includeAccountInfo, CancellationToken cancellationToken)
+    private static async Task<TokenCacheInfo[]> GetAvailableCachesAsync(string? cacheFilter, string rootDir, bool includeDetails, CancellationToken cancellationToken)
     {
         var caches = new List<TokenCacheInfo>();
 
@@ -266,16 +288,32 @@ internal static class CacheManager
                 Name = cacheName,
                 Path = cacheDir,
                 CreatedDate = Directory.GetCreationTime(cacheDir),
-                LastModified = Directory.GetLastWriteTime(cacheDir)
+                LastModified = Directory.GetLastWriteTime(cacheDir),
+                Protection = TokenCacheProtection.Unknown
             };
 
             // Try to get account information if requested and possible
-            if (includeAccountInfo)
+            if (includeDetails)
             {
-                var accounts = await GetAccountsAsync(cacheName, rootDir, cancellationToken);
-                cacheInfo.AccountCount = accounts.Length;
-                cacheInfo.Accounts = accounts;
-                cacheInfo.AccountInfoChecked = true;
+                var accounts = await GetAccountsAsync(cacheName, rootDir, false, cancellationToken);
+                cacheInfo.CacheDetailsChecked = true;
+
+                if (accounts.Length > 0)
+                {
+                    cacheInfo.Protection = TokenCacheProtection.Protected;
+                    cacheInfo.AccountCount = accounts.Length;
+                    cacheInfo.Accounts = accounts;
+                }
+                else // If no accounts found it might be an unprotected cache or just empty, we try to check if it's unprotected first
+                {
+                    accounts = await GetAccountsAsync(cacheName, rootDir, true, cancellationToken);
+                    if (accounts.Length > 0)
+                    {
+                        cacheInfo.Protection = TokenCacheProtection.Unprotected;
+                        cacheInfo.AccountCount = accounts.Length;
+                        cacheInfo.Accounts = accounts;
+                    }
+                }
             }
 
             caches.Add(cacheInfo);
