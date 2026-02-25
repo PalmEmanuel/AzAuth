@@ -172,9 +172,9 @@ public class GetAzToken : PSLoggerCmdletBase
 
         if (UseUnprotectedTokenCache.IsPresent)
         {
-            if (!(Interactive.IsPresent || DeviceCode.IsPresent) || !MyInvocation.BoundParameters.ContainsKey("TokenCache"))
+            if (!MyInvocation.BoundParameters.ContainsKey("TokenCache"))
             {
-                throw new ArgumentException("The -UseUnprotectedTokenCache switch can only be used with -TokenCache in combination with -Interactive or -DeviceCode authentication methods!");
+                throw new ArgumentException("The -UseUnprotectedTokenCache switch must be used together with -TokenCache!");
             }
 
             WriteWarning("Unprotected token caches store tokens as plain text on the file system! Only use this in secure environments at your own risk!");
