@@ -90,6 +90,15 @@ BeforeDiscovery {
             )
         }
         @{
+            Name          = 'UseUnprotectedTokenCache'
+            Type          = 'System.Management.Automation.SwitchParameter'
+            ParameterSets = @(
+                @{ Name = 'Interactive'; Mandatory = $false }
+                @{ Name = 'DeviceCode'; Mandatory = $false }
+                @{ Name = 'Cache'; Mandatory = $false }
+            )
+        }
+        @{
             Name          = 'Username'
             Type          = 'string'
             ParameterSets = @(

@@ -485,7 +485,8 @@ Accept wildcard characters: False
 ```
 
 ### -UseUnprotectedTokenCache
-{{ Fill UseUnprotectedTokenCache Description }}
+
+Specifies that the token cache will not be created with encryption, or that the token cache to find is unencrypted. Unencrypted token caches store tokens in plain text, and should not be used unless absolutely necessary. It may be necessary in some environments or on certain platforms where encryption functionality is not available.
 
 ```yaml
 Type: SwitchParameter
