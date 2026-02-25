@@ -260,10 +260,10 @@ internal static class CacheManager
     /// <summary>
     /// Gets all available token caches in the default cache directory.
     /// </summary>
-    internal static TokenCacheInfo[] GetAvailableCaches(string? cacheFilter, string rootDir, bool includeAccountInfo = false, CancellationToken cancellationToken = default) =>
-        taskFactory.Run(() => GetAvailableCachesAsync(cacheFilter, rootDir, includeAccountInfo, cancellationToken));
+    internal static TokenCacheInfo[] GetAvailableCaches(string? cacheFilter, string rootDir, bool includeDetails = false, CancellationToken cancellationToken = default) =>
+        taskFactory.Run(() => GetAvailableCachesAsync(cacheFilter, rootDir, includeDetails, cancellationToken));
 
-    private static async Task<TokenCacheInfo[]> GetAvailableCachesAsync(string? cacheFilter, string rootDir, bool includeAccountInfo, CancellationToken cancellationToken)
+    private static async Task<TokenCacheInfo[]> GetAvailableCachesAsync(string? cacheFilter, string rootDir, bool includeDetails, CancellationToken cancellationToken)
     {
         var caches = new List<TokenCacheInfo>();
 
@@ -288,16 +288,32 @@ internal static class CacheManager
                 Name = cacheName,
                 Path = cacheDir,
                 CreatedDate = Directory.GetCreationTime(cacheDir),
-                LastModified = Directory.GetLastWriteTime(cacheDir)
+                LastModified = Directory.GetLastWriteTime(cacheDir),
+                Protection = TokenCacheProtection.Unknown
             };
 
             // Try to get account information if requested and possible
-            if (includeAccountInfo)
+            if (includeDetails)
             {
                 var accounts = await GetAccountsAsync(cacheName, rootDir, false, cancellationToken);
-                cacheInfo.AccountCount = accounts.Length;
-                cacheInfo.Accounts = accounts;
-                cacheInfo.AccountInfoChecked = true;
+                cacheInfo.CacheDetailsChecked = true;
+
+                if (accounts.Length > 0)
+                {
+                    cacheInfo.Protection = TokenCacheProtection.Protected;
+                    cacheInfo.AccountCount = accounts.Length;
+                    cacheInfo.Accounts = accounts;
+                }
+                else // If no accounts found it might be an unprotected cache or just empty, we try to check if it's unprotected first
+                {
+                    accounts = await GetAccountsAsync(cacheName, rootDir, true, cancellationToken);
+                    if (accounts.Length > 0)
+                    {
+                        cacheInfo.Protection = TokenCacheProtection.Unprotected;
+                        cacheInfo.AccountCount = accounts.Length;
+                        cacheInfo.Accounts = accounts;
+                    }
+                }
             }
 
             caches.Add(cacheInfo);
