@@ -8,7 +8,8 @@ namespace PipeHow.AzAuth.Cmdlets;
 public class GetAzTokenCache : PSLoggerCmdletBase
 {
     [Parameter]
-    public SwitchParameter IncludeAccounts { get; set; }
+    [Alias("IncludeAccounts")]
+    public SwitchParameter IncludeDetails { get; set; }
 
     [Parameter]
     [ValidateNotNullOrEmpty]
@@ -26,12 +27,12 @@ public class GetAzTokenCache : PSLoggerCmdletBase
         {
             WriteVerbose($"Scanning for token caches in the cache directory '{RootPath}'.");
 
-            if (IncludeAccounts.IsPresent)
+            if (IncludeDetails.IsPresent)
             {
                 WriteWarning("Including account information may prompt for access permissions, depending on the platform.");
             }
 
-            var caches = CacheManager.GetAvailableCaches(TokenCache, RootPath, IncludeAccounts.IsPresent, stopProcessing.Token);
+            var caches = CacheManager.GetAvailableCaches(TokenCache, RootPath, IncludeDetails.IsPresent, stopProcessing.Token);
 
             if (caches.Length == 0)
             {
