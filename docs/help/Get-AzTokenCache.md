@@ -14,7 +14,7 @@ Lists all available token caches in the default cache directory.
 ## SYNTAX
 
 ```
-Get-AzTokenCache [-IncludeAccounts] [-TokenCache <String>] [-RootPath <String>]
+Get-AzTokenCache [-IncludeDetails] [-TokenCache <String>] [-RootPath <String>]
  [<CommonParameters>]
 ```
 
@@ -58,14 +58,14 @@ Lists all available token caches in a custom directory, overriding the default c
 
 ## PARAMETERS
 
-### -IncludeAccounts
+### -IncludeDetails
 
-When specified, includes account information such as account count and usernames stored in each cache. This may prompt for access credentials depending on the platform.
+When specified, includes information such as account details and cache encryption status. This may prompt for access credentials depending on the platform and environment.
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: IncludeAccounts
 
 Required: False
 Position: Named

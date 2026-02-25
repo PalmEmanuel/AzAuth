@@ -20,7 +20,15 @@ public class ExistingAccounts : IArgumentCompleter
         {
             var cacheName = fakeBoundParameters["TokenCache"]?.ToString();
             string rootDirectory = fakeBoundParameters["RootPath"]?.ToString() ?? CacheManager.GetCacheRootDirectory();
-            return CacheManager.GetAccounts(cacheName, rootDirectory).Select(a => new CompletionResult(a));
+            var accounts = CacheManager.GetAccounts(cacheName, rootDirectory, false).Select(a => new CompletionResult(a));
+
+            // If no accounts were found when token cache is initialized as protected, see if the cache is unprotected
+            if (!accounts.Any())
+            {
+                accounts = CacheManager.GetAccounts(cacheName, rootDirectory, true).Select(a => new CompletionResult(a));
+            }
+
+            return accounts;
         }
         catch (Exception) { /* It's fine if we cannot get accounts here */ }
 
