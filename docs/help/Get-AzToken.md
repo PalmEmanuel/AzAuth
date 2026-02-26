@@ -121,10 +121,10 @@ Gets a new Azure access token interactively and stores the token in a new (or ex
 ### Example 4
 
 ```powershell
-PS C:\> Get-AzToken -TokenCache 'AzAuthCache'
+PS C:\> Get-AzToken -TokenCache 'AzAuthCache' -Username 'example@pipe.how'
 ```
 
-Gets a new Azure access token interactively from an existing token cache named "AzAuthCache".
+Gets a new Azure access token interactively from an existing token cache named "AzAuthCache" for an account. Available accounts are shown through tab completion.
 
 ### Example 5
 
