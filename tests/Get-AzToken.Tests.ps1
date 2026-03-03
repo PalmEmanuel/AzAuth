@@ -102,7 +102,7 @@ BeforeDiscovery {
             Name          = 'Username'
             Type          = 'string'
             ParameterSets = @(
-                @{ Name = 'Cache'; Mandatory = $true }
+                @{ Name = 'Cache'; Mandatory = $false }
             )
         }
         @{

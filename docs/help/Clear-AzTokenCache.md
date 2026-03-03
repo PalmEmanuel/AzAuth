@@ -14,7 +14,7 @@ Clear all tokens from a specified token cache.
 ## SYNTAX
 
 ```
-Clear-AzTokenCache -TokenCache <String> [-Force] [-RootPath <String>]
+Clear-AzTokenCache [-TokenCache] <String> [-Force] [-RootPath <String>]
  [<CommonParameters>]
 ```
 
@@ -86,7 +86,7 @@ Parameter Sets: (All)
 Aliases: Name
 
 Required: True
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

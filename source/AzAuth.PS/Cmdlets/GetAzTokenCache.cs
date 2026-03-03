@@ -11,7 +11,7 @@ public class GetAzTokenCache : PSLoggerCmdletBase
     [Alias("IncludeAccounts")]
     public SwitchParameter IncludeDetails { get; set; }
 
-    [Parameter]
+    [Parameter(Position = 0)]
     [ValidateNotNullOrEmpty]
     [ArgumentCompleter(typeof(ExistingCaches))]
     [Alias("Name")]

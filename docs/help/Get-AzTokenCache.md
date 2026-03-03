@@ -14,7 +14,7 @@ Lists all available token caches in the default cache directory.
 ## SYNTAX
 
 ```
-Get-AzTokenCache [-IncludeDetails] [-TokenCache <String>] [-RootPath <String>]
+Get-AzTokenCache [-IncludeDetails] [[-TokenCache] <String>] [-RootPath <String>]
  [<CommonParameters>]
 ```
 
@@ -43,10 +43,10 @@ Lists all available token caches with complete details including file informatio
 ### Example 2
 
 ```powershell
-PS C:\> Get-AzTokenCache -IncludeAccounts
+PS C:\> Get-AzTokenCache -TokenCache 'MyCache' -IncludeDetails
 ```
 
-Lists all available token caches including account information. May prompt for access credentials to secure storage depending on the platform.
+Gets details about a specific token cache, including account information and encryption state. May prompt for access credentials to secure storage depending on the platform.
 
 ### Example 3
 
@@ -100,7 +100,7 @@ Parameter Sets: (All)
 Aliases: Name
 
 Required: False
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

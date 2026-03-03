@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Gets a new Azure access token.
+Gets an Azure access token.
 
 ## SYNTAX
 
@@ -23,7 +23,7 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Cl
 ### Cache
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Claim <String>]
- [-ClientId <String>] -TokenCache <String> [-UseUnprotectedTokenCache] -Username <String>
+ [-ClientId <String>] -TokenCache <String> [-UseUnprotectedTokenCache] [-Username <String>]
  [<CommonParameters>]
 ```
 
@@ -100,7 +100,7 @@ The token can be retrieved from an existing named cache, interactively from a br
 PS C:\> Get-AzToken
 ```
 
-Gets a new Azure access token non-interactively for the `.default` scope of Microsoft Graph.
+Gets an Azure access token non-interactively for the `.default` scope of Microsoft Graph.
 
 ### Example 2
 
@@ -108,7 +108,7 @@ Gets a new Azure access token non-interactively for the `.default` scope of Micr
 PS C:\> Get-AzToken -Resource 'https://graph.microsoft.com/' -Scope 'User.Read','LearningContent.Read.All' -ClientId 'a4d5d049-a35c-49a1-ad6e-0a3a94138d32' -Interactive
 ```
 
-Gets a new Azure access token interactively for Microsoft Graph with the scopes `User.Read` and `LearningContent.Read.All`, also specifying a client id.
+Gets an Azure access token interactively for Microsoft Graph with the scopes `User.Read` and `LearningContent.Read.All`, also specifying a client id.
 
 ### Example 3
 
@@ -116,55 +116,63 @@ Gets a new Azure access token interactively for Microsoft Graph with the scopes 
 PS C:\> Get-AzToken -Interactive -TokenCache 'AzAuthCache'
 ```
 
-Gets a new Azure access token interactively and stores the token in a new (or existing) token cache named "AzAuthCache".
+Gets an Azure access token interactively and stores the token in a new (or existing) token cache named "AzAuthCache".
 
 ### Example 4
+
+```powershell
+PS C:\> Get-AzToken -TokenCache 'AzAuthCache'
+```
+
+Gets an Azure access token interactively from an existing token cache named "AzAuthCache", assuming there is only one account in the cache.
+
+### Example 5
 
 ```powershell
 PS C:\> Get-AzToken -TokenCache 'AzAuthCache' -Username 'example@pipe.how'
 ```
 
-Gets a new Azure access token interactively from an existing token cache named "AzAuthCache" for an account. Available accounts are shown through tab completion.
+Gets an Azure access token interactively from an existing token cache named "AzAuthCache" for a specific account. Available accounts are shown through tab completion.
 
-### Example 5
+### Example 6
 
 ```powershell
 PS C:\> Get-AzToken -Scope 'Directory.Read.All' -ClientId $ClientId -ManagedIdentity
 ```
 
-Gets a new Azure access token for a managed identity, valid for Microsoft Graph with the scope `Directory.Read.All`, also specifying a client id.
+Gets an Azure access token for a managed identity, valid for Microsoft Graph with the scope `Directory.Read.All`, also specifying a client id.
 
-### Example 6
+### Example 7
 
 ```powershell
 PS C:\> Get-AzToken -ClientId $ClientId -ClientSecret $ClientSecret -TenantId $TenantId
 ```
 
-Gets a new Azure access token for a client using the client credentials flow by specifying a client secret, valid for the default Microsoft Graph scope, also specifying the tenant as a mandatory parameter.
+Gets an Azure access token for a client using the client credentials flow by specifying a client secret, valid for the default Microsoft Graph scope, also specifying the tenant as a mandatory parameter.
 
-### Example 7
+### Example 8
 
 ```powershell
 PS C:\> Get-AzToken -ClientCertificate (Get-Item "Cert:\CurrentUser\My\$Thumbprint") -ClientId $ClientId -TenantId $TenantId
 ```
 
-Gets a new Azure access token for a client using the client certificate flow by getting and providing an installed certificate from the user certificate store.
+Gets an Azure access token for a client using the client certificate flow by getting and providing an installed certificate from the user certificate store.
 
-### Example 8
+### Example 9
 
 ```powershell
 PS C:\> Get-AzToken -ClientCertificatePath ".\certAndPrivateKey.pem" -ClientId $ClientId -TenantId $TenantId
 ```
 
-Gets a new Azure access token for a client using the client certificate flow by specifying a path to a file containing both the certificate and the private key.
+Gets an Azure access token for a client using the client certificate flow by specifying a path to a file containing both the certificate and the private key.
 
-### Example 9
+### Example 10
 
 ```powershell
 PS C:\> Get-AzToken -WorkloadIdentity -ExternalToken $OidcToken -ClientId $ClientId -TenantId $TenantId
 ```
 
-Gets a new Azure access token for a client using the workload identity federation pattern by specifying a valid id token. For more details, see blog post in related links of this command.
+Gets an Azure access token for a client using the workload identity federation pattern by specifying a valid id token. For more details, see blog post in related links of this command.
 
 ## PARAMETERS
 
@@ -509,7 +517,7 @@ Type: String
 Parameter Sets: Cache
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
