@@ -6,7 +6,7 @@ namespace PipeHow.AzAuth.Cmdlets;
 [Cmdlet(VerbsCommon.Clear, "AzTokenCache")]
 public class ClearAzTokenCache : PSLoggerCmdletBase
 {
-    [Parameter(Mandatory = true)]
+    [Parameter(Mandatory = true, Position = 0)]
     [ValidateNotNullOrEmpty]
     [ArgumentCompleter(typeof(ExistingCaches))]
     [Alias("Name")]
@@ -29,12 +29,34 @@ public class ClearAzTokenCache : PSLoggerCmdletBase
         if (Force)
         {
             WriteWarning($"Will attempt to delete all files for the token cache '{TokenCache}', this may cause issues with other applications using the same cache!");
-            CacheManager.RemoveCache(TokenCache, RootPath, stopProcessing.Token);
+            try
+            {
+                CacheManager.RemoveCache(TokenCache, RootPath, stopProcessing.Token);
+            }
+            catch (DirectoryNotFoundException) {
+                // If the cache (it's a directory) doesn't exist, it's likely cleared but we output verbose info for the user
+                WriteWarning($"The token cache '{TokenCache}' does not exist.");
+            }
         }
         else
         {
-            CacheManager.ClearCache(TokenCache, RootPath, false, stopProcessing.Token);
-            CacheManager.ClearCache(TokenCache, RootPath, true, stopProcessing.Token);
+            try
+            {   // Assume the cache is protected
+                WriteVerbose($"Trying to clear token cache '{TokenCache}' as protected.");
+                CacheManager.ClearCache(TokenCache, RootPath, false, stopProcessing.Token);
+            }
+            catch
+            {
+                try
+                {   // Otherwise try to clear it as unprotected
+                    WriteVerbose($"Trying to clear token cache '{TokenCache}' as unprotected.");
+                    CacheManager.ClearCache(TokenCache, RootPath, true, stopProcessing.Token);
+                }
+                catch (Exception ex)
+                {
+                    WriteError(new ErrorRecord(new Exception($"Failed to clear the token cache '{TokenCache}'. Consider using -Force to remove the cache files directly, but be aware this may cause issues with other applications using the same cache.", ex), "ClearAzTokenCacheError", ErrorCategory.WriteError, null));
+                }
+            }
         }
     }
 }

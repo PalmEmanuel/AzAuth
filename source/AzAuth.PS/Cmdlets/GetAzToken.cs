@@ -88,10 +88,10 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "Cache")]
     public SwitchParameter UseUnprotectedTokenCache { get; set; }
 
-    [Parameter(ParameterSetName = "Cache", Mandatory = true)]
+    [Parameter(ParameterSetName = "Cache")]
     [ValidateNotNullOrEmpty]
     [ArgumentCompleter(typeof(ExistingAccounts))]
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Interactive")]
@@ -213,8 +213,23 @@ should be
         }
         else if (ParameterSetName == "Cache")
         {
-            WriteVerbose($"Getting token from token cache named \"{TokenCache}\".");
-            WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, ClientId, Tenant, TokenCache!, cacheRootDir, Username, UseUnprotectedTokenCache.IsPresent, stopProcessing.Token));
+            if (string.IsNullOrWhiteSpace(Username))
+            {
+                WriteVerbose($"No username specified, verifying there is only a single account in token cache '{TokenCache}' and attempting to get token for it.");
+            }
+            else
+            {
+                WriteVerbose($"Attemping to get token for account '{Username}' from token cache named '{TokenCache}'.");
+            }
+
+            try
+            {
+                WriteObject(TokenManager.GetTokenFromCache(Resource, Scope, Claim, ClientId, Tenant, TokenCache!, cacheRootDir, Username, UseUnprotectedTokenCache.IsPresent, stopProcessing.Token));
+            }
+            catch (PlatformNotSupportedException ex)
+            {
+                WriteError(new ErrorRecord(ex, "PlatformNotSupported", ErrorCategory.NotInstalled, null));
+            }
         }
         else if (Interactive.IsPresent)
         {
@@ -264,27 +279,27 @@ should be
         }
         else if (WorkloadIdentity.IsPresent)
         {
-            WriteVerbose($"Getting token using workload identity federation (using client assertion) for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientassertioncredential).");
+            WriteVerbose($"Getting token using workload identity federation (using client assertion) for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientassertioncredential).");
             WriteObject(TokenManager.GetTokenWorkloadIdentity(Resource, Scope, Claim, ClientId, Tenant, ExternalToken, stopProcessing.Token));
         }
         else if (ParameterSetName == "ClientSecret")
         {
-            WriteVerbose($"Getting token using client secret for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientsecretcredential).");
+            WriteVerbose($"Getting token using client secret for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientsecretcredential).");
             WriteObject(TokenManager.GetTokenClientSecret(Resource, Scope, Claim, ClientId, Tenant, ClientSecret, stopProcessing.Token));
         }
         else if (ParameterSetName == "ClientCertificate")
         {
-            WriteVerbose($"Getting token using client certificate for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
+            WriteVerbose($"Getting token using client certificate for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
             WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, Tenant, ClientCertificate, stopProcessing.Token));
         }
         else if (ParameterSetName == "ClientCertificatePath")
         {
-            WriteVerbose($"Getting token using client certificate for client \"{ClientId}\" (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
+            WriteVerbose($"Getting token using client certificate for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
             WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, Tenant, ClientCertificatePath, stopProcessing.Token));
         }
         else
         {
-            throw new ArgumentException("Invalid parameter combination!");
+            WriteError(new ErrorRecord(new ArgumentException("Invalid parameter combination!"), "InvalidParameters", ErrorCategory.WriteError, null));
         }
     }
 }

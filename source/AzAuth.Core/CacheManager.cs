@@ -58,7 +58,7 @@ internal static class CacheManager
         }
         catch (MsalCachePersistenceException ex) when (ex.InnerException is DllNotFoundException)
         {
-            throw new PlatformNotSupportedException("The current platform does not support token caching with protected storage! If you really need unprotected caching, use the -UseUnprotectedTokenCache which stores tokens as plain text. Do so only at your own risk in controlled scenarios! See inner exception for details for more information such as missing dependency information.", ex.InnerException);
+            throw new PlatformNotSupportedException("The current platform does not support token caching with protected storage! If you really need caching, install the necessary dependencies or use the -UseUnprotectedTokenCache which stores tokens as plain text. Do so only at your own risk in controlled scenarios! See inner exception for details for more information such as missing dependency information.", ex.InnerException);
         }
     }
 
@@ -348,7 +348,7 @@ internal static class CacheManager
 
         // Check directory size (prevent deletion of massive directories)
         var (fileCount, totalSize) = GetDirectoryInfo(cacheDir);
-        // Set large limits for a typical cache, but it should prevent accidental deletion of large directories
+        // Sets a large limit for deleting a cache, but it should prevent accidental deletion of large directories
         const long MaxCacheSizeBytes = 5 * 1024 * 1024;
         const int MaxCacheFiles = 10;
 
@@ -390,7 +390,7 @@ internal static class CacheManager
         }
         catch
         {
-            // If we can't read the directory info, assume it's small for safety
+            // If we can't read the directory info, assume it's small
             return (0, 0);
         }
     }
