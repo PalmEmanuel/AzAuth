@@ -4,6 +4,25 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+## [2.7.1] - 2026-03-03
+
+## Changed
+
+- Parameter -Username no longer mandatory for caches with a single account. Get-AzToken will find and try to get a token from the cache if there is only one account in it, which will often allow for a simplified syntax.
+    - Get-AzToken -TokenCache 'mycache'
+- Parameter -TokenCache is now position 0 in cache commands to allow usage without specifying it
+    - Get-AzTokenCache 'mycache'
+    - Clear-AzTokenCache 'mycache'
+- Improved error handling around caches with better messages and -ErrorAction support
+
+## Other Changes
+
+* Bump System.Security.Cryptography.ProtectedData from 10.0.2 to 10.0.3
+* Bump System.IdentityModel.Tokens.Jwt from 8.15.0 to 8.16.0
+* Bump Azure.Identity from 1.17.0 to 1.18.0
+* Bump Azure.Identity.Broker from 1.3.0 to 1.4.0
+* Bump Microsoft.Identity.Client.NativeInterop from 0.19.4 to 0.20.2
+
 ## [2.7.0] - 2026-02-25
 
 ### Added
@@ -122,7 +141,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 - Improved build and test workflow to run on multiple platforms
 - Updated LICENSE year
 
-[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.0...HEAD
+[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.1...HEAD
+[2.7.1]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.2...v2.7.0
 [2.6.2]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.1...v2.6.2
 [2.6.1]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.0...v2.6.1
