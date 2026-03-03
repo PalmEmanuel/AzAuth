@@ -4,6 +4,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+## [2.7.1] - 2026-03-03
+
 ## [2.7.0] - 2026-02-25
 
 ### Added
@@ -122,7 +124,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 - Improved build and test workflow to run on multiple platforms
 - Updated LICENSE year
 
-[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.0...HEAD
+[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.1...HEAD
+[2.7.1]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.2...v2.7.0
 [2.6.2]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.1...v2.6.2
 [2.6.1]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.0...v2.6.1
