@@ -6,7 +6,7 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [2.7.1] - 2026-03-03
 
-## Changed
+### Changed
 
 - Parameter -Username no longer mandatory for caches with a single account. Get-AzToken will find and try to get a token from the cache if there is only one account in it, which will often allow for a simplified syntax.
     - Get-AzToken -TokenCache 'mycache'
@@ -14,14 +14,11 @@ The format is based on and uses the types of changes according to [Keep a Change
     - Get-AzTokenCache 'mycache'
     - Clear-AzTokenCache 'mycache'
 - Improved error handling around caches with better messages and -ErrorAction support
-
-## Other Changes
-
-* Bump System.Security.Cryptography.ProtectedData from 10.0.2 to 10.0.3
-* Bump System.IdentityModel.Tokens.Jwt from 8.15.0 to 8.16.0
-* Bump Azure.Identity from 1.17.0 to 1.18.0
-* Bump Azure.Identity.Broker from 1.3.0 to 1.4.0
-* Bump Microsoft.Identity.Client.NativeInterop from 0.19.4 to 0.20.2
+- Bumped System.Security.Cryptography.ProtectedData from 10.0.2 to 10.0.3
+- Bumped System.IdentityModel.Tokens.Jwt from 8.15.0 to 8.16.0
+- Bumped Azure.Identity from 1.17.0 to 1.18.0
+- Bumped Azure.Identity.Broker from 1.3.0 to 1.4.0
+- Bumped Microsoft.Identity.Client.NativeInterop from 0.19.4 to 0.20.2
 
 ## [2.7.0] - 2026-02-25
 
