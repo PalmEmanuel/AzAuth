@@ -4,6 +4,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+## [2.8.0] - 2026-03-05
+
+- Improve error handling by replacing exceptions with WriteError
+
 ## [2.7.1] - 2026-03-03
 
 ### Changed
