@@ -174,7 +174,8 @@ public class GetAzToken : PSLoggerCmdletBase
         {
             if (!MyInvocation.BoundParameters.ContainsKey("TokenCache"))
             {
-                throw new ArgumentException("The -UseUnprotectedTokenCache switch must be used together with -TokenCache!");
+                WriteError(new ErrorRecord(new ArgumentException("The -UseUnprotectedTokenCache switch must be used together with -TokenCache!"), "InvalidParameterCombination", ErrorCategory.InvalidArgument, null));
+                return;
             }
 
             WriteWarning("Unprotected token caches store tokens as plain text on the file system! Only use this in secure environments at your own risk!");
@@ -193,7 +194,8 @@ should be
 
 'Get-AzToken -Resource $Resource -Scope $Scope'");
                 }
-                throw new ArgumentException("The ClientId parameter is not supported for this parameter combination.");
+                WriteError(new ErrorRecord(new ArgumentException("The ClientId parameter is not supported for this parameter combination."), "InvalidParameterCombination", ErrorCategory.InvalidArgument, null));
+                return;
             }
 
             // If user didn't specify a timeout, set default for managed identity
@@ -209,7 +211,15 @@ should be
 
             WriteVerbose(@$"Looking for a token from the following sources:
 {string.Join(Environment.NewLine, CredentialPrecedence.Select(cred => $"{cred} ({TokenManager.GetCredentialDocumentationUrl(cred)})"))}");
-            WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, Tenant, CredentialPrecedence, noninteractiveTimeoutSeconds, managedIdentityTimeoutSeconds, stopProcessing.Token));
+            try
+            {
+                WriteObject(TokenManager.GetTokenNonInteractive(Resource, Scope, Claim, Tenant, CredentialPrecedence, noninteractiveTimeoutSeconds, managedIdentityTimeoutSeconds, stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "NonInteractiveTokenError", ErrorCategory.NotSpecified, null));
+                return;
+            }
         }
         else if (ParameterSetName == "Cache")
         {
@@ -229,19 +239,34 @@ should be
             catch (PlatformNotSupportedException ex)
             {
                 WriteError(new ErrorRecord(ex, "PlatformNotSupported", ErrorCategory.NotInstalled, null));
+                return;
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "CacheTokenError", ErrorCategory.NotSpecified, null));
+                return;
             }
         }
         else if (Interactive.IsPresent)
         {
             WriteVerbose("Getting token interactively using the default browser.");
-            WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, Tenant, TokenCache, cacheRootDir, TimeoutSeconds, UseUnprotectedTokenCache.IsPresent, stopProcessing.Token));
+            try
+            {
+                WriteObject(TokenManager.GetTokenInteractive(Resource, Scope, Claim, ClientId, Tenant, TokenCache, cacheRootDir, TimeoutSeconds, UseUnprotectedTokenCache.IsPresent, stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "InteractiveTokenError", ErrorCategory.NotSpecified, null));
+                return;
+            }
         }
         else if (Broker.IsPresent)
         {
             WriteVerbose("Getting token interactively using the WAM broker.");
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                throw new PlatformNotSupportedException("The WAM broker authentication is only supported on Windows.");
+                WriteError(new ErrorRecord(new PlatformNotSupportedException("The WAM broker authentication is only supported on Windows."), "PlatformNotSupported", ErrorCategory.NotInstalled, null));
+                return;
             }
             WriteObject(TokenManager.GetTokenInteractiveBroker(Resource, Scope, Claim, ClientId, Tenant, TimeoutSeconds, stopProcessing.Token));
         }
@@ -263,9 +288,23 @@ should be
                 }
             }
             catch (OperationCanceledException) { /* It's fine if user cancels */ }
+            catch (Exception ex)
+            {
+                // Something went wrong when trying to log the device code message, cancel token and return error
+                WriteError(new ErrorRecord(ex, "DeviceCodeFlowError", ErrorCategory.AuthenticationError, null));
+                return;
+            }
 
-            // The device code message has been presented, now await task and output token when done
-            WriteObject(tokenTask.Join(stopProcessing.Token));
+            try
+            {
+                // The device code message has been presented, now await task and output token when done
+                WriteObject(tokenTask.Join(stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "DeviceCodeTokenError", errorCategory: ErrorCategory.AuthenticationError, null));
+                return;
+            }
         }
         else if (ManagedIdentity.IsPresent)
         {
@@ -275,31 +314,73 @@ should be
                 TimeoutSeconds = 1;
             }
             WriteVerbose("Getting token using a managed identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential).");
-            WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, Tenant, TimeoutSeconds, stopProcessing.Token));
+            try
+            {
+                WriteObject(TokenManager.GetTokenManagedIdentity(Resource, Scope, Claim, ClientId, Tenant, TimeoutSeconds, stopProcessing.Token));
+                
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "ManagedIdentityTokenError", ErrorCategory.AuthenticationError, null));
+                return;
+            }
         }
         else if (WorkloadIdentity.IsPresent)
         {
             WriteVerbose($"Getting token using workload identity federation (using client assertion) for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientassertioncredential).");
-            WriteObject(TokenManager.GetTokenWorkloadIdentity(Resource, Scope, Claim, ClientId, Tenant, ExternalToken, stopProcessing.Token));
+            try
+            {
+                WriteObject(TokenManager.GetTokenWorkloadIdentity(Resource, Scope, Claim, ClientId, Tenant, ExternalToken, stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "WorkloadIdentityTokenError", ErrorCategory.AuthenticationError, null));
+                return;
+            }
         }
         else if (ParameterSetName == "ClientSecret")
         {
             WriteVerbose($"Getting token using client secret for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientsecretcredential).");
-            WriteObject(TokenManager.GetTokenClientSecret(Resource, Scope, Claim, ClientId, Tenant, ClientSecret, stopProcessing.Token));
+            try
+            {
+                WriteObject(TokenManager.GetTokenClientSecret(Resource, Scope, Claim, ClientId, Tenant, ClientSecret, stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "ClientSecretTokenError", ErrorCategory.AuthenticationError, null));
+                return;
+            }
         }
         else if (ParameterSetName == "ClientCertificate")
         {
             WriteVerbose($"Getting token using client certificate for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
-            WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, Tenant, ClientCertificate, stopProcessing.Token));
+            try
+            {
+                WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, Tenant, ClientCertificate, stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "ClientCertificateTokenError", ErrorCategory.AuthenticationError, null));
+                return;
+            }
         }
         else if (ParameterSetName == "ClientCertificatePath")
         {
             WriteVerbose($"Getting token using client certificate for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientcertificatecredential).");
-            WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, Tenant, ClientCertificatePath, stopProcessing.Token));
+            try
+            {
+                WriteObject(TokenManager.GetTokenClientCertificate(Resource, Scope, Claim, ClientId, Tenant, ClientCertificatePath, stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "ClientCertificatePathTokenError", ErrorCategory.AuthenticationError, null));
+                return;
+            }
         }
         else
         {
             WriteError(new ErrorRecord(new ArgumentException("Invalid parameter combination!"), "InvalidParameters", ErrorCategory.WriteError, null));
+            return;
         }
     }
 }
