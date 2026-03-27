@@ -55,6 +55,7 @@ internal static partial class TokenManager
                         MaxDelay = TimeSpan.Zero
                     }
                 }),
+                "WorkloadIdentity" => new WorkloadIdentityCredential(genericTimeoutOptions as WorkloadIdentityCredentialOptions),
                 "Environment" => new EnvironmentCredential(genericTimeoutOptions),
                 "AzurePowerShell" => new AzurePowerShellCredential(genericTimeoutOptions as AzurePowerShellCredentialOptions),
                 "AzureCLI" => new AzureCliCredential(genericTimeoutOptions as AzureCliCredentialOptions),

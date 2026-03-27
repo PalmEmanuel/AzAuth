@@ -14,6 +14,11 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
+                @{ Name = 'AzurePipelines'; Mandatory = $false }
+                @{ Name = 'OnBehalfOf'; Mandatory = $false }
+                @{ Name = 'OnBehalfOfCertificate'; Mandatory = $false }
+                @{ Name = 'OnBehalfOfCertificatePath'; Mandatory = $false }
+                @{ Name = 'AuthorizationCode'; Mandatory = $false }
             )
         }
         @{
@@ -30,6 +35,11 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
+                @{ Name = 'AzurePipelines'; Mandatory = $false }
+                @{ Name = 'OnBehalfOf'; Mandatory = $false }
+                @{ Name = 'OnBehalfOfCertificate'; Mandatory = $false }
+                @{ Name = 'OnBehalfOfCertificatePath'; Mandatory = $false }
+                @{ Name = 'AuthorizationCode'; Mandatory = $false }
             )
         }
         @{
@@ -46,6 +56,11 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $true }
                 @{ Name = 'ClientCertificate'; Mandatory = $true }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $true }
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
+                @{ Name = 'OnBehalfOf'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificate'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificatePath'; Mandatory = $true }
+                @{ Name = 'AuthorizationCode'; Mandatory = $true }
             )
         }
         @{
@@ -62,6 +77,11 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
+                @{ Name = 'AzurePipelines'; Mandatory = $false }
+                @{ Name = 'OnBehalfOf'; Mandatory = $false }
+                @{ Name = 'OnBehalfOfCertificate'; Mandatory = $false }
+                @{ Name = 'OnBehalfOfCertificatePath'; Mandatory = $false }
+                @{ Name = 'AuthorizationCode'; Mandatory = $false }
             )
         }
         @{
@@ -78,6 +98,11 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $true }
                 @{ Name = 'ClientCertificate'; Mandatory = $true }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $true }
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
+                @{ Name = 'OnBehalfOf'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificate'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificatePath'; Mandatory = $true }
+                @{ Name = 'AuthorizationCode'; Mandatory = $true }
             )
         }
         @{
@@ -169,6 +194,8 @@ BeforeDiscovery {
             Type          = 'string'
             ParameterSets = @(
                 @{ Name = 'ClientSecret'; Mandatory = $true }
+                @{ Name = 'OnBehalfOf'; Mandatory = $true }
+                @{ Name = 'AuthorizationCode'; Mandatory = $true }
             )
         }
         @{
@@ -176,6 +203,7 @@ BeforeDiscovery {
             Type          = 'System.Security.Cryptography.X509Certificates.X509Certificate2'
             ParameterSets = @(
                 @{ Name = 'ClientCertificate'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificate'; Mandatory = $true }
             )
         }
         @{
@@ -183,6 +211,60 @@ BeforeDiscovery {
             Type          = 'string'
             ParameterSets = @(
                 @{ Name = 'ClientCertificatePath'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificatePath'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'AzurePipelines'
+            Type          = 'System.Management.Automation.SwitchParameter'
+            ParameterSets = @(
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'ServiceConnectionId'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'SystemAccessToken'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'OnBehalfOf'
+            Type          = 'System.Management.Automation.SwitchParameter'
+            ParameterSets = @(
+                @{ Name = 'OnBehalfOf'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificate'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificatePath'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'UserAssertion'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'OnBehalfOf'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificate'; Mandatory = $true }
+                @{ Name = 'OnBehalfOfCertificatePath'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'AuthorizationCode'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'AuthorizationCode'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'RedirectUri'
+            Type          = 'System.Uri'
+            ParameterSets = @(
+                @{ Name = 'AuthorizationCode'; Mandatory = $false }
             )
         }
         @{
@@ -197,6 +279,11 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
+                @{ Name = 'AzurePipelines'; Mandatory = $false }
+                @{ Name = 'OnBehalfOf'; Mandatory = $false }
+                @{ Name = 'OnBehalfOfCertificate'; Mandatory = $false }
+                @{ Name = 'OnBehalfOfCertificatePath'; Mandatory = $false }
+                @{ Name = 'AuthorizationCode'; Mandatory = $false }
             )
         }
     )

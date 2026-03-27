@@ -78,6 +78,36 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Clai
  -ClientCertificatePath <String> [-Force] [<CommonParameters>]
 ```
 
+### AzurePipelines
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ [-AzurePipelines] -ServiceConnectionId <String> -SystemAccessToken <String> [-Force] [<CommonParameters>]
+```
+
+### OnBehalfOf
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ [-OnBehalfOf] -UserAssertion <String> -ClientSecret <String> [-Force] [<CommonParameters>]
+```
+
+### OnBehalfOfCertificate
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ [-OnBehalfOf] -UserAssertion <String> -ClientCertificate <X509Certificate2> [-Force] [<CommonParameters>]
+```
+
+### OnBehalfOfCertificatePath
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ [-OnBehalfOf] -UserAssertion <String> -ClientCertificatePath <String> [-Force] [<CommonParameters>]
+```
+
+### AuthorizationCode
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ -ClientSecret <String> -AuthorizationCode <String> [-RedirectUri <Uri>] [-Force] [<CommonParameters>]
+```
+
 ## DESCRIPTION
 
 Gets a new Azure access token.
@@ -86,11 +116,12 @@ The token can be retrieved from an existing named cache, interactively from a br
 
 - Saved interactive credential if the command was used interactively in the same session (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential)
 - Environment variables (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
+- Workload identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.workloadidentitycredential)
 - Azure PowerShell (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
 - Azure CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
-- Visual Studio Code (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
+- Azure Developer CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azuredeveloperclicredential)
 - Visual Studio (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
-- Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential)
+- Managed identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential)
 
 ## EXAMPLES
 
@@ -210,11 +241,11 @@ Accept wildcard characters: False
 
 ### -ClientCertificate
 
-The certificate to be used for getting a token with the client certificate flow.
+The certificate to be used for getting a token with the client certificate flow, or the on-behalf-of flow.
 
 ```yaml
 Type: X509Certificate2
-Parameter Sets: ClientCertificate
+Parameter Sets: ClientCertificate, OnBehalfOfCertificate
 Aliases:
 
 Required: True
@@ -226,11 +257,11 @@ Accept wildcard characters: False
 
 ### -ClientCertificatePath
 
-The path to a file containing both the certificate and private key, used for getting a token with the client certificate flow.
+The path to a file containing both the certificate and private key, used for getting a token with the client certificate flow or the on-behalf-of flow.
 
 ```yaml
 Type: String
-Parameter Sets: ClientCertificatePath
+Parameter Sets: ClientCertificatePath, OnBehalfOfCertificatePath
 Aliases:
 
 Required: True
@@ -258,7 +289,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
+Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines, OnBehalfOf, OnBehalfOfCertificate, OnBehalfOfCertificatePath, AuthorizationCode
 Aliases:
 
 Required: True
@@ -270,11 +301,11 @@ Accept wildcard characters: False
 
 ### -ClientSecret
 
-The client secret to use for getting a token with the client credentials flow.
+The client secret to use for getting a token with the client credentials flow, the on-behalf-of flow, or the authorization code flow.
 
 ```yaml
 Type: String
-Parameter Sets: ClientSecret
+Parameter Sets: ClientSecret, OnBehalfOf, AuthorizationCode
 Aliases:
 
 Required: True
@@ -292,7 +323,7 @@ The order of precedence for the credentials to be used for getting a token non-i
 Type: String[]
 Parameter Sets: NonInteractive
 Aliases:
-Accepted values: ManagedIdentity, Environment, AzurePowerShell, AzureCLI, AzureDeveloperCli, VisualStudio
+Accepted values: ManagedIdentity, WorkloadIdentity, Environment, AzurePowerShell, AzureCLI, AzureDeveloperCli, VisualStudio
 
 Required: False
 Position: Named
@@ -341,7 +372,7 @@ This may be required when combining interactive and non-interactive authenticati
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
+Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines, OnBehalfOf, OnBehalfOfCertificate, OnBehalfOfCertificatePath, AuthorizationCode
 Aliases:
 
 Required: False
@@ -438,7 +469,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
+Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines, OnBehalfOf, OnBehalfOfCertificate, OnBehalfOfCertificatePath, AuthorizationCode
 Aliases: TenantId
 
 Required: True
@@ -534,6 +565,118 @@ Parameter Sets: WorkloadIdentity
 Aliases:
 
 Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AzurePipelines
+
+Get a token using an Azure Pipelines service connection with OIDC (OpenID Connect).
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: AzurePipelines
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ServiceConnectionId
+
+The service connection id configured in Azure Pipelines, used together with -AzurePipelines.
+
+```yaml
+Type: String
+Parameter Sets: AzurePipelines
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SystemAccessToken
+
+The pipeline system access token (`$(System.AccessToken)` or `$env:SYSTEM_ACCESSTOKEN`), used together with -AzurePipelines.
+
+```yaml
+Type: String
+Parameter Sets: AzurePipelines
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OnBehalfOf
+
+Get a token using the OAuth 2.0 on-behalf-of (OBO) flow. The client application receives a token with user permissions and exchanges it for a new token to call a downstream API. The client application must authenticate itself using either -ClientSecret, -ClientCertificate, or -ClientCertificatePath, and the original user token is provided via -UserAssertion.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: OnBehalfOf, OnBehalfOfCertificate, OnBehalfOfCertificatePath
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -UserAssertion
+
+The access token representing the user, used as the assertion in the on-behalf-of flow.
+
+```yaml
+Type: String
+Parameter Sets: OnBehalfOf, OnBehalfOfCertificate, OnBehalfOfCertificatePath
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AuthorizationCode
+
+The OAuth 2.0 authorization code received from the authorization endpoint redirect, used together with -ClientSecret to exchange for an access token.
+
+```yaml
+Type: String
+Parameter Sets: AuthorizationCode
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RedirectUri
+
+The redirect URI used when obtaining the authorization code. If not specified, the default native client redirect URI is used.
+
+```yaml
+Type: Uri
+Parameter Sets: AuthorizationCode
+Aliases:
+
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

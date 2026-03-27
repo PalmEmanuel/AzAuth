@@ -7,6 +7,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 ### Added
 
 - Added `AzureDeveloperCli` to the `CredentialPrecedence` parameter for non-interactive authentication, allowing use of Azure Developer CLI (`azd`) credentials
+- Added `WorkloadIdentity` to the `CredentialPrecedence` parameter for non-interactive authentication, using `WorkloadIdentityCredential` which reads from environment variables set by Kubernetes workload identity
+- Added `-AzurePipelines` parameter set for Azure Pipelines service connection OIDC authentication (`AzurePipelinesCredential`)
+- Added `-OnBehalfOf` parameter set (with `-ClientSecret`, `-ClientCertificate`, and `-ClientCertificatePath` variants) for the OAuth 2.0 on-behalf-of flow (`OnBehalfOfCredential`)
+- Added `-AuthorizationCode` parameter set for the OAuth 2.0 authorization code flow (`AuthorizationCodeCredential`), with optional `-RedirectUri` parameter
 
 ### Removed
 

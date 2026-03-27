@@ -19,6 +19,11 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret", Position = 0)]
     [Parameter(ParameterSetName = "ClientCertificate", Position = 0)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Position = 0)]
+    [Parameter(ParameterSetName = "AzurePipelines", Position = 0)]
+    [Parameter(ParameterSetName = "OnBehalfOf", Position = 0)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificate", Position = 0)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificatePath", Position = 0)]
+    [Parameter(ParameterSetName = "AuthorizationCode", Position = 0)]
     [ValidateNotNullOrEmpty]
     [Alias("ResourceId", "ResourceUrl")]
     public string Resource { get; set; } = "https://graph.microsoft.com";
@@ -33,6 +38,11 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret", Position = 1)]
     [Parameter(ParameterSetName = "ClientCertificate", Position = 1)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Position = 1)]
+    [Parameter(ParameterSetName = "AzurePipelines", Position = 1)]
+    [Parameter(ParameterSetName = "OnBehalfOf", Position = 1)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificate", Position = 1)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificatePath", Position = 1)]
+    [Parameter(ParameterSetName = "AuthorizationCode", Position = 1)]
     [ValidateNotNullOrEmpty]
     public string[] Scope { get; set; } = new[] { ".default" };
 
@@ -46,6 +56,11 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOf", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificate", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificatePath", Mandatory = true)]
+    [Parameter(ParameterSetName = "AuthorizationCode", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     [Alias("TenantId")]
     public string Tenant { get; set; }
@@ -60,6 +75,11 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret")]
     [Parameter(ParameterSetName = "ClientCertificate")]
     [Parameter(ParameterSetName = "ClientCertificatePath")]
+    [Parameter(ParameterSetName = "AzurePipelines")]
+    [Parameter(ParameterSetName = "OnBehalfOf")]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificate")]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificatePath")]
+    [Parameter(ParameterSetName = "AuthorizationCode")]
     [ValidateNotNullOrEmpty]
     public string Claim { get; set; }
 
@@ -73,6 +93,11 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOf", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificate", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificatePath", Mandatory = true)]
+    [Parameter(ParameterSetName = "AuthorizationCode", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public string ClientId { get; set; }
 
@@ -101,10 +126,10 @@ public class GetAzToken : PSLoggerCmdletBase
     public int TimeoutSeconds { get; set; } = 120;
 
     [Parameter(ParameterSetName = "NonInteractive")]
-    [ValidateSet("ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio")]
+    [ValidateSet("ManagedIdentity", "WorkloadIdentity", "Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio")]
     [ValidateNotNullOrEmpty()]
     // TODO: Change back ManagedIdentity to first position in the chain once issue #112 is solved, likely in Azure.Identity 1.14.2 or later
-    public string[] CredentialPrecedence { get; set; } = ["Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio", "ManagedIdentity"];
+    public string[] CredentialPrecedence { get; set; } = ["Environment", "WorkloadIdentity", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio", "ManagedIdentity"];
 
     [Parameter(ParameterSetName = "Interactive", Mandatory = true)]
     public SwitchParameter Interactive { get; set; }
@@ -125,18 +150,52 @@ public class GetAzToken : PSLoggerCmdletBase
     [ValidateNotNullOrEmpty]
     public string ExternalToken { get; set; }
 
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
+    public SwitchParameter AzurePipelines { get; set; }
+
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    public string ServiceConnectionId { get; set; }
+
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    public string SystemAccessToken { get; set; }
+
+    [Parameter(ParameterSetName = "OnBehalfOf", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificate", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificatePath", Mandatory = true)]
+    public SwitchParameter OnBehalfOf { get; set; }
+
+    [Parameter(ParameterSetName = "OnBehalfOf", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificate", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificatePath", Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    public string UserAssertion { get; set; }
+
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOf", Mandatory = true)]
+    [Parameter(ParameterSetName = "AuthorizationCode", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public string ClientSecret { get; set; }
 
     [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificate", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public X509Certificate2 ClientCertificate { get; set; }
 
     [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificatePath", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     [ValidateCertificatePath]
     public string ClientCertificatePath { get; set; }
+
+    [Parameter(ParameterSetName = "AuthorizationCode", Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    public string AuthorizationCode { get; set; }
+
+    [Parameter(ParameterSetName = "AuthorizationCode")]
+    [ValidateNotNullOrEmpty]
+    public Uri RedirectUri { get; set; }
 
     [Parameter(ParameterSetName = "NonInteractive")]
     [Parameter(ParameterSetName = "Interactive")]
@@ -146,6 +205,11 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret")]
     [Parameter(ParameterSetName = "ClientCertificate")]
     [Parameter(ParameterSetName = "ClientCertificatePath")]
+    [Parameter(ParameterSetName = "AzurePipelines")]
+    [Parameter(ParameterSetName = "OnBehalfOf")]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificate")]
+    [Parameter(ParameterSetName = "OnBehalfOfCertificatePath")]
+    [Parameter(ParameterSetName = "AuthorizationCode")]
     public SwitchParameter Force { get; set; }
 
     // If user specifies Force, disregard earlier authentication
@@ -338,6 +402,61 @@ should be
                 return;
             }
         }
+        else if (AzurePipelines.IsPresent)
+        {
+            WriteVerbose($"Getting token using Azure Pipelines service connection OIDC for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepipelinescredential).");
+            try
+            {
+                WriteObject(TokenManager.GetTokenAzurePipelines(Resource, Scope, Claim, ClientId, Tenant, ServiceConnectionId, SystemAccessToken, stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "AzurePipelinesTokenError", ErrorCategory.AuthenticationError, null));
+                return;
+            }
+        }
+        else if (OnBehalfOf.IsPresent)
+        {
+            if (ParameterSetName == "OnBehalfOf")
+            {
+                WriteVerbose($"Getting token using on-behalf-of flow with client secret for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.onbehalfofcredential).");
+                try
+                {
+                    WriteObject(TokenManager.GetTokenOnBehalfOf(Resource, Scope, Claim, ClientId, Tenant, ClientSecret, UserAssertion, stopProcessing.Token));
+                }
+                catch (Exception ex)
+                {
+                    WriteError(new ErrorRecord(ex, "OnBehalfOfTokenError", ErrorCategory.AuthenticationError, null));
+                    return;
+                }
+            }
+            else if (ParameterSetName == "OnBehalfOfCertificate")
+            {
+                WriteVerbose($"Getting token using on-behalf-of flow with client certificate for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.onbehalfofcredential).");
+                try
+                {
+                    WriteObject(TokenManager.GetTokenOnBehalfOfCertificate(Resource, Scope, Claim, ClientId, Tenant, ClientCertificate, UserAssertion, stopProcessing.Token));
+                }
+                catch (Exception ex)
+                {
+                    WriteError(new ErrorRecord(ex, "OnBehalfOfCertificateTokenError", ErrorCategory.AuthenticationError, null));
+                    return;
+                }
+            }
+            else if (ParameterSetName == "OnBehalfOfCertificatePath")
+            {
+                WriteVerbose($"Getting token using on-behalf-of flow with client certificate for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.onbehalfofcredential).");
+                try
+                {
+                    WriteObject(TokenManager.GetTokenOnBehalfOfCertificatePath(Resource, Scope, Claim, ClientId, Tenant, ClientCertificatePath, UserAssertion, stopProcessing.Token));
+                }
+                catch (Exception ex)
+                {
+                    WriteError(new ErrorRecord(ex, "OnBehalfOfCertificatePathTokenError", ErrorCategory.AuthenticationError, null));
+                    return;
+                }
+            }
+        }
         else if (ParameterSetName == "ClientSecret")
         {
             WriteVerbose($"Getting token using client secret for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientsecretcredential).");
@@ -374,6 +493,20 @@ should be
             catch (Exception ex)
             {
                 WriteError(new ErrorRecord(ex, "ClientCertificatePathTokenError", ErrorCategory.AuthenticationError, null));
+                return;
+            }
+        }
+        else if (ParameterSetName == "AuthorizationCode")
+        {
+            WriteVerbose($"Getting token using authorization code flow for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.authorizationcodecredential).");
+            try
+            {
+                Uri? redirectUri = MyInvocation.BoundParameters.ContainsKey("RedirectUri") ? RedirectUri : null;
+                WriteObject(TokenManager.GetTokenAuthorizationCode(Resource, Scope, Claim, ClientId, Tenant, ClientSecret, AuthorizationCode, redirectUri, stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "AuthorizationCodeTokenError", ErrorCategory.AuthenticationError, null));
                 return;
             }
         }
