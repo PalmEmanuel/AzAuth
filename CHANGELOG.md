@@ -4,6 +4,14 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Added
+
+- Added `AzureDeveloperCli` to the `CredentialPrecedence` parameter for non-interactive authentication, allowing use of Azure Developer CLI (`azd`) credentials
+
+### Removed
+
+- Removed deprecated `SharedTokenCache` from the `CredentialPrecedence` parameter and default credential chain, as `SharedTokenCacheCredential` is deprecated in Azure.Identity
+
 ## [2.8.0] - 2026-03-05
 
 - Improve error handling by replacing exceptions with WriteError

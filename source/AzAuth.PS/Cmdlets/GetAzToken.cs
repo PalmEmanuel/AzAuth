@@ -101,10 +101,10 @@ public class GetAzToken : PSLoggerCmdletBase
     public int TimeoutSeconds { get; set; } = 120;
 
     [Parameter(ParameterSetName = "NonInteractive")]
-    [ValidateSet("ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "VisualStudio", "SharedTokenCache")]
+    [ValidateSet("ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio")]
     [ValidateNotNullOrEmpty()]
     // TODO: Change back ManagedIdentity to first position in the chain once issue #112 is solved, likely in Azure.Identity 1.14.2 or later
-    public string[] CredentialPrecedence { get; set; } = ["Environment", "AzurePowerShell", "AzureCLI", "VisualStudio", "SharedTokenCache", "ManagedIdentity"];
+    public string[] CredentialPrecedence { get; set; } = ["Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio", "ManagedIdentity"];
 
     [Parameter(ParameterSetName = "Interactive", Mandatory = true)]
     public SwitchParameter Interactive { get; set; }
