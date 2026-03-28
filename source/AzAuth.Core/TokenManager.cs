@@ -18,7 +18,6 @@ internal static partial class TokenManager
         return credentialType switch
         {
             "ManagedIdentity" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential",
-            "WorkloadIdentity" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.workloadidentitycredential",
             "Environment" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential",
             "AzurePowerShell" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential",
             "AzureCLI" => "https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential",

@@ -15,7 +15,6 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "Broker", Position = 0)]
     [Parameter(ParameterSetName = "DeviceCode", Position = 0)]
     [Parameter(ParameterSetName = "ManagedIdentity", Position = 0)]
-    [Parameter(ParameterSetName = "WorkloadIdentity", Position = 0)]
     [Parameter(ParameterSetName = "ClientSecret", Position = 0)]
     [Parameter(ParameterSetName = "ClientCertificate", Position = 0)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Position = 0)]
@@ -30,7 +29,6 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "Broker", Position = 1)]
     [Parameter(ParameterSetName = "DeviceCode", Position = 1)]
     [Parameter(ParameterSetName = "ManagedIdentity", Position = 1)]
-    [Parameter(ParameterSetName = "WorkloadIdentity", Position = 1)]
     [Parameter(ParameterSetName = "ClientSecret", Position = 1)]
     [Parameter(ParameterSetName = "ClientCertificate", Position = 1)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Position = 1)]
@@ -44,7 +42,6 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "Broker")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
-    [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
@@ -59,7 +56,6 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "Broker")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
-    [Parameter(ParameterSetName = "WorkloadIdentity")]
     [Parameter(ParameterSetName = "ClientSecret")]
     [Parameter(ParameterSetName = "ClientCertificate")]
     [Parameter(ParameterSetName = "ClientCertificatePath")]
@@ -73,7 +69,6 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
     [Parameter(ParameterSetName = "Cache")]
-    [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
@@ -106,10 +101,10 @@ public class GetAzToken : PSLoggerCmdletBase
     public int TimeoutSeconds { get; set; } = 120;
 
     [Parameter(ParameterSetName = "NonInteractive")]
-    [ValidateSet("ManagedIdentity", "WorkloadIdentity", "Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio")]
+    [ValidateSet("ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio")]
     [ValidateNotNullOrEmpty()]
     // TODO: Change back ManagedIdentity to first position in the chain once issue #112 is solved, likely in Azure.Identity 1.14.2 or later
-    public string[] CredentialPrecedence { get; set; } = ["Environment", "WorkloadIdentity", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio", "ManagedIdentity"];
+    public string[] CredentialPrecedence { get; set; } = ["Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio", "ManagedIdentity"];
 
     [Parameter(ParameterSetName = "Interactive", Mandatory = true)]
     public SwitchParameter Interactive { get; set; }
@@ -122,13 +117,6 @@ public class GetAzToken : PSLoggerCmdletBase
 
     [Parameter(ParameterSetName = "ManagedIdentity", Mandatory = true)]
     public SwitchParameter ManagedIdentity { get; set; }
-
-    [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
-    public SwitchParameter WorkloadIdentity { get; set; }
-
-    [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
-    [ValidateNotNullOrEmpty]
-    public string ExternalToken { get; set; }
 
     [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
     public SwitchParameter AzurePipelines { get; set; }
@@ -158,7 +146,6 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "Interactive")]
     [Parameter(ParameterSetName = "DeviceCode")]
     [Parameter(ParameterSetName = "ManagedIdentity")]
-    [Parameter(ParameterSetName = "WorkloadIdentity")]
     [Parameter(ParameterSetName = "ClientSecret")]
     [Parameter(ParameterSetName = "ClientCertificate")]
     [Parameter(ParameterSetName = "ClientCertificatePath")]
@@ -339,19 +326,6 @@ should be
             catch (Exception ex)
             {
                 WriteError(new ErrorRecord(ex, "ManagedIdentityTokenError", ErrorCategory.AuthenticationError, null));
-                return;
-            }
-        }
-        else if (WorkloadIdentity.IsPresent)
-        {
-            WriteVerbose($"Getting token using workload identity federation (using client assertion) for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.clientassertioncredential).");
-            try
-            {
-                WriteObject(TokenManager.GetTokenWorkloadIdentity(Resource, Scope, Claim, ClientId, Tenant, ExternalToken, stopProcessing.Token));
-            }
-            catch (Exception ex)
-            {
-                WriteError(new ErrorRecord(ex, "WorkloadIdentityTokenError", ErrorCategory.AuthenticationError, null));
                 return;
             }
         }

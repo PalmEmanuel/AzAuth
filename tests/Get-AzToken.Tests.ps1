@@ -10,7 +10,6 @@ BeforeDiscovery {
                 @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
-                @{ Name = 'WorkloadIdentity'; Mandatory = $false }
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
@@ -27,7 +26,6 @@ BeforeDiscovery {
                 @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
-                @{ Name = 'WorkloadIdentity'; Mandatory = $false }
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
@@ -44,7 +42,6 @@ BeforeDiscovery {
                 @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
-                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
                 @{ Name = 'ClientSecret'; Mandatory = $true }
                 @{ Name = 'ClientCertificate'; Mandatory = $true }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $true }
@@ -61,7 +58,6 @@ BeforeDiscovery {
                 @{ Name = 'Broker'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
-                @{ Name = 'WorkloadIdentity'; Mandatory = $false }
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
@@ -78,7 +74,6 @@ BeforeDiscovery {
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
                 @{ Name = 'Cache'; Mandatory = $false }
-                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
                 @{ Name = 'ClientSecret'; Mandatory = $true }
                 @{ Name = 'ClientCertificate'; Mandatory = $true }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $true }
@@ -156,20 +151,6 @@ BeforeDiscovery {
             )
         }
         @{
-            Name          = 'WorkloadIdentity'
-            Type          = 'System.Management.Automation.SwitchParameter'
-            ParameterSets = @(
-                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
-            )
-        }
-        @{
-            Name          = 'ExternalToken'
-            Type          = 'string'
-            ParameterSets = @(
-                @{ Name = 'WorkloadIdentity'; Mandatory = $true }
-            )
-        }
-        @{
             Name          = 'ClientSecret'
             Type          = 'string'
             ParameterSets = @(
@@ -219,7 +200,6 @@ BeforeDiscovery {
                 @{ Name = 'Interactive'; Mandatory = $false }
                 @{ Name = 'DeviceCode'; Mandatory = $false }
                 @{ Name = 'ManagedIdentity'; Mandatory = $false }
-                @{ Name = 'WorkloadIdentity'; Mandatory = $false }
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }

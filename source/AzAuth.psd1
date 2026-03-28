@@ -104,8 +104,6 @@ PrivateData = @{
             'serviceprincipal',
             'spn',
             'managedidentity',
-            'workload',
-            'workloadidentity',
             'federation',
             'credential'
             'OIDC'
