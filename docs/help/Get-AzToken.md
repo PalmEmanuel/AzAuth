@@ -92,7 +92,6 @@ The token can be retrieved from an existing named cache, interactively from a br
 
 - Saved interactive credential if the command was used interactively in the same session (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.interactivebrowsercredential)
 - Environment variables (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
-- Workload identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.workloadidentitycredential)
 - Azure PowerShell (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
 - Azure CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
 - Azure Developer CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azuredeveloperclicredential)
@@ -299,7 +298,7 @@ The order of precedence for the credentials to be used for getting a token non-i
 Type: String[]
 Parameter Sets: NonInteractive
 Aliases:
-Accepted values: ManagedIdentity, WorkloadIdentity, Environment, AzurePowerShell, AzureCLI, AzureDeveloperCli, VisualStudio
+Accepted values: ManagedIdentity, Environment, AzurePowerShell, AzureCLI, AzureDeveloperCli, VisualStudio
 
 Required: False
 Position: Named
