@@ -58,8 +58,8 @@ internal static partial class TokenManager
                 "Environment" => new EnvironmentCredential(genericTimeoutOptions),
                 "AzurePowerShell" => new AzurePowerShellCredential(genericTimeoutOptions as AzurePowerShellCredentialOptions),
                 "AzureCLI" => new AzureCliCredential(genericTimeoutOptions as AzureCliCredentialOptions),
+                "AzureDeveloperCli" => new AzureDeveloperCliCredential(genericTimeoutOptions as AzureDeveloperCliCredentialOptions),
                 "VisualStudio" => new VisualStudioCredential(genericTimeoutOptions as VisualStudioCredentialOptions),
-                "SharedTokenCache" => new SharedTokenCacheCredential(genericTimeoutOptions as SharedTokenCacheCredentialOptions),
                 _ => throw new ArgumentException("Invalid credential type", nameof(credentialType))
             });
         }

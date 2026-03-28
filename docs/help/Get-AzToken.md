@@ -78,6 +78,12 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Clai
  -ClientCertificatePath <String> [-Force] [<CommonParameters>]
 ```
 
+### AzurePipelines
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ [-AzurePipelines] -ServiceConnectionId <String> -SystemAccessToken <String> [-Force] [<CommonParameters>]
+```
+
 ## DESCRIPTION
 
 Gets a new Azure access token.
@@ -88,9 +94,9 @@ The token can be retrieved from an existing named cache, interactively from a br
 - Environment variables (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential)
 - Azure PowerShell (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepowershellcredential)
 - Azure CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential)
-- Visual Studio Code (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocodecredential)
+- Azure Developer CLI (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azuredeveloperclicredential)
 - Visual Studio (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.visualstudiocredential)
-- Shared token cache (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.sharedtokencachecredential)
+- Managed identity (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.managedidentitycredential)
 
 ## EXAMPLES
 
@@ -258,7 +264,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
+Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines
 Aliases:
 
 Required: True
@@ -292,7 +298,7 @@ The order of precedence for the credentials to be used for getting a token non-i
 Type: String[]
 Parameter Sets: NonInteractive
 Aliases:
-Accepted values: ManagedIdentity, Environment, AzurePowerShell, AzureCLI, VisualStudio, SharedTokenCache
+Accepted values: ManagedIdentity, Environment, AzurePowerShell, AzureCLI, AzureDeveloperCli, VisualStudio
 
 Required: False
 Position: Named
@@ -341,7 +347,7 @@ This may be required when combining interactive and non-interactive authenticati
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
+Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines
 Aliases:
 
 Required: False
@@ -438,7 +444,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath
+Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines
 Aliases: TenantId
 
 Required: True
@@ -531,6 +537,54 @@ Get a token using a federated credential, or "workload identity federation". For
 ```yaml
 Type: SwitchParameter
 Parameter Sets: WorkloadIdentity
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AzurePipelines
+
+Get a token using an Azure Pipelines service connection with OIDC (OpenID Connect).
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: AzurePipelines
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ServiceConnectionId
+
+The service connection id configured in Azure Pipelines, used together with -AzurePipelines.
+
+```yaml
+Type: String
+Parameter Sets: AzurePipelines
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SystemAccessToken
+
+The pipeline system access token (`$(System.AccessToken)` or `$env:SYSTEM_ACCESSTOKEN`), used together with -AzurePipelines.
+
+```yaml
+Type: String
+Parameter Sets: AzurePipelines
 Aliases:
 
 Required: True

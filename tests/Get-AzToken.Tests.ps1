@@ -14,6 +14,7 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
+                @{ Name = 'AzurePipelines'; Mandatory = $false }
             )
         }
         @{
@@ -30,6 +31,7 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
+                @{ Name = 'AzurePipelines'; Mandatory = $false }
             )
         }
         @{
@@ -46,6 +48,7 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $true }
                 @{ Name = 'ClientCertificate'; Mandatory = $true }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $true }
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
             )
         }
         @{
@@ -62,6 +65,7 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
+                @{ Name = 'AzurePipelines'; Mandatory = $false }
             )
         }
         @{
@@ -78,6 +82,7 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $true }
                 @{ Name = 'ClientCertificate'; Mandatory = $true }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $true }
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
             )
         }
         @{
@@ -186,6 +191,27 @@ BeforeDiscovery {
             )
         }
         @{
+            Name          = 'AzurePipelines'
+            Type          = 'System.Management.Automation.SwitchParameter'
+            ParameterSets = @(
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'ServiceConnectionId'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
+            )
+        }
+        @{
+            Name          = 'SystemAccessToken'
+            Type          = 'string'
+            ParameterSets = @(
+                @{ Name = 'AzurePipelines'; Mandatory = $true }
+            )
+        }
+        @{
             Name          = 'Force'
             Type          = 'System.Management.Automation.SwitchParameter'
             ParameterSets = @(
@@ -197,6 +223,7 @@ BeforeDiscovery {
                 @{ Name = 'ClientSecret'; Mandatory = $false }
                 @{ Name = 'ClientCertificate'; Mandatory = $false }
                 @{ Name = 'ClientCertificatePath'; Mandatory = $false }
+                @{ Name = 'AzurePipelines'; Mandatory = $false }
             )
         }
     )

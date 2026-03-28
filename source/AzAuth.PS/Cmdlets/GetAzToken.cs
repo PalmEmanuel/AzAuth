@@ -19,6 +19,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret", Position = 0)]
     [Parameter(ParameterSetName = "ClientCertificate", Position = 0)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Position = 0)]
+    [Parameter(ParameterSetName = "AzurePipelines", Position = 0)]
     [ValidateNotNullOrEmpty]
     [Alias("ResourceId", "ResourceUrl")]
     public string Resource { get; set; } = "https://graph.microsoft.com";
@@ -33,6 +34,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret", Position = 1)]
     [Parameter(ParameterSetName = "ClientCertificate", Position = 1)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Position = 1)]
+    [Parameter(ParameterSetName = "AzurePipelines", Position = 1)]
     [ValidateNotNullOrEmpty]
     public string[] Scope { get; set; } = new[] { ".default" };
 
@@ -46,6 +48,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     [Alias("TenantId")]
     public string Tenant { get; set; }
@@ -60,6 +63,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret")]
     [Parameter(ParameterSetName = "ClientCertificate")]
     [Parameter(ParameterSetName = "ClientCertificatePath")]
+    [Parameter(ParameterSetName = "AzurePipelines")]
     [ValidateNotNullOrEmpty]
     public string Claim { get; set; }
 
@@ -73,6 +77,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificate", Mandatory = true)]
     [Parameter(ParameterSetName = "ClientCertificatePath", Mandatory = true)]
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public string ClientId { get; set; }
 
@@ -101,10 +106,10 @@ public class GetAzToken : PSLoggerCmdletBase
     public int TimeoutSeconds { get; set; } = 120;
 
     [Parameter(ParameterSetName = "NonInteractive")]
-    [ValidateSet("ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "VisualStudio", "SharedTokenCache")]
+    [ValidateSet("ManagedIdentity", "Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio")]
     [ValidateNotNullOrEmpty()]
     // TODO: Change back ManagedIdentity to first position in the chain once issue #112 is solved, likely in Azure.Identity 1.14.2 or later
-    public string[] CredentialPrecedence { get; set; } = ["Environment", "AzurePowerShell", "AzureCLI", "VisualStudio", "SharedTokenCache", "ManagedIdentity"];
+    public string[] CredentialPrecedence { get; set; } = ["Environment", "AzurePowerShell", "AzureCLI", "AzureDeveloperCli", "VisualStudio", "ManagedIdentity"];
 
     [Parameter(ParameterSetName = "Interactive", Mandatory = true)]
     public SwitchParameter Interactive { get; set; }
@@ -124,6 +129,17 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "WorkloadIdentity", Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public string ExternalToken { get; set; }
+
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
+    public SwitchParameter AzurePipelines { get; set; }
+
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    public string ServiceConnectionId { get; set; }
+
+    [Parameter(ParameterSetName = "AzurePipelines", Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    public string SystemAccessToken { get; set; }
 
     [Parameter(ParameterSetName = "ClientSecret", Mandatory = true)]
     [ValidateNotNullOrEmpty]
@@ -146,6 +162,7 @@ public class GetAzToken : PSLoggerCmdletBase
     [Parameter(ParameterSetName = "ClientSecret")]
     [Parameter(ParameterSetName = "ClientCertificate")]
     [Parameter(ParameterSetName = "ClientCertificatePath")]
+    [Parameter(ParameterSetName = "AzurePipelines")]
     public SwitchParameter Force { get; set; }
 
     // If user specifies Force, disregard earlier authentication
@@ -335,6 +352,19 @@ should be
             catch (Exception ex)
             {
                 WriteError(new ErrorRecord(ex, "WorkloadIdentityTokenError", ErrorCategory.AuthenticationError, null));
+                return;
+            }
+        }
+        else if (AzurePipelines.IsPresent)
+        {
+            WriteVerbose($"Getting token using Azure Pipelines service connection OIDC for client '{ClientId}' (https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azurepipelinescredential).");
+            try
+            {
+                WriteObject(TokenManager.GetTokenAzurePipelines(Resource, Scope, Claim, ClientId, Tenant, ServiceConnectionId, SystemAccessToken, stopProcessing.Token));
+            }
+            catch (Exception ex)
+            {
+                WriteError(new ErrorRecord(ex, "AzurePipelinesTokenError", ErrorCategory.AuthenticationError, null));
                 return;
             }
         }
