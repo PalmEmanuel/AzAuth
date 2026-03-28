@@ -54,6 +54,12 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] [-Tenant <String>] [-Cl
  [<CommonParameters>]
 ```
 
+### WorkloadIdentity
+```
+Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
+ [-WorkloadIdentity] -ExternalToken <String> [-Force] [<CommonParameters>]
+```
+
 ### ClientSecret
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
@@ -166,6 +172,14 @@ PS C:\> Get-AzToken -ClientCertificatePath ".\certAndPrivateKey.pem" -ClientId $
 
 Gets an Azure access token for a client using the client certificate flow by specifying a path to a file containing both the certificate and the private key.
 
+### Example 10
+
+```powershell
+PS C:\> Get-AzToken -WorkloadIdentity -ExternalToken $OidcToken -ClientId $ClientId -TenantId $TenantId
+```
+
+Gets an Azure access token for a client using the workload identity federation pattern by specifying a valid id token. For more details, see blog post in related links of this command.
+
 ## PARAMETERS
 
 ### -Broker
@@ -250,7 +264,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines
+Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines
 Aliases:
 
 Required: True
@@ -309,6 +323,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ExternalToken
+
+The external token used for the federated credential of the workload identity, used together with parameter -WorkloadIdentity for the client assertion flow. For more details, see blog post in related links of this command.
+
+```yaml
+Type: String
+Parameter Sets: WorkloadIdentity
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Force
 
 Disregard any previous authentication made in this session.
@@ -317,7 +347,7 @@ This may be required when combining interactive and non-interactive authenticati
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines
+Parameter Sets: NonInteractive, Interactive, DeviceCode, ManagedIdentity, WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines
 Aliases:
 
 Required: False
@@ -414,7 +444,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
-Parameter Sets: ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines
+Parameter Sets: WorkloadIdentity, ClientSecret, ClientCertificate, ClientCertificatePath, AzurePipelines
 Aliases: TenantId
 
 Required: True
@@ -500,6 +530,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -WorkloadIdentity
+
+Get a token using a federated credential, or "workload identity federation". For an example of how to use this in a pipeline, see related links of this command.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: WorkloadIdentity
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -AzurePipelines
 
 Get a token using an Azure Pipelines service connection with OIDC (OpenID Connect).
@@ -564,3 +610,5 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## RELATED LINKS
 
 [Blog Post "OAuth 2.0 Fundamentals for Azure APIs"](https://pipe.how/connect-azure/)
+
+[Blog Post "Azure Workload Identity Federation"](https://pipe.how/get-oidctoken/)
