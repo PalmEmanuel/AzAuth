@@ -4,6 +4,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+## [2.9.0] - 2026-03-30
+
 ### Added
 
 - Added `AzureDeveloperCli` to the `CredentialPrecedence` parameter for non-interactive authentication, allowing use of Azure Developer CLI (`azd`) credentials
@@ -22,10 +24,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 ### Changed
 
 - Parameter -Username no longer mandatory for caches with a single account. Get-AzToken will find and try to get a token from the cache if there is only one account in it, which will often allow for a simplified syntax.
-    - Get-AzToken -TokenCache 'mycache'
+  - Get-AzToken -TokenCache 'mycache'
 - Parameter -TokenCache is now position 0 in cache commands to allow usage without specifying it
-    - Get-AzTokenCache 'mycache'
-    - Clear-AzTokenCache 'mycache'
+  - Get-AzTokenCache 'mycache'
+  - Clear-AzTokenCache 'mycache'
 - Improved error handling around caches with better messages and -ErrorAction support
 - Bumped System.Security.Cryptography.ProtectedData from 10.0.2 to 10.0.3
 - Bumped System.IdentityModel.Tokens.Jwt from 8.15.0 to 8.16.0
@@ -151,7 +153,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 - Improved build and test workflow to run on multiple platforms
 - Updated LICENSE year
 
-[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.1...HEAD
+[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.9.0...HEAD
+[2.9.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.1...v2.9.0
 [2.7.1]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.2...v2.7.0
 [2.6.2]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.1...v2.6.2
