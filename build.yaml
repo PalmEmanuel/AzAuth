@@ -3,7 +3,8 @@
 #          ModuleBuilder Configuration             #
 ####################################################
 # Path to the Module Manifest to build (where path will be resolved from)
-SourcePath: ../source/AzAuth.psd1
+SourcePath: source
+BuiltModuleSubdirectory: module
 # Output Directory where ModuleBuilder will build the Module, relative to module manifest
 OutputDirectory: ../../output/AzAuth
 # BuiltModuleSubdirectory: module
