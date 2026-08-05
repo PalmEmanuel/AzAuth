@@ -139,7 +139,7 @@ jobs:
           $OidcTokenResponse = Invoke-RestMethod @Params
           $OidcToken = $OidcTokenResponse.value
 
-          Import-Module ./output/AzAuth
+          Import-Module ./output/module/AzAuth
           Get-AzToken -WorkloadIdentity -ExternalToken $OidcToken -TenantId $env:TENANT_ID -ClientId $env:CLIENT_ID -ErrorAction Stop | Out-Null
 
           Write-Host "Successfully retrieved token for Workload Identity."

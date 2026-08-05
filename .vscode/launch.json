@@ -14,7 +14,7 @@
                 "-NoExit",
                 "-NoProfile",
                 "-Command",
-                "Import-Module ${workspaceFolder}/output/AzAuth -Verbose",
+                "Import-Module ${workspaceFolder}/output/module/AzAuth -Verbose",
             ],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
