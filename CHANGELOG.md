@@ -4,6 +4,17 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Changed
+
+- Bumped Azure.Identity from 1.19.0 to 1.21.0
+- Bumped Azure.Identity.Broker from 1.4.0 to 1.7.0
+- Bumped Microsoft.VisualStudio.Threading from 17.14.15 to 18.7.23
+- Bumped System.IdentityModel.Tokens.Jwt from 8.17.0 to 8.22.0
+- Bumped System.Security.Cryptography.ProtectedData from 10.0.5 to 10.0.10
+- Bumped Microsoft.Identity.Client.NativeInterop from 0.20.4 to 0.20.6
+- Updated build config for Sampler
+- Adjusted test for Pester v6 compatibility
+
 ## [2.9.0] - 2026-03-30
 
 ### Added
