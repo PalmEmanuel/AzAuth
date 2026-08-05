@@ -84,19 +84,8 @@ function Get-TestCaseByType {
     #     }
     # }
     if ('NonInteractiveTests' -in $CaseType) {
-        # Create or resolve the PEM file path
-        $PemPath = try {
-            (New-Item -Name 'azauth.pem' -Value @"
-$env:CLIENT_CERTIFICATE
-$env:CLIENT_CERTIFICATE_PRIVATE_KEY
-"@).FullName
-        }
-        catch {
-            (Resolve-Path 'azauth.pem').Path
-        }
-
         $TestCases += [ordered]@{
-            'Client Secret'      = @{
+            'Client Secret' = @{
                 Tenant        = $env:TENANT_ID
                 ClientId      = $env:CLIENT_ID
                 ClientSecret  = $env:CLIENT_SECRET
@@ -104,21 +93,41 @@ $env:CLIENT_CERTIFICATE_PRIVATE_KEY
                 Scope         = @('.default')
                 ExpectedScope = 'https://management.azure.com/.default'
             }
-            'Certificate Object' = @{
-                Tenant            = $env:TENANT_ID
-                ClientId          = $env:CLIENT_ID
-                ClientCertificate = New-ClientCertificateFromPem -Certificate $env:CLIENT_CERTIFICATE -PrivateKey $env:CLIENT_CERTIFICATE_PRIVATE_KEY
-                Resource          = 'https://graph.microsoft.com'
-                Scope             = @('.default')
-                ExpectedScope     = 'https://graph.microsoft.com/.default'
+        }
+
+        $HasCertificateMaterial =
+            -not [string]::IsNullOrWhiteSpace($env:CLIENT_CERTIFICATE) -and
+            -not [string]::IsNullOrWhiteSpace($env:CLIENT_CERTIFICATE_PRIVATE_KEY)
+
+        if ($HasCertificateMaterial) {
+            # Create or resolve the PEM file path.
+            $PemPath = try {
+                (New-Item -Name 'azauth.pem' -Value @"
+$env:CLIENT_CERTIFICATE
+$env:CLIENT_CERTIFICATE_PRIVATE_KEY
+"@).FullName
             }
-            'Certificate Path'   = @{
-                Tenant                = $env:TENANT_ID
-                ClientId              = $env:CLIENT_ID
-                ClientCertificatePath = $PemPath
-                Resource              = 'https://storage.azure.com'
-                Scope                 = @('.default')
-                ExpectedScope         = 'https://storage.azure.com/.default'
+            catch {
+                (Resolve-Path 'azauth.pem').Path
+            }
+
+            $TestCases += [ordered]@{
+                'Certificate Object' = @{
+                    Tenant            = $env:TENANT_ID
+                    ClientId          = $env:CLIENT_ID
+                    ClientCertificate = New-ClientCertificateFromPem -Certificate $env:CLIENT_CERTIFICATE -PrivateKey $env:CLIENT_CERTIFICATE_PRIVATE_KEY
+                    Resource          = 'https://graph.microsoft.com'
+                    Scope             = @('.default')
+                    ExpectedScope     = 'https://graph.microsoft.com/.default'
+                }
+                'Certificate Path' = @{
+                    Tenant                = $env:TENANT_ID
+                    ClientId              = $env:CLIENT_ID
+                    ClientCertificatePath = $PemPath
+                    Resource              = 'https://storage.azure.com'
+                    Scope                 = @('.default')
+                    ExpectedScope         = 'https://storage.azure.com/.default'
+                }
             }
         }
     }
