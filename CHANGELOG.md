@@ -4,6 +4,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+## [2.10.0] - 2026-08-05
+
 ### Changed
 
 - Bumped Azure.Identity from 1.19.0 to 1.21.0
@@ -164,7 +166,8 @@ The format is based on and uses the types of changes according to [Keep a Change
 - Improved build and test workflow to run on multiple platforms
 - Updated LICENSE year
 
-[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.9.0...HEAD
+[unreleased]: https://github.com/PalmEmanuel/AzAuth/compare/v2.10.0...HEAD
+[2.10.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.9.0...v2.10.0
 [2.9.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.1...v2.9.0
 [2.7.1]: https://github.com/PalmEmanuel/AzAuth/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/PalmEmanuel/AzAuth/compare/v2.6.2...v2.7.0
