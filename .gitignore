@@ -363,3 +363,4 @@ test.ps1
 *.crt
 *.key
 *.pem
+*.cer
