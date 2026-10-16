@@ -4,6 +4,15 @@ The format is based on and uses the types of changes according to [Keep a Change
 
 ## [Unreleased]
 
+### Fixed
+
+- Non-interactive authentication now properly uses previous interactive authentication as first option
+
+### Changed
+
+- Bumped System.Security.Cryptography.ProtectedData from 10.0.10 to 10.0.13
+- Bumped Microsoft.VisualStudio.Threading from 18.7.23 to 18.12.1
+
 ## [2.10.0] - 2026-08-05
 
 ### Changed
@@ -16,10 +25,6 @@ The format is based on and uses the types of changes according to [Keep a Change
 - Bumped Microsoft.Identity.Client.NativeInterop from 0.20.4 to 0.20.6
 - Updated build config for Sampler
 - Adjusted test for Pester v6 compatibility
-
-### Fixed
-
-- Non-interactive authentication now properly uses previous interactive authentication as first option
 
 ## [2.9.0] - 2026-03-30
 
