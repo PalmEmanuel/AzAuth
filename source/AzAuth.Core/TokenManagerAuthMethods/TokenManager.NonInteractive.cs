@@ -68,7 +68,7 @@ internal static partial class TokenManager
         bool sameCredentialPrecedence = previousCredentialPrecedence is not null && credentialPrecedence.SequenceEqual(previousCredentialPrecedence);
 
         // If user authenticated interactively in the same session and tenant didn't change, add it as the first option to find tokens from
-        if (credential is InteractiveBrowserCredential && sameTenant && sameCredentialPrecedence)
+        if (credential is InteractiveBrowserCredential && sameTenant)
         {
             sources.Insert(0, credential);
         }
