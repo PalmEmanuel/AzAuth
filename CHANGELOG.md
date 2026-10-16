@@ -17,6 +17,10 @@ The format is based on and uses the types of changes according to [Keep a Change
 - Updated build config for Sampler
 - Adjusted test for Pester v6 compatibility
 
+### Fixed
+
+- Non-interactive authentication now properly uses previous interactive authentication as first option
+
 ## [2.9.0] - 2026-03-30
 
 ### Added
