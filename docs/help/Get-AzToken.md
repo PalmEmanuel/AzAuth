@@ -81,7 +81,8 @@ Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Clai
 ### AzurePipelines
 ```
 Get-AzToken [[-Resource] <String>] [[-Scope] <String[]>] -Tenant <String> [-Claim <String>] -ClientId <String>
- [-AzurePipelines] -ServiceConnectionId <String> -SystemAccessToken <String> [-Force] [<CommonParameters>]
+ [-AzurePipelines] -ServiceConnectionId <String> -SystemAccessToken <String> [-Force]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -181,6 +182,22 @@ PS C:\> Get-AzToken -WorkloadIdentity -ExternalToken $OidcToken -ClientId $Clien
 Gets an Azure access token for a client using the workload identity federation pattern by specifying a valid id token. For more details, see blog post in related links of this command.
 
 ## PARAMETERS
+
+### -AzurePipelines
+
+Get a token using an Azure Pipelines service connection with OIDC (OpenID Connect).
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: AzurePipelines
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Broker
 
@@ -427,6 +444,38 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ServiceConnectionId
+
+The service connection id configured in Azure Pipelines, used together with -AzurePipelines.
+
+```yaml
+Type: String
+Parameter Sets: AzurePipelines
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SystemAccessToken
+
+The pipeline system access token (`$(System.AccessToken)` or `$env:SYSTEM_ACCESSTOKEN`), used together with -AzurePipelines.
+
+```yaml
+Type: String
+Parameter Sets: AzurePipelines
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Tenant
 The id or name of the tenant that the token should be valid for.
 
@@ -537,54 +586,6 @@ Get a token using a federated credential, or "workload identity federation". For
 ```yaml
 Type: SwitchParameter
 Parameter Sets: WorkloadIdentity
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AzurePipelines
-
-Get a token using an Azure Pipelines service connection with OIDC (OpenID Connect).
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: AzurePipelines
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ServiceConnectionId
-
-The service connection id configured in Azure Pipelines, used together with -AzurePipelines.
-
-```yaml
-Type: String
-Parameter Sets: AzurePipelines
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SystemAccessToken
-
-The pipeline system access token (`$(System.AccessToken)` or `$env:SYSTEM_ACCESSTOKEN`), used together with -AzurePipelines.
-
-```yaml
-Type: String
-Parameter Sets: AzurePipelines
 Aliases:
 
 Required: True
